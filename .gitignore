@@ -1,0 +1,13 @@
+# Godot
+.godot/
+*.translation
+
+# MCPs
+.mcp/
+.playwright-mcp/
+
+# Builds
+build/
+
+# Imagens de terceiros, usadas só como referência
+docs/referencias/

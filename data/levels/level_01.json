@@ -1,0 +1,203 @@
+{
+  "id": "level_01",
+  "start_gold": 150,
+  "lives": 20,
+  "classes": [
+    "archer",
+    "warrior"
+  ],
+  "wave_interval": 42,
+  "early_call_gold_per_second": 0.5,
+  "stars": [
+    0.5,
+    0.9
+  ],
+  "waves": [
+    {
+      "bonus": 15,
+      "groups": [
+        {
+          "monster": "goblin",
+          "count": 5,
+          "interval": 1.4,
+          "delay": 0
+        }
+      ]
+    },
+    {
+      "bonus": 15,
+      "groups": [
+        {
+          "monster": "goblin",
+          "count": 7,
+          "interval": 1.2,
+          "delay": 0
+        }
+      ]
+    },
+    {
+      "bonus": 20,
+      "groups": [
+        {
+          "monster": "goblin",
+          "count": 6,
+          "interval": 1.2,
+          "delay": 0
+        },
+        {
+          "monster": "goblin_fast",
+          "count": 2,
+          "interval": 1.5,
+          "delay": 5
+        }
+      ]
+    },
+    {
+      "bonus": 20,
+      "groups": [
+        {
+          "monster": "goblin",
+          "count": 10,
+          "interval": 1.0,
+          "delay": 0
+        }
+      ]
+    },
+    {
+      "bonus": 25,
+      "groups": [
+        {
+          "monster": "goblin",
+          "count": 8,
+          "interval": 1.0,
+          "delay": 0
+        },
+        {
+          "monster": "goblin_shield",
+          "count": 1,
+          "interval": 1,
+          "delay": 6
+        }
+      ]
+    },
+    {
+      "bonus": 25,
+      "groups": [
+        {
+          "monster": "goblin_fast",
+          "count": 8,
+          "interval": 0.9,
+          "delay": 0
+        }
+      ]
+    },
+    {
+      "bonus": 30,
+      "groups": [
+        {
+          "monster": "goblin",
+          "count": 12,
+          "interval": 0.9,
+          "delay": 0
+        },
+        {
+          "monster": "goblin_shield",
+          "count": 2,
+          "interval": 3,
+          "delay": 4
+        }
+      ]
+    },
+    {
+      "bonus": 30,
+      "groups": [
+        {
+          "monster": "goblin_fast",
+          "count": 8,
+          "interval": 0.9,
+          "delay": 0
+        },
+        {
+          "monster": "goblin",
+          "count": 8,
+          "interval": 0.9,
+          "delay": 3
+        }
+      ]
+    },
+    {
+      "bonus": 35,
+      "groups": [
+        {
+          "monster": "goblin",
+          "count": 10,
+          "interval": 0.8,
+          "delay": 0
+        },
+        {
+          "monster": "goblin_shield",
+          "count": 4,
+          "interval": 2,
+          "delay": 2
+        }
+      ]
+    },
+    {
+      "bonus": 35,
+      "groups": [
+        {
+          "monster": "goblin",
+          "count": 16,
+          "interval": 0.8,
+          "delay": 0
+        },
+        {
+          "monster": "goblin_fast",
+          "count": 6,
+          "interval": 1.0,
+          "delay": 6
+        }
+      ]
+    },
+    {
+      "bonus": 40,
+      "groups": [
+        {
+          "monster": "goblin_fast",
+          "count": 10,
+          "interval": 0.7,
+          "delay": 0
+        },
+        {
+          "monster": "goblin_shield",
+          "count": 6,
+          "interval": 1.8,
+          "delay": 3
+        }
+      ]
+    },
+    {
+      "bonus": 0,
+      "groups": [
+        {
+          "monster": "goblin",
+          "count": 20,
+          "interval": 0.6,
+          "delay": 0
+        },
+        {
+          "monster": "goblin_shield",
+          "count": 8,
+          "interval": 1.5,
+          "delay": 4
+        },
+        {
+          "monster": "goblin_fast",
+          "count": 10,
+          "interval": 0.8,
+          "delay": 10
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,161 @@
+extends SceneTree
+## Gera os SpriteFrames, o TileSet e a primeira versão da cena da Fase 1.
+## Uso: godot --headless --path . -s tools/build_assets.gd
+## Depois de gerada, a cena pode ser editada no Godot; rode com --scene só para recriá-la.
+
+const AsepriteFrames = preload("res://src/core/aseprite_frames.gd")
+
+const SPRITES := ["goblin", "archer", "warrior", "village"]
+const TILESET_PATH := "res://assets/tiles/tileset.tres"
+const LEVEL_PATH := "res://src/game/levels/level_01.tscn"
+const TILE := 32
+const GRID := Vector2i(20, 11)
+const ATLAS_SIZE := Vector2i(8, 3)
+const BUSH := Vector2i(4, 0)
+const LOCKED_GRASS := Vector2i(5, 0)
+const PATH_RUNS := [
+	[Vector2i(0, 7), Vector2i(8, 7)],
+	[Vector2i(8, 3), Vector2i(8, 7)],
+	[Vector2i(8, 3), Vector2i(16, 3)],
+	[Vector2i(17, 2), Vector2i(19, 4)],
+]
+const ROUTE := [Vector2(-16, 240), Vector2(272, 240), Vector2(272, 112), Vector2(560, 112)]
+const BUSHES := [
+	Vector2i(1, 2), Vector2i(4, 1), Vector2i(2, 5), Vector2i(13, 1), Vector2i(18, 7),
+	Vector2i(15, 7), Vector2i(1, 9), Vector2i(5, 9), Vector2i(11, 8), Vector2i(16, 9),
+]
+
+
+func _init() -> void:
+	for sprite: String in SPRITES:
+		_build_sprite(sprite)
+	var tileset := _build_tileset()
+	if "--scene" in OS.get_cmdline_user_args() or not FileAccess.file_exists(LEVEL_PATH):
+		_build_level(tileset)
+	quit()
+
+
+func _build_sprite(sprite: String) -> void:
+	var text := FileAccess.get_file_as_string("res://assets/sprites/%s.json" % sprite)
+	var sheet := AsepriteFrames.parse(text)
+	if sheet.error != "":
+		push_error("%s: %s" % [sprite, sheet.error])
+		quit(1)
+		return
+	var texture: Texture2D = load("res://assets/sprites/%s.png" % sprite)
+	ResourceSaver.save(AsepriteFrames.build(sheet, texture), "res://assets/sprites/%s.tres" % sprite)
+
+
+func _build_tileset() -> TileSet:
+	var tileset := TileSet.new()
+	tileset.tile_size = Vector2i(TILE, TILE)
+	tileset.add_custom_data_layer()
+	tileset.set_custom_data_layer_name(0, "buildable")
+	tileset.set_custom_data_layer_type(0, TYPE_BOOL)
+	tileset.add_terrain_set()
+	tileset.set_terrain_set_mode(0, TileSet.TERRAIN_MODE_MATCH_SIDES)
+	tileset.add_terrain(0)
+	tileset.set_terrain_name(0, 0, "caminho")
+
+	var source := TileSetAtlasSource.new()
+	source.texture = load("res://assets/tiles/tiles.png")
+	source.texture_region_size = Vector2i(TILE, TILE)
+	tileset.add_source(source, 0)
+	for y in ATLAS_SIZE.y:
+		for x in ATLAS_SIZE.x:
+			var coords := Vector2i(x, y)
+			if y == 0 and x > LOCKED_GRASS.x:
+				continue
+			source.create_tile(coords)
+			source.get_tile_data(coords, 0).set_custom_data("buildable", y == 0 and x < BUSH.x)
+	for mask in 16:
+		var data := source.get_tile_data(_path_tile(mask), 0)
+		data.terrain_set = 0
+		data.terrain = 0
+		if mask & 1:
+			data.set_terrain_peering_bit(TileSet.CELL_NEIGHBOR_TOP_SIDE, 0)
+		if mask & 2:
+			data.set_terrain_peering_bit(TileSet.CELL_NEIGHBOR_RIGHT_SIDE, 0)
+		if mask & 4:
+			data.set_terrain_peering_bit(TileSet.CELL_NEIGHBOR_BOTTOM_SIDE, 0)
+		if mask & 8:
+			data.set_terrain_peering_bit(TileSet.CELL_NEIGHBOR_LEFT_SIDE, 0)
+	ResourceSaver.save(tileset, TILESET_PATH)
+	return load(TILESET_PATH)
+
+
+func _build_level(tileset: TileSet) -> void:
+	var root := Node2D.new()
+	root.name = "Level01"
+	var ground := _layer("Ground", tileset, root)
+	var decor := _layer("Decor", tileset, root)
+	decor.y_sort_enabled = false
+
+	var path_cells := _path_cells()
+	for y in GRID.y:
+		for x in GRID.x:
+			var cell := Vector2i(x, y)
+			if path_cells.has(cell):
+				ground.set_cell(cell, 0, _path_tile(_mask(cell, path_cells)))
+			elif y == 0 or y == GRID.y - 1:
+				ground.set_cell(cell, 0, LOCKED_GRASS)
+			else:
+				ground.set_cell(cell, 0, Vector2i((x * 7 + y * 13) % 4, 0))
+	for cell: Vector2i in BUSHES:
+		decor.set_cell(cell, 0, BUSH)
+
+	var route := Path2D.new()
+	route.name = "Route"
+	route.curve = Curve2D.new()
+	for point: Vector2 in ROUTE:
+		route.curve.add_point(point)
+	root.add_child(route)
+
+	var village := Sprite2D.new()
+	village.name = "Village"
+	village.texture = load("res://assets/sprites/village.png")
+	village.position = Vector2(592, 96)
+	root.add_child(village)
+
+	for child in root.get_children():
+		child.owner = root
+	var packed := PackedScene.new()
+	packed.pack(root)
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(LEVEL_PATH.get_base_dir()))
+	ResourceSaver.save(packed, LEVEL_PATH)
+	root.free()
+
+
+func _layer(layer_name: String, tileset: TileSet, parent: Node) -> TileMapLayer:
+	var layer := TileMapLayer.new()
+	layer.name = layer_name
+	layer.tile_set = tileset
+	parent.add_child(layer)
+	return layer
+
+
+func _path_cells() -> Dictionary:
+	var cells := {}
+	for run: Array in PATH_RUNS:
+		for y in range(run[0].y, run[1].y + 1):
+			for x in range(run[0].x, run[1].x + 1):
+				cells[Vector2i(x, y)] = true
+	return cells
+
+
+## A entrada à esquerda e a saída à direita do mapa contam como caminho aberto.
+func _mask(cell: Vector2i, cells: Dictionary) -> int:
+	var mask := 0
+	if cells.has(cell + Vector2i.UP):
+		mask |= 1
+	if cells.has(cell + Vector2i.RIGHT) or cell.x == GRID.x - 1:
+		mask |= 2
+	if cells.has(cell + Vector2i.DOWN):
+		mask |= 4
+	if cells.has(cell + Vector2i.LEFT) or cell.x == 0:
+		mask |= 8
+	return mask
+
+
+func _path_tile(mask: int) -> Vector2i:
+	return Vector2i(mask % 8, 1 + mask / 8)

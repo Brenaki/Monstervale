@@ -1,0 +1,20 @@
+{
+  "archer": {
+    "attack": "ranged",
+    "damage_type": "pierce",
+    "levels": [
+      { "cost": 50, "damage": 5, "cooldown": 0.9, "range": 96 },
+      { "cost": 40, "damage": 8, "cooldown": 0.85, "range": 104 },
+      { "cost": 70, "damage": 11, "cooldown": 0.8, "range": 112, "pierce_extra": 1, "pierce_radius": 40 }
+    ]
+  },
+  "warrior": {
+    "attack": "melee",
+    "damage_type": "impact",
+    "levels": [
+      { "cost": 60, "damage": 4, "cooldown": 0.8, "range": 44, "hp": 40, "block": 2, "respawn": 8 },
+      { "cost": 50, "damage": 6, "cooldown": 0.8, "range": 44, "hp": 60, "block": 2, "respawn": 8 },
+      { "cost": 80, "damage": 9, "cooldown": 0.8, "range": 44, "hp": 90, "block": 3, "respawn": 8, "damage_taken": 0.7 }
+    ]
+  }
+}

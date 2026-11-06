@@ -1,0 +1,49 @@
+{
+  "goblin": {
+    "hp": 18,
+    "speed": 24,
+    "gold": 4,
+    "damage": 3,
+    "attack_cooldown": 1,
+    "lives": 1,
+    "resist": {
+      "pierce": 1,
+      "impact": 1,
+      "magic": 1
+    },
+    "sprite": "goblin",
+    "burst": "#b3262e"
+  },
+  "goblin_fast": {
+    "hp": 12,
+    "speed": 38,
+    "gold": 5,
+    "damage": 2,
+    "attack_cooldown": 0.8,
+    "lives": 1,
+    "resist": {
+      "pierce": 1,
+      "impact": 1,
+      "magic": 1
+    },
+    "tint": "#ffd27a",
+    "sprite": "goblin",
+    "burst": "#b3262e"
+  },
+  "goblin_shield": {
+    "hp": 40,
+    "speed": 20,
+    "gold": 9,
+    "damage": 4,
+    "attack_cooldown": 1.2,
+    "lives": 2,
+    "resist": {
+      "pierce": 0.6,
+      "impact": 1.2,
+      "magic": 1
+    },
+    "tint": "#9fc4ff",
+    "sprite": "goblin",
+    "burst": "#b3262e"
+  }
+}

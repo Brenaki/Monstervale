@@ -1,0 +1,31 @@
+keys,pt_BR,en
+UNIT_ARCHER,Arqueiro,Archer
+UNIT_WARRIOR,Guerreiro,Warrior
+MONSTER_GOBLIN,Goblin,Goblin
+MONSTER_GOBLIN_FAST,Goblin veloz,Swift goblin
+MONSTER_GOBLIN_SHIELD,Goblin blindado,Armored goblin
+HUD_GOLD,Ouro: %d,Gold: %d
+HUD_LIVES,Vidas: %d,Lives: %d
+HUD_WAVE,Onda %d/%d,Wave %d/%d
+HUD_NEXT,Próxima:,Next:
+HUD_LEVEL,Nível %d,Level %d
+BTN_NEXT_WAVE,Chamar onda (+%d),Call wave (+%d)
+BTN_NO_WAVE,Sem ondas,No waves
+BTN_PAUSE,Pausar,Pause
+BTN_RESUME,Continuar,Resume
+BTN_RESTART,Reiniciar,Restart
+BTN_SPEED,Velocidade %dx,Speed %dx
+BTN_UPGRADE,Melhorar (%d),Upgrade (%d)
+BTN_MAX_LEVEL,Nível máximo,Max level
+BTN_DISMISS,Dispensar (+%d),Dismiss (+%d)
+BTN_CLOSE,Fechar,Close
+BTN_LANGUAGE,English,Português
+PRIORITY_LABEL,Alvo: %s,Target: %s
+PRIORITY_FIRST,primeiro,first
+PRIORITY_LAST,último,last
+PRIORITY_STRONGEST,mais forte,strongest
+PRIORITY_CLOSEST,mais perto,closest
+RESULT_WON,Vilarejo salvo!,Village saved!
+RESULT_LOST,O vilarejo caiu,The village fell
+RESULT_STARS,Estrelas: %d de 3,Stars: %d of 3
+UNIT_DOWN,Caído,Down
