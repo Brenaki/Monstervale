@@ -1,0 +1,70 @@
+[gd_resource type="SpriteFrames" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/archer_2.png" id="1_0j1wt"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_v647n"]
+atlas = ExtResource("1_0j1wt")
+region = Rect2(112, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_n6dp3"]
+atlas = ExtResource("1_0j1wt")
+region = Rect2(168, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fgfuj"]
+atlas = ExtResource("1_0j1wt")
+region = Rect2(224, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_t76g8"]
+atlas = ExtResource("1_0j1wt")
+region = Rect2(280, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rgmyx"]
+atlas = ExtResource("1_0j1wt")
+region = Rect2(336, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tcie2"]
+atlas = ExtResource("1_0j1wt")
+region = Rect2(0, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_v3pqh"]
+atlas = ExtResource("1_0j1wt")
+region = Rect2(56, 0, 56, 40)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.7,
+"texture": SubResource("AtlasTexture_v647n")
+}, {
+"duration": 0.7,
+"texture": SubResource("AtlasTexture_n6dp3")
+}, {
+"duration": 1.2,
+"texture": SubResource("AtlasTexture_fgfuj")
+}],
+"loop": 0,
+"name": &"attack",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.3,
+"texture": SubResource("AtlasTexture_t76g8")
+}, {
+"duration": 3.2,
+"texture": SubResource("AtlasTexture_rgmyx")
+}],
+"loop": 0,
+"name": &"fall",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 5.0,
+"texture": SubResource("AtlasTexture_tcie2")
+}, {
+"duration": 5.0,
+"texture": SubResource("AtlasTexture_v3pqh")
+}],
+"loop": 1,
+"name": &"idle",
+"speed": 10.0
+}]

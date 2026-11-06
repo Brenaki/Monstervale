@@ -148,13 +148,127 @@ func test_level_three_warrior_takes_less_damage() -> void:
 	sim.tick(0.01)
 	assert_eq(unit.hp, 38)
 
-func test_ranged_unit_is_never_attacked() -> void:
-	var monster = _spawn("brute", 40.0)
+func _near_route_sim():
+	var level = Fixtures.level()
+	level["route"] = [Vector2(0, 80), Vector2(200, 80)]
+	var near = load("res://src/core/simulation.gd").new(Fixtures.catalog(), level)
+	near.gold = 1000
+	return near
+
+func test_passing_monster_hits_a_ranged_unit_in_its_reach() -> void:
+	var near = _near_route_sim()
+	var monster = near.spawn_monster("goblin")
+	monster.distance = 48.0
+	var unit = near.place_unit("archer", Vector2i(1, 1))
+	near.tick(0.01)
+	assert_eq(unit.hp, 16)
+
+func test_monster_keeps_walking_while_hitting_a_ranged_unit() -> void:
+	var near = _near_route_sim()
+	var monster = near.spawn_monster("goblin")
+	monster.distance = 48.0
+	near.place_unit("archer", Vector2i(1, 1))
+	near.tick(0.5)
+	assert_almost_eq(monster.distance, 53.0, 0.01)
+	assert_null(monster.blocker)
+
+func test_passing_attack_respects_the_cooldown() -> void:
+	var near = _near_route_sim()
+	var monster = near.spawn_monster("goblin")
+	monster.distance = 48.0
+	monster.speed = 0.0
+	var unit = near.place_unit("archer", Vector2i(1, 1))
+	near.tick(0.01)
+	near.tick(0.5)
+	assert_eq(unit.hp, 16)
+	near.tick(0.6)
+	assert_eq(unit.hp, 12)
+
+func test_ranged_unit_out_of_reach_is_safe() -> void:
+	var monster = _spawn("brute", 48.0)
 	monster.speed = 0.0
 	var unit = sim.place_unit("archer", Vector2i(1, 1))
-	sim.tick(1.0)
-	assert_eq(unit.hp, 0)
+	sim.tick(2.0)
+	assert_eq(unit.hp, 20, "48 px do caminho está fora dos 40 de alcance")
+
+func test_ranged_unit_falls_and_stops_attacking() -> void:
+	var near = _near_route_sim()
+	var monster = near.spawn_monster("goblin")
+	monster.distance = 48.0
+	monster.speed = 0.0
+	var unit = near.place_unit("archer", Vector2i(1, 1))
+	unit.hp = 1
+	near.tick(0.01)
+	assert_true(unit.is_down())
+	var hp: int = monster.hp
+	near.tick(2.0)
+	assert_eq(monster.hp, hp, "caído não atira")
+
+func test_ranged_unit_returns_with_full_hp() -> void:
+	var near = _near_route_sim()
+	var monster = near.spawn_monster("goblin")
+	monster.distance = 48.0
+	monster.speed = 0.0
+	var unit = near.place_unit("archer", Vector2i(1, 1))
+	unit.hp = 1
+	near.tick(0.01)
+	near.monsters.clear()
+	near.tick(5.1)
 	assert_false(unit.is_down())
+	assert_eq(unit.hp, 20)
+
+func test_passing_monster_ignores_fallen_units_and_picks_the_nearest() -> void:
+	var near = _near_route_sim()
+	var monster = near.spawn_monster("brute")
+	monster.distance = 60.0
+	monster.speed = 0.0
+	var close = near.place_unit("archer", Vector2i(1, 1))
+	var other = near.place_unit("archer", Vector2i(2, 1))
+	near.tick(0.01)
+	assert_eq(close.hp, 16)
+	assert_eq(other.hp, 20)
+	close.down_timer = 100.0
+	near.tick(1.1)
+	assert_eq(other.hp, 16)
+
+func test_blocked_monster_hits_only_its_blocker() -> void:
+	var near = _near_route_sim()
+	var monster = near.spawn_monster("brute")
+	monster.distance = 48.0
+	var blocker = near.place_unit("warrior", Vector2i(1, 1))
+	var archer = near.place_unit("archer", Vector2i(2, 1))
+	near.tick(0.01)
+	assert_not_null(monster.blocker)
+	assert_eq(blocker.hp, 16)
+	assert_eq(archer.hp, 20)
+
+func test_passing_monster_also_hits_a_melee_unit_without_room() -> void:
+	var near = _near_route_sim()
+	var first = near.spawn_monster("goblin")
+	first.distance = 49.0
+	first.speed = 0.0
+	var second = near.spawn_monster("goblin")
+	second.distance = 48.0
+	second.speed = 0.0
+	var unit = near.place_unit("warrior", Vector2i(1, 1))
+	near.tick(0.01)
+	assert_not_null(first.blocker)
+	assert_null(second.blocker)
+	assert_eq(unit.hp, 12, "um golpe de quem está bloqueado e outro de quem passa")
+
+func test_monster_reach_comes_from_the_data() -> void:
+	var catalog = Fixtures.catalog()
+	catalog.monsters.goblin.reach = 10.0
+	var level = Fixtures.level()
+	level["route"] = [Vector2(0, 80), Vector2(200, 80)]
+	var other = load("res://src/core/simulation.gd").new(catalog, level)
+	other.gold = 1000
+	var monster = other.spawn_monster("goblin")
+	monster.distance = 48.0
+	monster.speed = 0.0
+	var unit = other.place_unit("archer", Vector2i(1, 1))
+	other.tick(0.01)
+	assert_eq(unit.hp, 20)
 
 func test_fallen_melee_releases_monsters_and_stops_acting() -> void:
 	var monster = _spawn("brute", 40.0)

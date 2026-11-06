@@ -12,7 +12,8 @@
       "magic": 1
     },
     "sprite": "goblin",
-    "burst": "#b3262e"
+    "burst": "#b3262e",
+    "reach": 40
   },
   "goblin_fast": {
     "hp": 12,
@@ -26,9 +27,9 @@
       "impact": 1,
       "magic": 1
     },
-    "tint": "#ffd27a",
-    "sprite": "goblin",
-    "burst": "#b3262e"
+    "sprite": "goblin_fast",
+    "burst": "#b3262e",
+    "reach": 40
   },
   "goblin_shield": {
     "hp": 40,
@@ -42,8 +43,8 @@
       "impact": 1.2,
       "magic": 1
     },
-    "tint": "#9fc4ff",
-    "sprite": "goblin",
-    "burst": "#b3262e"
+    "sprite": "goblin_shield",
+    "burst": "#b3262e",
+    "reach": 40
   }
 }

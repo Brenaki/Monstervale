@@ -127,3 +127,42 @@ func test_dying_monster_ignores_later_sync() -> void:
 	view.play_death()
 	view.sync(0.0)
 	assert_eq(view.current_animation(), "death")
+
+func _level_frames(kind: String) -> Array:
+	return [
+		load("res://assets/sprites/%s.tres" % kind),
+		load("res://assets/sprites/%s_2.tres" % kind),
+		load("res://assets/sprites/%s_3.tres" % kind),
+	]
+
+func test_upgrade_swaps_the_sprite_sheet() -> void:
+	var frames := _level_frames("archer")
+	var unit = sim.place_unit("archer", Vector2i(1, 1))
+	var view := EntityView.new()
+	view.setup(unit, frames[0], false, frames)
+	add_child_autofree(view)
+	assert_eq(view.sprite.sprite_frames, frames[0])
+	sim.upgrade_unit(unit)
+	view.sync(0.0)
+	assert_eq(view.sprite.sprite_frames, frames[1])
+	sim.upgrade_unit(unit)
+	view.sync(0.0)
+	assert_eq(view.sprite.sprite_frames, frames[2])
+
+func test_upgrade_keeps_the_current_animation() -> void:
+	var frames := _level_frames("warrior")
+	var unit = sim.place_unit("warrior", Vector2i(1, 1))
+	var view := EntityView.new()
+	view.setup(unit, frames[0], false, frames)
+	add_child_autofree(view)
+	view.play_attack()
+	sim.upgrade_unit(unit)
+	view.sync(0.0)
+	assert_eq(view.current_animation(), "attack")
+	assert_true(view.is_animating())
+
+func test_fallen_archer_plays_fall() -> void:
+	var view = _unit_view("archer", archer_frames)
+	view.entity.down_timer = 5.0
+	view.sync(0.0)
+	assert_eq(view.current_animation(), "fall")

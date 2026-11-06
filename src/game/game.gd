@@ -19,6 +19,7 @@ const VILLAGE_TINTS := [Color.WHITE, Color(0.8, 0.7, 0.65), Color(0.5, 0.42, 0.4
 const BURST_PIECES := 5
 const BURST_SECONDS := 0.35
 const ARROW_SECONDS := 0.12
+const TRAIL_SECONDS := 0.3
 const NO_CELL := Vector2i(-1, -1)
 
 var progress_path := "user://progress.json"
@@ -197,6 +198,10 @@ func view_count() -> int:
 	return _views.size()
 
 
+func view_of(state):
+	return _views.get(state)
+
+
 func finish_level(state: String, stars: int) -> void:
 	var won := state == "won"
 	if won:
@@ -271,14 +276,15 @@ func _handle_events() -> void:
 func _add_monster_view(monster) -> void:
 	var data: Dictionary = catalog.monsters[monster.kind]
 	var view := EntityView.new()
-	view.setup(monster, _frames(data.sprite), true, Color(data.get("tint", "#ffffff")))
+	view.setup(monster, _frames(data.sprite), true)
 	_entities.add_child(view)
 	_views[monster] = view
 
 
 func _add_unit_view(unit) -> void:
 	var view := EntityView.new()
-	view.setup(unit, _frames_for_unit(unit.kind), false)
+	var level_frames := [_frames(unit.kind), _frames("%s_2" % unit.kind), _frames("%s_3" % unit.kind)]
+	view.setup(unit, level_frames[0], false, level_frames)
 	_entities.add_child(view)
 	_views[unit] = view
 
@@ -309,13 +315,14 @@ func _show_attack(unit, target_position: Vector2) -> void:
 	_play_attack(unit)
 	if unit.is_melee():
 		return
+	var pierces: bool = unit.stats().has("pierce_extra")
 	var arrow := Line2D.new()
-	arrow.width = 1.0
-	arrow.default_color = Color("f6e05e") if unit.stats().has("pierce_extra") else Color("f4f1de")
+	arrow.width = 2.0 if pierces else 1.0
+	arrow.default_color = Color("f6e05e") if pierces else Color("f4f1de")
 	arrow.points = PackedVector2Array([unit.position, target_position])
 	_effects.add_child(arrow)
 	var tween := arrow.create_tween()
-	tween.tween_property(arrow, "modulate:a", 0.0, ARROW_SECONDS)
+	tween.tween_property(arrow, "modulate:a", 0.0, TRAIL_SECONDS if pierces else ARROW_SECONDS)
 	tween.tween_callback(arrow.queue_free)
 
 

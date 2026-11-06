@@ -1,0 +1,84 @@
+[gd_resource type="SpriteFrames" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/goblin_shield.png" id="1_uf4rr"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wdskf"]
+atlas = ExtResource("1_uf4rr")
+region = Rect2(224, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_86q5x"]
+atlas = ExtResource("1_uf4rr")
+region = Rect2(280, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_q1igm"]
+atlas = ExtResource("1_uf4rr")
+region = Rect2(336, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_28hiw"]
+atlas = ExtResource("1_uf4rr")
+region = Rect2(392, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_g1htm"]
+atlas = ExtResource("1_uf4rr")
+region = Rect2(448, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hm7e5"]
+atlas = ExtResource("1_uf4rr")
+region = Rect2(0, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_e311i"]
+atlas = ExtResource("1_uf4rr")
+region = Rect2(56, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_npqh6"]
+atlas = ExtResource("1_uf4rr")
+region = Rect2(112, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cmbkg"]
+atlas = ExtResource("1_uf4rr")
+region = Rect2(168, 0, 56, 40)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.8,
+"texture": SubResource("AtlasTexture_wdskf")
+}, {
+"duration": 0.7,
+"texture": SubResource("AtlasTexture_86q5x")
+}, {
+"duration": 1.1,
+"texture": SubResource("AtlasTexture_q1igm")
+}],
+"loop": 0,
+"name": &"attack",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.2,
+"texture": SubResource("AtlasTexture_28hiw")
+}, {
+"duration": 3.2,
+"texture": SubResource("AtlasTexture_g1htm")
+}],
+"loop": 0,
+"name": &"death",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.2,
+"texture": SubResource("AtlasTexture_hm7e5")
+}, {
+"duration": 1.2,
+"texture": SubResource("AtlasTexture_e311i")
+}, {
+"duration": 1.2,
+"texture": SubResource("AtlasTexture_npqh6")
+}, {
+"duration": 1.2,
+"texture": SubResource("AtlasTexture_cmbkg")
+}],
+"loop": 1,
+"name": &"walk",
+"speed": 10.0
+}]

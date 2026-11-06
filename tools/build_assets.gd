@@ -5,7 +5,7 @@ extends SceneTree
 
 const AsepriteFrames = preload("res://src/core/aseprite_frames.gd")
 
-const SPRITES := ["goblin", "archer", "warrior", "village"]
+const SPRITES_DIR := "res://assets/sprites/"
 const TILESET_PATH := "res://assets/tiles/tileset.tres"
 const LEVEL_PATH := "res://src/game/levels/level_01.tscn"
 const TILE := 32
@@ -32,8 +32,9 @@ const DECOR := {
 
 
 func _init() -> void:
-	for sprite: String in SPRITES:
-		_build_sprite(sprite)
+	for file_name in DirAccess.get_files_at(SPRITES_DIR):
+		if file_name.get_extension() == "json":
+			_build_sprite(file_name.get_basename())
 	var tileset := _build_tileset()
 	if "--scene" in OS.get_cmdline_user_args() or not FileAccess.file_exists(LEVEL_PATH):
 		_build_level(tileset)

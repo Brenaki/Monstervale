@@ -72,3 +72,10 @@ func test_decor_has_more_than_one_kind_of_plant_or_rock() -> void:
 	for cell: Vector2i in decor.get_used_cells():
 		kinds[decor.get_cell_atlas_coords(cell)] = true
 	assert_gte(kinds.size(), 3)
+
+func test_variants_use_their_own_sprites_instead_of_a_tint() -> void:
+	var catalog := GameData.load_catalog()
+	assert_eq(catalog.monsters.goblin_fast.sprite, "goblin_fast")
+	assert_eq(catalog.monsters.goblin_shield.sprite, "goblin_shield")
+	for kind: String in catalog.monsters:
+		assert_false(catalog.monsters[kind].has("tint"), kind)

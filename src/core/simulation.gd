@@ -228,6 +228,8 @@ func _update_monsters(delta: float) -> void:
 			_attack_blocker(monster, delta)
 		else:
 			_walk(monster, delta)
+			if monster in monsters:
+				_attack_in_passing(monster, delta)
 
 
 func _try_block(monster) -> void:
@@ -241,10 +243,30 @@ func _try_block(monster) -> void:
 
 func _attack_blocker(monster, delta: float) -> void:
 	monster.cooldown -= delta
+	if monster.cooldown <= 0.0:
+		_strike(monster, monster.blocker)
+
+
+## Quem não está bloqueado segue andando e bate no humano mais próximo ao alcance.
+func _attack_in_passing(monster, delta: float) -> void:
+	monster.cooldown -= delta
 	if monster.cooldown > 0.0:
 		return
+	var nearest = null
+	var nearest_gap: float = monster.reach
+	for unit in units:
+		if unit.is_down():
+			continue
+		var gap: float = unit.position.distance_to(monster.position())
+		if gap <= nearest_gap:
+			nearest_gap = gap
+			nearest = unit
+	if nearest != null:
+		_strike(monster, nearest)
+
+
+func _strike(monster, unit) -> void:
 	monster.cooldown = monster.attack_cooldown
-	var unit = monster.blocker
 	var taken := maxi(1, roundi(monster.damage * float(unit.stats().get("damage_taken", 1.0))))
 	unit.hp -= taken
 	_emit({"type": "unit_hit", "unit": unit, "monster": monster, "damage": taken})

@@ -10,9 +10,9 @@ static func catalog() -> Dictionary:
 			"archer": {
 				"attack": "ranged", "damage_type": "pierce",
 				"levels": [
-					{"cost": 40, "damage": 5, "cooldown": 1.0, "range": 100.0},
-					{"cost": 30, "damage": 8, "cooldown": 1.0, "range": 110.0},
-					{"cost": 50, "damage": 10, "cooldown": 1.0, "range": 120.0, "pierce_extra": 1, "pierce_radius": 40.0},
+					{"cost": 40, "damage": 5, "cooldown": 1.0, "range": 100.0, "hp": 20, "respawn": 5.0},
+					{"cost": 30, "damage": 8, "cooldown": 1.0, "range": 110.0, "hp": 30, "respawn": 5.0},
+					{"cost": 50, "damage": 10, "cooldown": 1.0, "range": 120.0, "hp": 40, "respawn": 5.0, "pierce_extra": 1, "pierce_radius": 40.0},
 				],
 			},
 			"warrior": {
@@ -26,11 +26,11 @@ static func catalog() -> Dictionary:
 		},
 		"monsters": {
 			"goblin": {
-				"hp": 10, "speed": 10.0, "gold": 3, "damage": 4, "attack_cooldown": 1.0, "lives": 1,
+				"hp": 10, "speed": 10.0, "gold": 3, "damage": 4, "attack_cooldown": 1.0, "reach": 40.0, "lives": 1,
 				"resist": {"pierce": 1.0, "impact": 1.0, "magic": 1.0},
 			},
 			"brute": {
-				"hp": 40, "speed": 10.0, "gold": 8, "damage": 4, "attack_cooldown": 1.0, "lives": 3,
+				"hp": 40, "speed": 10.0, "gold": 8, "damage": 4, "attack_cooldown": 1.0, "reach": 40.0, "lives": 3,
 				"resist": {"pierce": 0.5, "impact": 2.0, "magic": 1.0},
 			},
 		},

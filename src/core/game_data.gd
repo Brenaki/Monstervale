@@ -6,9 +6,9 @@ const MONSTERS_PATH := "res://data/monsters.json"
 const LEVELS_DIR := "res://data/levels/"
 
 const DAMAGE_TYPES := ["pierce", "impact", "magic"]
-const UNIT_LEVEL_FIELDS := ["cost", "damage", "cooldown", "range"]
-const MELEE_LEVEL_FIELDS := ["hp", "block", "respawn"]
-const MONSTER_FIELDS := ["hp", "speed", "gold", "damage", "attack_cooldown", "lives", "resist"]
+const UNIT_LEVEL_FIELDS := ["cost", "damage", "cooldown", "range", "hp", "respawn"]
+const MELEE_LEVEL_FIELDS := ["block"]
+const MONSTER_FIELDS := ["hp", "speed", "gold", "damage", "attack_cooldown", "reach", "lives", "resist"]
 
 
 static func parse_json(text: String) -> Dictionary:

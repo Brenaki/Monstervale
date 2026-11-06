@@ -23,6 +23,12 @@ func test_melee_level_needs_hp_block_and_respawn() -> void:
 	catalog.units.warrior.levels[0].erase("block")
 	assert_eq(GameData.validate_catalog(catalog), ["unidade warrior nível 1: falta block"])
 
+func test_every_class_needs_hp_and_respawn_because_all_can_fall() -> void:
+	var catalog := Fixtures.catalog()
+	catalog.units.archer.levels[0].erase("hp")
+	catalog.units.archer.levels[1].erase("respawn")
+	assert_eq(GameData.validate_catalog(catalog), ["unidade archer nível 1: falta hp", "unidade archer nível 2: falta respawn"])
+
 func test_unit_level_needs_positive_cost() -> void:
 	var catalog := Fixtures.catalog()
 	catalog.units.archer.levels[1].cost = 0

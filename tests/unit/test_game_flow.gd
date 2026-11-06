@@ -210,3 +210,15 @@ func test_closing_the_window_saves_the_match() -> void:
 func test_result_panel_has_a_log_button() -> void:
 	game.finish_level("won", 3)
 	assert_true(game.hud.log_button in game.hud.all_buttons())
+
+func test_upgrading_in_game_changes_the_unit_sprite() -> void:
+	game.sim.gold = 1000
+	game.select_class("warrior")
+	game.cell_clicked(FREE_CELL)
+	game.cell_clicked(FREE_CELL)
+	game.upgrade_selected()
+	game.upgrade_selected()
+	game.advance(0.0)
+	var view = game.view_of(game.selected_unit)
+	view.sync(0.0)
+	assert_eq(view.sprite.sprite_frames, load("res://assets/sprites/warrior_3.tres"))

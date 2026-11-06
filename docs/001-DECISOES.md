@@ -35,8 +35,8 @@ Registro das decisões tomadas em 2026-11-06. `DT-SLIME` é um nome provisório.
 ## Humanos
 
 - Ficam parados depois de posicionados. Dispensar um humano devolve metade de todo o ouro gasto nele, incluindo melhorias.
-- 3 níveis lineares. O nível 3 libera uma habilidade automática, com variação visual que destaca essa habilidade.
-- Só o corpo a corpo segura monstros e leva dano. Ao perder toda a vida, cai e volta depois de alguns segundos, sem morte permanente. Humanos à distância nunca são alvo.
+- 3 níveis lineares. O nível 3 libera uma habilidade automática, com variação visual que destaca essa habilidade. Os níveis 2 e 3 têm sprites próprios.
+- Só o corpo a corpo segura monstros. Qualquer humano ao alcance de um monstro leva dano: quem não está bloqueado continua andando e bate de passagem no humano mais próximo. Ao perder toda a vida, o humano cai e volta depois de alguns segundos, sem morte permanente. Isso obriga a afastar arqueiros e magos do caminho.
 - As classes são inspiradas nos arquétipos de D&D, sem dados nem regras do sistema.
 
 | Classe | Papel | Ataque | Dano | Habilidade no nível 3 | Destaque visual |
@@ -51,7 +51,8 @@ Registro das decisões tomadas em 2026-11-06. `DT-SLIME` é um nome provisório.
 
 ## Monstros
 
-- 4 famílias, variantes por cor e arma sobre o mesmo corpo, e 1 chefe. Todos atacam só corpo a corpo.
+- 4 famílias, variantes por cor e arma sobre o mesmo corpo, e 1 chefe. Todos atacam só corpo a corpo, com alcance definido em `data/monsters.json`.
+- Variantes da Fase 1: goblin veloz, com bandana e adagas; goblin blindado, com capacete, escudo e maça.
 - Goblin: básico e em grupos.
 - Slime: divide-se ao morrer, de grande em médios e depois em pequenos; os filhotes rendem pouco ou nenhum ouro.
 - Lobo: quatro patas, rápido, escapa das defesas e pede bloqueio.
@@ -91,8 +92,7 @@ Todos os comandos têm botão na tela:
 
 | Sprite | Animações (teto de quadros) |
 |---|---|
-| Humanos à distância | Parado (2) e ataque (3) |
-| Humanos corpo a corpo | Parado (2), ataque (3) e queda (2) |
+| Humanos | Parado (2), ataque (3) e queda (2) |
 | Monstros | Andar (4) e ataque (3), mais morte (2) quando a família pedir |
 | Slimes | Andar com achatar e esticar (4), mais morte (2) |
 | Rei Slime | Andar (6) e divisão (4) |
@@ -103,7 +103,8 @@ O dano aparece como um breve clarão feito por código, sem quadros extras. O te
 
 - Cada partida gera um relatório em `user://partidas`, em Markdown e JSON, ao vencer, perder, reiniciar ou fechar o jogo. No Linux, a pasta é `~/.local/share/godot/app_userdata/DT-SLIME/partidas`.
 - O relatório traz, por onda, defesa, monstros, abates, vidas, ouro, dano por classe, humanos caídos, ações e uma linha para notas. É sempre em português.
-- Primeira avaliação da Fase 1: divertida, fácil no início e bem equilibrada para ensinar. O balanceamento continua igual até haver mais relatórios.
+- Primeira avaliação da Fase 1: divertida, fácil no início e bem equilibrada para ensinar.
+- Segunda avaliação: fácil demais. A partida do relatório terminou em 3 minutos, sem perder vidas e com 746 de ouro sobrando. Daí veio a regra de todo humano poder cair.
 
 ## Técnica
 
@@ -129,7 +130,9 @@ O dano aparece como um breve clarão feito por código, sem quadros extras. O te
 2. Feito: Fase 1 completa em TDD, com goblins, arqueiro, guerreiro, mapa, ouro, vidas, ondas, 3 níveis, interface e relatórios de partida.
 3. Feito: vila e arbustos novos, aprovados em 2026-11-06.
 4. Feito para a Fase 1: animações reais de goblin, arqueiro e guerreiro, no limite de quadros definido. O slime é animado quando entrar na Fase 2.
-5. Demais fases.
+5. Feito: troca de arma das variantes e visual dos níveis 2 e 3.
+6. Avaliar a dificuldade com a nova regra, usando os relatórios.
+7. Demais fases.
 
 ## Decisões adiadas
 

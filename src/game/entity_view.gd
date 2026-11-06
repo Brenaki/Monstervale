@@ -14,20 +14,21 @@ var entity
 var is_monster := false
 var sprite: AnimatedSprite2D
 
-var _base_modulate := Color.WHITE
+var _level_frames: Array = []
+var _shown_level := 1
 var _attacking := false
 var _dying := false
 var _fallen := false
 
 
-func setup(state, frames: SpriteFrames, monster: bool, tint := Color.WHITE) -> void:
+## level_frames traz uma folha por nível do humano; monstros não usam.
+func setup(state, frames: SpriteFrames, monster: bool, level_frames: Array = []) -> void:
 	entity = state
 	is_monster = monster
-	_base_modulate = tint
+	_level_frames = level_frames
 	sprite = AnimatedSprite2D.new()
 	sprite.sprite_frames = frames
 	sprite.offset = Vector2(0, SPRITE_OFFSET_Y)
-	sprite.modulate = tint
 	var material := ShaderMaterial.new()
 	material.shader = FLASH_SHADER
 	sprite.material = material
@@ -46,6 +47,7 @@ func sync(_delta: float, time_scale := 1.0) -> void:
 	else:
 		position = entity.position + FOOT_OFFSET
 	sprite.flip_h = entity.facing < 0
+	_update_level()
 	_update_fall()
 	_update_base_animation()
 	queue_redraw()
@@ -89,6 +91,20 @@ func _cadence() -> float:
 
 func _base_animation() -> String:
 	return "walk" if is_monster else "idle"
+
+
+func _update_level() -> void:
+	if is_monster or _level_frames.is_empty() or entity.level == _shown_level:
+		return
+	_shown_level = entity.level
+	var animation := sprite.animation
+	var frame := sprite.frame
+	var was_playing := sprite.is_playing()
+	sprite.sprite_frames = _level_frames[_shown_level - 1]
+	sprite.animation = animation
+	sprite.frame = frame
+	if was_playing:
+		sprite.play()
 
 
 func _update_fall() -> void:

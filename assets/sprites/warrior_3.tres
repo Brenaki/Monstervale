@@ -1,0 +1,70 @@
+[gd_resource type="SpriteFrames" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/warrior_3.png" id="1_pxsu6"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_70wbd"]
+atlas = ExtResource("1_pxsu6")
+region = Rect2(112, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mek4o"]
+atlas = ExtResource("1_pxsu6")
+region = Rect2(168, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_62mqk"]
+atlas = ExtResource("1_pxsu6")
+region = Rect2(224, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_y4acy"]
+atlas = ExtResource("1_pxsu6")
+region = Rect2(280, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cc72h"]
+atlas = ExtResource("1_pxsu6")
+region = Rect2(336, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mmb6b"]
+atlas = ExtResource("1_pxsu6")
+region = Rect2(0, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7eh2c"]
+atlas = ExtResource("1_pxsu6")
+region = Rect2(56, 0, 56, 40)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.9,
+"texture": SubResource("AtlasTexture_70wbd")
+}, {
+"duration": 0.7,
+"texture": SubResource("AtlasTexture_mek4o")
+}, {
+"duration": 1.2,
+"texture": SubResource("AtlasTexture_62mqk")
+}],
+"loop": 0,
+"name": &"attack",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.3,
+"texture": SubResource("AtlasTexture_y4acy")
+}, {
+"duration": 3.2,
+"texture": SubResource("AtlasTexture_cc72h")
+}],
+"loop": 0,
+"name": &"fall",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 5.0,
+"texture": SubResource("AtlasTexture_mmb6b")
+}, {
+"duration": 5.0,
+"texture": SubResource("AtlasTexture_7eh2c")
+}],
+"loop": 1,
+"name": &"idle",
+"speed": 10.0
+}]

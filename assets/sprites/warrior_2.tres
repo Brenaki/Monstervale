@@ -1,0 +1,70 @@
+[gd_resource type="SpriteFrames" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/warrior_2.png" id="1_3xrvo"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hbhfs"]
+atlas = ExtResource("1_3xrvo")
+region = Rect2(112, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_df41l"]
+atlas = ExtResource("1_3xrvo")
+region = Rect2(168, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fauaj"]
+atlas = ExtResource("1_3xrvo")
+region = Rect2(224, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rwrjt"]
+atlas = ExtResource("1_3xrvo")
+region = Rect2(280, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gyhf6"]
+atlas = ExtResource("1_3xrvo")
+region = Rect2(336, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hvrb6"]
+atlas = ExtResource("1_3xrvo")
+region = Rect2(0, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_acgn2"]
+atlas = ExtResource("1_3xrvo")
+region = Rect2(56, 0, 56, 40)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.9,
+"texture": SubResource("AtlasTexture_hbhfs")
+}, {
+"duration": 0.7,
+"texture": SubResource("AtlasTexture_df41l")
+}, {
+"duration": 1.2,
+"texture": SubResource("AtlasTexture_fauaj")
+}],
+"loop": 0,
+"name": &"attack",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.3,
+"texture": SubResource("AtlasTexture_rwrjt")
+}, {
+"duration": 3.2,
+"texture": SubResource("AtlasTexture_gyhf6")
+}],
+"loop": 0,
+"name": &"fall",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 5.0,
+"texture": SubResource("AtlasTexture_hvrb6")
+}, {
+"duration": 5.0,
+"texture": SubResource("AtlasTexture_acgn2")
+}],
+"loop": 1,
+"name": &"idle",
+"speed": 10.0
+}]

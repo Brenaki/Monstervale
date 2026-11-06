@@ -8,6 +8,7 @@ var speed: float
 var gold: int
 var damage: int
 var attack_cooldown: float
+var reach: float
 var lives: int
 var resist: Dictionary
 var distance: float = 0.0
@@ -27,6 +28,7 @@ func _init(monster_kind: String, data: Dictionary, route) -> void:
 	gold = data.gold
 	damage = data.damage
 	attack_cooldown = data.attack_cooldown
+	reach = data.reach
 	lives = data.lives
 	resist = data.resist
 	_route = route
