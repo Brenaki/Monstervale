@@ -1,6 +1,7 @@
 extends GutTest
 
 const SAVE_PATH := "user://test_progress.json"
+const LOG_DIR := "user://test_partidas"
 const FREE_CELL := Vector2i(7, 5)
 
 var game
@@ -9,10 +10,18 @@ func before_each() -> void:
 	DirAccess.remove_absolute(SAVE_PATH)
 	game = load("res://src/game/main.tscn").instantiate()
 	game.progress_path = SAVE_PATH
+	game.log_dir = LOG_DIR
+	_clear_logs()
 	add_child_autofree(game)
 
 func after_all() -> void:
 	DirAccess.remove_absolute(SAVE_PATH)
+	_clear_logs()
+	DirAccess.remove_absolute(LOG_DIR)
+
+func _clear_logs() -> void:
+	for file_name in DirAccess.get_files_at(LOG_DIR):
+		DirAccess.remove_absolute("%s/%s" % [LOG_DIR, file_name])
 
 func _advance(seconds: float) -> void:
 	game.advance(seconds)
@@ -112,6 +121,7 @@ func test_winning_saves_stars() -> void:
 	assert_string_contains(saved, "stars")
 	var reopened = load("res://src/game/main.tscn").instantiate()
 	reopened.progress_path = SAVE_PATH
+	reopened.log_dir = LOG_DIR
 	add_child_autofree(reopened)
 	assert_eq(reopened.progress.stars_for(0), 2)
 	assert_true(reopened.progress.is_unlocked(1))
@@ -166,3 +176,37 @@ func test_button_text_fits_in_both_languages() -> void:
 			button.clip_text = false
 			var needed: float = button.get_combined_minimum_size().x
 			assert_lte(needed, button.size.x, "%s: '%s'" % [locale, button.text.replace("\n", " ")])
+
+func _log_files() -> PackedStringArray:
+	return DirAccess.get_files_at(game.log_dir) if DirAccess.dir_exists_absolute(game.log_dir) else PackedStringArray()
+
+func test_restart_without_activity_writes_no_log() -> void:
+	game.restart()
+	assert_eq(_log_files().size(), 0)
+
+func test_restart_after_playing_saves_the_abandoned_match() -> void:
+	game.select_class("archer")
+	game.cell_clicked(FREE_CELL)
+	game.restart()
+	assert_eq(_log_files().size(), 2, "um .md e um .json")
+	var path: String = game.last_log_path
+	assert_string_contains(FileAccess.get_file_as_string(path), "Reiniciada")
+
+func test_finishing_a_level_saves_the_log_once() -> void:
+	game.select_class("archer")
+	game.cell_clicked(FREE_CELL)
+	game.finish_level("lost", 0)
+	assert_string_contains(FileAccess.get_file_as_string(game.last_log_path), "Derrota")
+	var count := _log_files().size()
+	game.restart()
+	assert_eq(_log_files().size(), count, "reiniciar depois do fim não duplica")
+
+func test_closing_the_window_saves_the_match() -> void:
+	game.select_class("archer")
+	game.cell_clicked(FREE_CELL)
+	game.notification(NOTIFICATION_WM_CLOSE_REQUEST)
+	assert_string_contains(FileAccess.get_file_as_string(game.last_log_path), "Jogo fechado")
+
+func test_result_panel_has_a_log_button() -> void:
+	game.finish_level("won", 3)
+	assert_true(game.hud.log_button in game.hud.all_buttons())

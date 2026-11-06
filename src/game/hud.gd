@@ -11,6 +11,7 @@ signal upgrade_pressed
 signal dismiss_pressed
 signal priority_pressed
 signal close_pressed
+signal log_pressed
 
 const TOP_HEIGHT := 24
 const BOTTOM_TOP := 320
@@ -46,6 +47,7 @@ var result_panel: Panel
 var result_title: Label
 var result_stars: Label
 var result_restart: Button
+var log_button: Button
 
 var _root: Control
 var _class_bar: Control
@@ -87,6 +89,7 @@ func refresh(game) -> void:
 	restart_button.text = tr("BTN_RESTART")
 	language_button.text = tr("BTN_LANGUAGE")
 	result_restart.text = tr("BTN_RESTART")
+	log_button.text = tr("BTN_OPEN_LOG")
 	for kind: String in class_buttons:
 		var button: Button = class_buttons[kind]
 		var cost: int = sim.unit_cost(kind)
@@ -114,7 +117,7 @@ func hide_result() -> void:
 func all_buttons() -> Array:
 	var buttons := [
 		pause_button, speed_button, restart_button, language_button, next_wave_button,
-		upgrade_button, dismiss_button, priority_button, close_button, result_restart,
+		upgrade_button, dismiss_button, priority_button, close_button, result_restart, log_button,
 	]
 	buttons.append_array(class_buttons.values())
 	return buttons
@@ -199,8 +202,10 @@ func _build_result_panel() -> void:
 	result_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	result_stars = _label(result_panel, Rect2(0, 40, 260, 18))
 	result_stars.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	result_restart = _button(result_panel, Rect2(80, 68, 100, 26))
+	result_restart = _button(result_panel, Rect2(24, 68, 104, 26))
 	result_restart.pressed.connect(func(): restart_pressed.emit())
+	log_button = _button(result_panel, Rect2(132, 68, 104, 26))
+	log_button.pressed.connect(func(): log_pressed.emit())
 
 
 func _panel(parent: Control, rect: Rect2, color: Color) -> Panel:

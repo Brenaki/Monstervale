@@ -4,6 +4,7 @@ extends Node2D
 const GameData = preload("res://src/core/game_data.gd")
 const Simulation = preload("res://src/core/simulation.gd")
 const Progress = preload("res://src/core/progress.gd")
+const MatchLog = preload("res://src/core/match_log.gd")
 const LevelReader = preload("res://src/game/level_reader.gd")
 const EntityView = preload("res://src/game/entity_view.gd")
 const Overlay = preload("res://src/game/overlay.gd")
@@ -21,6 +22,8 @@ const ARROW_SECONDS := 0.12
 const NO_CELL := Vector2i(-1, -1)
 
 var progress_path := "user://progress.json"
+var log_dir := "user://partidas"
+var last_log_path := ""
 var catalog: Dictionary
 var level: Dictionary
 var sim
@@ -38,6 +41,8 @@ var _effects: Node2D
 var _views := {}
 var _frame_cache := {}
 var _accumulator := 0.0
+var _match_log
+var _log_saved := false
 
 
 func _ready() -> void:
@@ -68,6 +73,7 @@ func _ready() -> void:
 	hud.dismiss_pressed.connect(dismiss_selected)
 	hud.priority_pressed.connect(cycle_priority)
 	hud.close_pressed.connect(clear_selection)
+	hud.log_pressed.connect(open_last_log)
 
 	_choose_initial_language()
 	restart()
@@ -78,6 +84,11 @@ func _process(delta: float) -> void:
 	for state in _views:
 		_views[state].sync(delta)
 	hud.refresh(self)
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		_save_unfinished_match("closed")
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -163,12 +174,15 @@ func toggle_language() -> void:
 
 
 func restart() -> void:
+	_save_unfinished_match("restarted")
 	for state in _views:
 		_views[state].queue_free()
 	_views.clear()
 	for child in _effects.get_children():
 		child.queue_free()
 	sim = Simulation.new(catalog, level)
+	_match_log = MatchLog.new(LEVEL_ID, Time.get_datetime_string_from_system(false, true))
+	_log_saved = false
 	paused = false
 	speed = 1
 	clear_selection()
@@ -187,11 +201,46 @@ func finish_level(state: String, stars: int) -> void:
 	if won:
 		progress.record(LEVEL_INDEX, stars)
 		_save_progress()
+	_save_log(state)
 	hud.show_result(won, stars)
 
 
+## No navegador baixa o relatório; no desktop abre a pasta com ele selecionado.
+func open_last_log() -> void:
+	if last_log_path == "":
+		return
+	if OS.has_feature("web"):
+		var data := FileAccess.get_file_as_bytes(last_log_path)
+		JavaScriptBridge.download_buffer(data, last_log_path.get_file(), "text/markdown")
+	else:
+		OS.shell_show_in_file_manager(ProjectSettings.globalize_path(last_log_path))
+
+
+func _save_unfinished_match(result: String) -> void:
+	if _match_log != null and not _log_saved and _match_log.has_activity():
+		_save_log(result)
+
+
+func _save_log(result: String) -> void:
+	_match_log.finish(result, sim)
+	DirAccess.make_dir_recursive_absolute(log_dir)
+	var stem: String = "%s/%s" % [log_dir, _match_log.file_stem()]
+	var markdown := FileAccess.open(stem + ".md", FileAccess.WRITE)
+	var json := FileAccess.open(stem + ".json", FileAccess.WRITE)
+	if markdown == null or json == null:
+		push_warning("Não foi possível salvar o log em %s" % log_dir)
+		return
+	markdown.store_string(_match_log.to_markdown())
+	json.store_string(JSON.stringify(_match_log.to_dict(), "  "))
+	last_log_path = stem + ".md"
+	_log_saved = true
+	print("Log da partida: ", ProjectSettings.globalize_path(last_log_path))
+
+
 func _handle_events() -> void:
-	for event: Dictionary in sim.drain_events():
+	var events: Array = sim.drain_events()
+	_match_log.consume(events, sim)
+	for event: Dictionary in events:
 		match event.type:
 			"monster_spawned":
 				_add_monster_view(event.monster)

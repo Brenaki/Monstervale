@@ -58,3 +58,22 @@ func test_every_monster_points_to_an_existing_sprite() -> void:
 	var catalog := GameData.load_catalog()
 	for kind: String in catalog.monsters:
 		assert_true(ResourceLoader.exists("res://assets/sprites/%s.tres" % catalog.monsters[kind].sprite), kind)
+
+func test_nothing_can_be_built_under_the_village() -> void:
+	var village: Sprite2D = scene.get_node("Village")
+	var rect := Rect2(village.position - village.texture.get_size() / 2.0, village.texture.get_size())
+	for y in range(int(rect.position.y) / 32, int(rect.end.y - 1) / 32 + 1):
+		for x in range(int(rect.position.x) / 32, 20):
+			assert_false(level.buildable.has(Vector2i(x, y)), "(%d, %d) sob a vila" % [x, y])
+
+func test_village_is_larger_than_a_single_house() -> void:
+	var village: Sprite2D = scene.get_node("Village")
+	assert_gte(village.texture.get_width(), 96)
+	assert_gte(village.texture.get_height(), 128)
+
+func test_decor_has_more_than_one_kind_of_plant_or_rock() -> void:
+	var decor: TileMapLayer = scene.get_node("Decor")
+	var kinds := {}
+	for cell: Vector2i in decor.get_used_cells():
+		kinds[decor.get_cell_atlas_coords(cell)] = true
+	assert_gte(kinds.size(), 3)

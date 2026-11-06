@@ -14,6 +14,7 @@ var units: Array = []
 var monsters: Array = []
 var route
 var next_wave_countdown: float
+var elapsed: float = 0.0
 
 var _catalog: Dictionary
 var _level: Dictionary
@@ -110,8 +111,9 @@ func can_call_next_wave() -> bool:
 func call_next_wave() -> bool:
 	if not can_call_next_wave():
 		return false
-	gold += early_call_bonus()
-	_start_next_wave()
+	var bonus := early_call_bonus()
+	gold += bonus
+	_start_next_wave(bonus, true)
 	return true
 
 
@@ -157,6 +159,7 @@ func drain_events() -> Array:
 func tick(delta: float) -> void:
 	if state != "playing":
 		return
+	elapsed += delta
 	_update_wave_timer(delta)
 	_update_spawners(delta)
 	_update_monsters(delta)
@@ -166,6 +169,10 @@ func tick(delta: float) -> void:
 
 
 func _emit(event: Dictionary) -> void:
+	event["time"] = elapsed
+	event["gold"] = gold
+	event["lives"] = lives
+	event["waves_started"] = _next_wave
 	_events.append(event)
 
 
@@ -176,7 +183,7 @@ func _is_spawning() -> bool:
 	return false
 
 
-func _start_next_wave() -> void:
+func _start_next_wave(early_bonus: int = 0, called_early: bool = false) -> void:
 	var definition: Dictionary = _level.waves[_next_wave]
 	var spawners := []
 	for group: Dictionary in definition.groups:
@@ -186,10 +193,10 @@ func _start_next_wave() -> void:
 			"interval": float(group.interval),
 			"timer": float(group.delay),
 		})
-	_active_waves.append({"spawners": spawners, "alive": 0, "bonus": int(definition.bonus)})
 	_next_wave += 1
+	_active_waves.append({"number": _next_wave, "spawners": spawners, "alive": 0, "bonus": int(definition.bonus)})
 	next_wave_countdown = float(_level.wave_interval)
-	_emit({"type": "wave_started", "number": _next_wave})
+	_emit({"type": "wave_started", "number": _next_wave, "early_bonus": early_bonus, "called_early": called_early})
 
 
 func _update_wave_timer(delta: float) -> void:
@@ -270,7 +277,7 @@ func _walk(monster, delta: float) -> void:
 func _escape(monster) -> void:
 	lives = maxi(0, lives - monster.lives)
 	_remove(monster)
-	_emit({"type": "monster_escaped", "monster": monster, "lives": lives})
+	_emit({"type": "monster_escaped", "monster": monster})
 
 
 func _remove(monster) -> void:
@@ -336,7 +343,7 @@ func _attack(unit, target) -> void:
 		unit.facing = 1 if target_x > unit.position.x else -1
 	_emit({"type": "attack", "unit": unit, "target": target, "position": target.position()})
 	for monster in hits:
-		_damage(monster, monster.damage_from(int(stats.damage), unit.damage_type()))
+		_damage(monster, monster.damage_from(int(stats.damage), unit.damage_type()), unit.kind)
 
 
 func _nearby(target, radius: float, count: int) -> Array:
@@ -345,9 +352,9 @@ func _nearby(target, radius: float, count: int) -> Array:
 	return near.slice(0, count)
 
 
-func _damage(monster, amount: int) -> void:
+func _damage(monster, amount: int, source: String) -> void:
 	monster.hp -= amount
-	_emit({"type": "monster_hit", "monster": monster, "damage": amount})
+	_emit({"type": "monster_hit", "monster": monster, "damage": amount, "source": source})
 	if monster.hp <= 0:
 		gold += monster.gold
 		_remove(monster)
@@ -359,7 +366,7 @@ func _update_waves_cleared() -> void:
 		if wave.spawners.is_empty() and wave.alive <= 0:
 			gold += wave.bonus
 			_active_waves.erase(wave)
-			_emit({"type": "wave_cleared", "bonus": wave.bonus})
+			_emit({"type": "wave_cleared", "number": wave.number, "bonus": wave.bonus})
 
 
 func _update_end_state() -> void:

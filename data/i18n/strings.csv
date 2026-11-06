@@ -29,3 +29,4 @@ RESULT_WON,Vilarejo salvo!,Village saved!
 RESULT_LOST,O vilarejo caiu,The village fell
 RESULT_STARS,Estrelas: %d de 3,Stars: %d of 3
 UNIT_DOWN,Caído,Down
+BTN_OPEN_LOG,Ver relatório,View report

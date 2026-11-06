@@ -84,6 +84,8 @@ Todos os comandos têm botão na tela:
 - Goblins, esqueletos e humanos cabeçudos, com contorno escuro, armas grandes e mãos soltas (`dM6yj6`, `of5ORW`).
 - Slimes como em `Free-Slime`. Terreno como a grama e as trilhas de `of5ORW` e `Free-Slime`. Lobos de silhueta baixa e alongada (`f51e`, `L9LaBi`).
 - Humanos indicam a classe por roupa, cor e arma (`DvqwHY` como base de corpo e itens).
+- Vegetação em moitas redondas de borda serrilhada, com variantes de frutinhas e pedras (`Free-Top-Down-Bushes`, `OIP`).
+- O destino dos monstros é uma vila, não uma casa: casas em enxaimel com empena frontal, telhado inclinado, base de pedra e janelas acesas, mais poço, cerca, barris e feno (`qV+rhb`). Cada casa tem de 44 a 56 px de largura e a vila ocupa 160×160 px.
 - Paleta, contorno e luz únicos em todo o jogo.
 - Não usar o personagem de `b0d95e` nem o visual das goblins de `3080290`.
 
@@ -96,6 +98,12 @@ Todos os comandos têm botão na tela:
 | Rei Slime | Andar (6) e divisão (4) |
 
 O dano aparece como um breve clarão feito por código, sem quadros extras. O teto só sobe onde o sprite de referência pedir.
+
+## Avaliação das partidas
+
+- Cada partida gera um relatório em `user://partidas`, em Markdown e JSON, ao vencer, perder, reiniciar ou fechar o jogo. No Linux, a pasta é `~/.local/share/godot/app_userdata/DT-SLIME/partidas`.
+- O relatório traz, por onda, defesa, monstros, abates, vidas, ouro, dano por classe, humanos caídos, ações e uma linha para notas. É sempre em português.
+- Primeira avaliação da Fase 1: divertida, fácil no início e bem equilibrada para ensinar. O balanceamento continua igual até haver mais relatórios.
 
 ## Técnica
 
@@ -117,9 +125,11 @@ O dano aparece como um breve clarão feito por código, sem quadros extras. O te
 
 ## Ordem de trabalho
 
-1. Tela de teste de estilo em 640×360, com terreno, caminho, goblin, arqueiro, guerreiro e slime, para aprovação.
-2. Fase 1 completa em TDD, com goblins, arqueiro, guerreiro, mapa, ouro, vidas, ondas, 3 níveis e interface. A arte provisória só é substituída depois da aprovação do estilo.
-3. Demais fases, depois de avaliar se a Fase 1 está divertida.
+1. Feito: tela de teste de estilo, aprovada para os personagens em 2026-11-06, com pedido de melhorar arbustos e vila.
+2. Feito: Fase 1 completa em TDD, com goblins, arqueiro, guerreiro, mapa, ouro, vidas, ondas, 3 níveis, interface e relatórios de partida.
+3. Avaliar a vila e os arbustos novos.
+4. Desenhar as animações reais dos personagens, no limite de quadros definido.
+5. Demais fases.
 
 ## Decisões adiadas
 

@@ -13,17 +13,22 @@ const GRID := Vector2i(20, 11)
 const ATLAS_SIZE := Vector2i(8, 3)
 const BUSH := Vector2i(4, 0)
 const LOCKED_GRASS := Vector2i(5, 0)
+const BERRY_BUSH := Vector2i(6, 0)
+const ROCK := Vector2i(7, 0)
+const LAST_GRASS_COLUMN := 3
+const VILLAGE_CELLS := Rect2i(15, 1, 5, 5)
 const PATH_RUNS := [
 	[Vector2i(0, 7), Vector2i(8, 7)],
 	[Vector2i(8, 3), Vector2i(8, 7)],
-	[Vector2i(8, 3), Vector2i(16, 3)],
-	[Vector2i(17, 2), Vector2i(19, 4)],
+	[Vector2i(8, 3), Vector2i(17, 3)],
+	[Vector2i(15, 4), Vector2i(17, 4)],
 ]
 const ROUTE := [Vector2(-16, 240), Vector2(272, 240), Vector2(272, 112), Vector2(560, 112)]
-const BUSHES := [
-	Vector2i(1, 2), Vector2i(4, 1), Vector2i(2, 5), Vector2i(13, 1), Vector2i(18, 7),
-	Vector2i(15, 7), Vector2i(1, 9), Vector2i(5, 9), Vector2i(11, 8), Vector2i(16, 9),
-]
+const DECOR := {
+	Vector2i(1, 2): BUSH, Vector2i(4, 1): ROCK, Vector2i(2, 5): BERRY_BUSH, Vector2i(13, 1): BUSH,
+	Vector2i(18, 7): BERRY_BUSH, Vector2i(15, 7): BUSH, Vector2i(1, 9): BUSH, Vector2i(5, 9): BERRY_BUSH,
+	Vector2i(11, 8): ROCK, Vector2i(16, 9): BUSH, Vector2i(10, 1): BERRY_BUSH, Vector2i(18, 9): ROCK,
+}
 
 
 func _init() -> void:
@@ -64,10 +69,8 @@ func _build_tileset() -> TileSet:
 	for y in ATLAS_SIZE.y:
 		for x in ATLAS_SIZE.x:
 			var coords := Vector2i(x, y)
-			if y == 0 and x > LOCKED_GRASS.x:
-				continue
 			source.create_tile(coords)
-			source.get_tile_data(coords, 0).set_custom_data("buildable", y == 0 and x < BUSH.x)
+			source.get_tile_data(coords, 0).set_custom_data("buildable", y == 0 and x <= LAST_GRASS_COLUMN)
 	for mask in 16:
 		var data := source.get_tile_data(_path_tile(mask), 0)
 		data.terrain_set = 0
@@ -97,12 +100,12 @@ func _build_level(tileset: TileSet) -> void:
 			var cell := Vector2i(x, y)
 			if path_cells.has(cell):
 				ground.set_cell(cell, 0, _path_tile(_mask(cell, path_cells)))
-			elif y == 0 or y == GRID.y - 1:
+			elif y == 0 or y == GRID.y - 1 or VILLAGE_CELLS.has_point(cell):
 				ground.set_cell(cell, 0, LOCKED_GRASS)
 			else:
 				ground.set_cell(cell, 0, Vector2i((x * 7 + y * 13) % 4, 0))
-	for cell: Vector2i in BUSHES:
-		decor.set_cell(cell, 0, BUSH)
+	for cell: Vector2i in DECOR:
+		decor.set_cell(cell, 0, DECOR[cell])
 
 	var route := Path2D.new()
 	route.name = "Route"
@@ -114,7 +117,7 @@ func _build_level(tileset: TileSet) -> void:
 	var village := Sprite2D.new()
 	village.name = "Village"
 	village.texture = load("res://assets/sprites/village.png")
-	village.position = Vector2(592, 96)
+	village.position = (Vector2(VILLAGE_CELLS.position) + Vector2(VILLAGE_CELLS.size) / 2.0) * TILE
 	root.add_child(village)
 
 	for child in root.get_children():
