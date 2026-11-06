@@ -1,0 +1,79 @@
+extends GutTest
+## Protege as animações contra sprites sem quadros, quadros iguais e pés fora do chão.
+
+const REQUIRED := {
+	"goblin": {"walk": 4, "attack": 3, "death": 2},
+	"archer": {"idle": 2, "attack": 3},
+	"warrior": {"idle": 2, "attack": 3, "fall": 2},
+}
+const GROUNDED := ["walk", "idle", "attack"]
+
+func _frames(sprite: String) -> SpriteFrames:
+	return load("res://assets/sprites/%s.tres" % sprite)
+
+func _image(frames: SpriteFrames, animation: String, index: int) -> Image:
+	var atlas: AtlasTexture = frames.get_frame_texture(animation, index)
+	return atlas.atlas.get_image().get_region(Rect2i(atlas.region))
+
+func test_animations_respect_the_agreed_frame_count() -> void:
+	for sprite: String in REQUIRED:
+		var frames := _frames(sprite)
+		for animation: String in REQUIRED[sprite]:
+			assert_true(frames.has_animation(animation), "%s sem %s" % [sprite, animation])
+			assert_eq(frames.get_frame_count(animation), REQUIRED[sprite][animation], "%s %s" % [sprite, animation])
+
+func test_consecutive_frames_really_change() -> void:
+	for sprite: String in REQUIRED:
+		var frames := _frames(sprite)
+		for animation: String in REQUIRED[sprite]:
+			for i in frames.get_frame_count(animation) - 1:
+				var a := _image(frames, animation, i).get_data()
+				var b := _image(frames, animation, i + 1).get_data()
+				assert_ne(a, b, "%s %s quadro %d igual ao seguinte" % [sprite, animation, i])
+
+func test_feet_stay_on_the_same_ground_line() -> void:
+	for sprite: String in REQUIRED:
+		var frames := _frames(sprite)
+		var ground := -1
+		for animation: String in GROUNDED:
+			if not frames.has_animation(animation):
+				continue
+			for i in frames.get_frame_count(animation):
+				var bottom := _image(frames, animation, i).get_used_rect().end.y
+				if ground == -1:
+					ground = bottom
+				assert_eq(bottom, ground, "%s %s quadro %d" % [sprite, animation, i])
+
+func test_body_is_centered_so_mirroring_does_not_jump() -> void:
+	for sprite: String in REQUIRED:
+		var frames := _frames(sprite)
+		var animation: String = "walk" if frames.has_animation("walk") else "idle"
+		var image := _image(frames, animation, 0)
+		var feet_row := image.get_used_rect().end.y - 2
+		var left := -1
+		var right := -1
+		for x in image.get_width():
+			if image.get_pixel(x, feet_row).a > 0.0:
+				if left == -1:
+					left = x
+				right = x
+		assert_almost_eq((left + right) / 2.0, image.get_width() / 2.0, 3.0, sprite)
+
+func test_nothing_touches_the_canvas_edge() -> void:
+	for sprite: String in REQUIRED:
+		var frames := _frames(sprite)
+		for animation: String in REQUIRED[sprite]:
+			for i in frames.get_frame_count(animation):
+				var image := _image(frames, animation, i)
+				var used := image.get_used_rect()
+				assert_gt(used.position.x, 0, "%s %s %d cortado à esquerda" % [sprite, animation, i])
+				assert_lt(used.end.x, image.get_width(), "%s %s %d cortado à direita" % [sprite, animation, i])
+				assert_gt(used.position.y, 0, "%s %s %d cortado em cima" % [sprite, animation, i])
+
+func test_attacks_are_short_enough_for_the_fastest_cooldown() -> void:
+	for sprite: String in REQUIRED:
+		var frames := _frames(sprite)
+		var total := 0.0
+		for i in frames.get_frame_count("attack"):
+			total += frames.get_frame_duration("attack", i) / frames.get_animation_speed("attack")
+		assert_lt(total, 0.8, sprite)

@@ -127,8 +127,8 @@ O dano aparece como um breve clarão feito por código, sem quadros extras. O te
 
 1. Feito: tela de teste de estilo, aprovada para os personagens em 2026-11-06, com pedido de melhorar arbustos e vila.
 2. Feito: Fase 1 completa em TDD, com goblins, arqueiro, guerreiro, mapa, ouro, vidas, ondas, 3 níveis, interface e relatórios de partida.
-3. Avaliar a vila e os arbustos novos.
-4. Desenhar as animações reais dos personagens, no limite de quadros definido.
+3. Feito: vila e arbustos novos, aprovados em 2026-11-06.
+4. Feito para a Fase 1: animações reais de goblin, arqueiro e guerreiro, no limite de quadros definido. O slime é animado quando entrar na Fase 2.
 5. Demais fases.
 
 ## Decisões adiadas

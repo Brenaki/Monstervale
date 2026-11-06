@@ -49,11 +49,6 @@ func test_every_buildable_cell_is_inside_the_map() -> void:
 func test_there_is_room_to_build() -> void:
 	assert_gt(level.buildable.size(), 80)
 
-func test_generated_sprites_have_idle_animation() -> void:
-	for name: String in ["goblin", "archer", "warrior"]:
-		var frames: SpriteFrames = load("res://assets/sprites/%s.tres" % name)
-		assert_gt(frames.get_frame_count("idle"), 0, name)
-
 func test_every_monster_points_to_an_existing_sprite() -> void:
 	var catalog := GameData.load_catalog()
 	for kind: String in catalog.monsters:

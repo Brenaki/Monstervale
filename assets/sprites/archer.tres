@@ -4,13 +4,46 @@
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_pwwle"]
 atlas = ExtResource("1_ukua0")
-region = Rect2(0, 0, 36, 32)
+region = Rect2(112, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_oulmy"]
+atlas = ExtResource("1_ukua0")
+region = Rect2(168, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p15rk"]
+atlas = ExtResource("1_ukua0")
+region = Rect2(224, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pch0p"]
+atlas = ExtResource("1_ukua0")
+region = Rect2(0, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4isyr"]
+atlas = ExtResource("1_ukua0")
+region = Rect2(56, 0, 56, 40)
 
 [resource]
 animations = [{
 "frames": [{
-"duration": 1.0,
+"duration": 1.7,
 "texture": SubResource("AtlasTexture_pwwle")
+}, {
+"duration": 0.7,
+"texture": SubResource("AtlasTexture_oulmy")
+}, {
+"duration": 1.2,
+"texture": SubResource("AtlasTexture_p15rk")
+}],
+"loop": 0,
+"name": &"attack",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 5.0,
+"texture": SubResource("AtlasTexture_pch0p")
+}, {
+"duration": 5.0,
+"texture": SubResource("AtlasTexture_4isyr")
 }],
 "loop": 1,
 "name": &"idle",

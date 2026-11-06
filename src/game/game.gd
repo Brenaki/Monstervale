@@ -81,8 +81,9 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	advance(delta)
+	var time_scale := 0.0 if paused or sim.state != "playing" else float(speed)
 	for state in _views:
-		_views[state].sync(delta)
+		_views[state].sync(delta, time_scale)
 	hud.refresh(self)
 
 
@@ -175,9 +176,9 @@ func toggle_language() -> void:
 
 func restart() -> void:
 	_save_unfinished_match("restarted")
-	for state in _views:
-		_views[state].queue_free()
 	_views.clear()
+	for child in _entities.get_children():
+		child.queue_free()
 	for child in _effects.get_children():
 		child.queue_free()
 	sim = Simulation.new(catalog, level)
@@ -246,7 +247,7 @@ func _handle_events() -> void:
 				_add_monster_view(event.monster)
 			"monster_killed":
 				_burst(event.position, event.monster.kind)
-				_remove_view(event.monster)
+				_kill_view(event.monster)
 			"monster_escaped":
 				_remove_view(event.monster)
 				_update_village()
@@ -258,7 +259,7 @@ func _handle_events() -> void:
 				_remove_view(event.unit)
 			"unit_hit":
 				_flash(event.unit)
-				_lunge(event.monster, event.monster.facing)
+				_play_attack(event.monster)
 			"attack":
 				_show_attack(event.unit, event.position)
 			"level_won":
@@ -293,14 +294,20 @@ func _flash(state) -> void:
 		_views[state].flash()
 
 
-func _lunge(state, direction: int) -> void:
+func _play_attack(state) -> void:
 	if _views.has(state):
-		_views[state].lunge(direction)
+		_views[state].play_attack()
+
+
+func _kill_view(state) -> void:
+	if _views.has(state):
+		_views[state].play_death()
+		_views.erase(state)
 
 
 func _show_attack(unit, target_position: Vector2) -> void:
+	_play_attack(unit)
 	if unit.is_melee():
-		_lunge(unit, unit.facing)
 		return
 	var arrow := Line2D.new()
 	arrow.width = 1.0

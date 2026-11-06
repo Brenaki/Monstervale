@@ -18,6 +18,8 @@ const BOTTOM_TOP := 320
 const SCREEN := Vector2(640, 360)
 const FONT_SIZE := 10
 const CLASS_BUTTON_WIDTH := 100
+const ICON_MARGIN := Vector2(16, 8)
+const ICON_SIZE := Vector2(30, 30)
 const BAR_COLOR := Color("1b1626")
 const PANEL_COLOR := Color("2a2438")
 const BORDER_COLOR := Color("5d6a7a")
@@ -72,11 +74,20 @@ func set_classes(classes: Array, frames_for: Callable) -> void:
 	for kind: String in classes:
 		var button := _button(_class_bar, Rect2(x, 3, CLASS_BUTTON_WIDTH, 34))
 		button.clip_text = false
-		button.icon = frames_for.call(kind).get_frame_texture("idle", 0)
+		button.icon = _class_icon(frames_for.call(kind))
 		button.toggle_mode = true
 		button.pressed.connect(func(): class_pressed.emit(kind))
 		class_buttons[kind] = button
 		x += CLASS_BUTTON_WIDTH + 4
+
+
+## O quadro inteiro tem folga para armas; o ícone mostra só o corpo e a arma parada.
+func _class_icon(frames: SpriteFrames) -> Texture2D:
+	var frame: AtlasTexture = frames.get_frame_texture("idle", 0)
+	var icon := AtlasTexture.new()
+	icon.atlas = frame.atlas
+	icon.region = Rect2(frame.region.position + ICON_MARGIN, ICON_SIZE)
+	return icon
 
 
 func refresh(game) -> void:
