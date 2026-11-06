@@ -6,7 +6,7 @@
       {
         "cost": 65,
         "damage": 5,
-        "cooldown": 0.9,
+        "cooldown": 1.0,
         "range": 96,
         "hp": 20,
         "respawn": 8
@@ -37,31 +37,35 @@
     "levels": [
       {
         "cost": 50,
-        "damage": 4,
-        "cooldown": 0.8,
-        "range": 44,
-        "hp": 40,
-        "block": 2,
-        "respawn": 8
-      },
-      {
-        "cost": 50,
-        "damage": 6,
+        "damage": 5,
         "cooldown": 0.8,
         "range": 44,
         "hp": 60,
         "block": 2,
-        "respawn": 8
+        "respawn": 6
       },
       {
-        "cost": 80,
-        "damage": 9,
+        "cost": 30,
+        "damage": 8,
         "cooldown": 0.8,
         "range": 44,
         "hp": 90,
+        "block": 2,
+        "respawn": 6,
+        "regen": 0.5,
+        "regen_delay": 3
+      },
+      {
+        "cost": 60,
+        "damage": 12,
+        "cooldown": 0.8,
+        "range": 44,
+        "hp": 130,
         "block": 3,
-        "respawn": 8,
-        "damage_taken": 0.7
+        "respawn": 6,
+        "damage_taken": 0.7,
+        "regen": 1,
+        "regen_delay": 3
       }
     ]
   }

@@ -19,8 +19,8 @@ static func catalog() -> Dictionary:
 				"attack": "melee", "damage_type": "impact",
 				"levels": [
 					{"cost": 50, "damage": 5, "cooldown": 1.0, "range": 60.0, "hp": 20, "block": 1, "respawn": 5.0},
-					{"cost": 40, "damage": 7, "cooldown": 1.0, "range": 60.0, "hp": 30, "block": 1, "respawn": 5.0},
-					{"cost": 60, "damage": 9, "cooldown": 1.0, "range": 60.0, "hp": 40, "block": 2, "respawn": 5.0, "damage_taken": 0.5},
+					{"cost": 40, "damage": 7, "cooldown": 1.0, "range": 60.0, "hp": 30, "block": 1, "respawn": 5.0, "regen": 2.0, "regen_delay": 3.0},
+					{"cost": 60, "damage": 9, "cooldown": 1.0, "range": 60.0, "hp": 40, "block": 2, "respawn": 5.0, "damage_taken": 0.5, "regen": 4.0, "regen_delay": 3.0},
 				],
 			},
 		},

@@ -74,6 +74,8 @@ static func _validate_unit(kind: String, unit: Dictionary) -> Array:
 				errors.append("%s: falta %s" % [label, field])
 		if levels[i].get("cost", 1) <= 0:
 			errors.append("%s: cost deve ser positivo" % label)
+		if levels[i].has("regen") and not levels[i].has("regen_delay"):
+			errors.append("%s: regen precisa de regen_delay" % label)
 	return errors
 
 

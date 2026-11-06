@@ -269,6 +269,7 @@ func _strike(monster, unit) -> void:
 	monster.cooldown = monster.attack_cooldown
 	var taken := maxi(1, roundi(monster.damage * float(unit.stats().get("damage_taken", 1.0))))
 	unit.hp -= taken
+	unit.time_since_hit = 0.0
 	_emit({"type": "unit_hit", "unit": unit, "monster": monster, "damage": taken})
 	if unit.hp <= 0:
 		_fell(unit)
@@ -319,6 +320,7 @@ func _update_units(delta: float) -> void:
 				unit.hp = unit.stats().hp
 				_emit({"type": "unit_up", "unit": unit})
 			continue
+		unit.recover(delta)
 		unit.cooldown -= delta
 		if unit.cooldown > 0.0:
 			continue

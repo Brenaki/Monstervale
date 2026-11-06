@@ -37,6 +37,7 @@ Registro das decisões tomadas em 2026-11-06. `DT-SLIME` é um nome provisório.
 - Ficam parados depois de posicionados. Dispensar um humano devolve metade de todo o ouro gasto nele, incluindo melhorias.
 - 3 níveis lineares. O nível 3 libera uma habilidade automática, com variação visual que destaca essa habilidade. Os níveis 2 e 3 têm sprites próprios.
 - Só o corpo a corpo segura monstros. Qualquer humano ao alcance de um monstro leva dano: quem não está bloqueado continua andando e bate de passagem no humano mais próximo. Ao perder toda a vida, o humano cai e volta depois de alguns segundos, sem morte permanente. Isso obriga a afastar arqueiros e magos do caminho.
+- Guerreiros de nível 2 e 3 recuperam um pouco de vida depois de alguns segundos sem levar dano, com valores em `data/units.json`.
 - As classes são inspiradas nos arquétipos de D&D, sem dados nem regras do sistema.
 
 | Classe | Papel | Ataque | Dano | Habilidade no nível 3 | Destaque visual |
@@ -107,6 +108,8 @@ O dano aparece como um breve clarão feito por código, sem quadros extras. O te
 - Segunda avaliação: fácil demais. A partida do relatório terminou em 3 minutos, sem perder vidas e com 746 de ouro sobrando. Daí veio a regra de todo humano poder cair.
 - Terceira avaliação: ainda fácil, com ouro demais. Sem monstro nenhum passar, a partida recebeu 1447 de ouro. A renda da fase, sem contar chamadas de onda, caiu de 1257 para 746, e chamar uma onda rende até cerca de 10 de ouro em vez de 21. Essa partida fica em `tests/fixtures/partida_facil_demais.json`, e um teste exige que ela não seja mais perfeita.
 - Quarta avaliação: venceu com 3 estrelas só comprando arqueiros de nível 1 e perdeu rápido só com guerreiros. O guerreiro passou a custar 50 de ouro e o arqueiro, 65.
+- Nivelamento depois da quarta avaliação: guerreiro mais forte, com melhorias mais baratas e retorno em 6 s; arqueiro de nível 1 atirando a cada 1,0 s; chamar uma onda rende até cerca de 4 de ouro, porque com o campo limpo não havia risco. Testes em `test_balance.gd` exigem esta ordem: misturar classes vence uma classe só, melhorar vence só comprar mais, arqueiros de nível 1 sozinhos perdem e guerreiros de nível 1 sozinhos chegam à última onda. A partida só de arqueiros fica em `tests/fixtures/partida_so_arqueiros.json`.
+- Quinta avaliação, que aprova a Fase 1: difícil no começo e tranquila depois, com 3 estrelas em 5 minutos. As ondas 1 a 6 renderam 182 de ouro e as ondas 7 a 12, 444; 5 humanos seguraram a última onda e sobraram 127 de ouro. O arqueiro de nível 3 é o grande salto de dano. As fases seguintes devem cuidar dessa curva.
 
 ## Técnica
 
@@ -133,7 +136,7 @@ O dano aparece como um breve clarão feito por código, sem quadros extras. O te
 3. Feito: vila e arbustos novos, aprovados em 2026-11-06.
 4. Feito para a Fase 1: animações reais de goblin, arqueiro e guerreiro, no limite de quadros definido. O slime é animado quando entrar na Fase 2.
 5. Feito: troca de arma das variantes e visual dos níveis 2 e 3.
-6. Avaliar a dificuldade com a nova regra, usando os relatórios.
+6. Feito: dificuldade da Fase 1 avaliada com os relatórios e aprovada em 2026-11-06.
 7. Demais fases.
 
 ## Decisões adiadas

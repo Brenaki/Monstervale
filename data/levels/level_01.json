@@ -7,7 +7,7 @@
     "warrior"
   ],
   "wave_interval": 42,
-  "early_call_gold_per_second": 0.25,
+  "early_call_gold_per_second": 0.1,
   "stars": [
     0.5,
     0.9

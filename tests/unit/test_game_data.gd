@@ -34,6 +34,11 @@ func test_unit_level_needs_positive_cost() -> void:
 	catalog.units.archer.levels[1].cost = 0
 	assert_eq(GameData.validate_catalog(catalog), ["unidade archer nível 2: cost deve ser positivo"])
 
+func test_regen_needs_a_delay() -> void:
+	var catalog := Fixtures.catalog()
+	catalog.units.warrior.levels[1].erase("regen_delay")
+	assert_eq(GameData.validate_catalog(catalog), ["unidade warrior nível 2: regen precisa de regen_delay"])
+
 func test_monster_needs_all_fields() -> void:
 	var catalog := Fixtures.catalog()
 	catalog.monsters.goblin.erase("speed")

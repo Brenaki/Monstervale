@@ -8,6 +8,7 @@ const Simulation = preload("res://src/core/simulation.gd")
 const STEP := 1.0 / 20.0
 const MAX_SECONDS := 1800.0
 const EASY_MATCH_PATH := "res://tests/fixtures/partida_facil_demais.json"
+const ARCHERS_MATCH_PATH := "res://tests/fixtures/partida_so_arqueiros.json"
 const MAX_LEVEL_INCOME := 800
 
 const PLAN := [
@@ -32,6 +33,17 @@ const PLAN := [
 	["upgrade", Vector2i(7, 6)],
 	["upgrade", Vector2i(9, 5)],
 	["upgrade", Vector2i(11, 4)],
+]
+
+const ARCHER_CELLS := [
+	Vector2i(3, 5), Vector2i(4, 5), Vector2i(5, 5), Vector2i(6, 5), Vector2i(6, 4), Vector2i(6, 3),
+	Vector2i(6, 2), Vector2i(3, 9), Vector2i(4, 9), Vector2i(6, 9), Vector2i(7, 9), Vector2i(8, 9),
+	Vector2i(9, 9), Vector2i(10, 6), Vector2i(10, 5), Vector2i(11, 5),
+]
+const WARRIOR_CELLS := [
+	Vector2i(4, 6), Vector2i(5, 8), Vector2i(3, 6), Vector2i(6, 8), Vector2i(5, 6), Vector2i(4, 8),
+	Vector2i(7, 6), Vector2i(7, 8), Vector2i(3, 8), Vector2i(9, 6), Vector2i(7, 4), Vector2i(9, 4),
+	Vector2i(11, 4), Vector2i(13, 4), Vector2i(10, 2), Vector2i(12, 2),
 ]
 
 var scene: Node
@@ -128,6 +140,14 @@ func test_warrior_is_cheaper_to_hire_than_archer() -> void:
 	assert_eq(int(units.warrior.levels[0].cost), 50)
 	assert_eq(int(units.archer.levels[0].cost), 65)
 
+func test_only_warriors_from_level_two_recover() -> void:
+	var units: Dictionary = GameData.load_catalog().units
+	assert_false(units.warrior.levels[0].has("regen"))
+	assert_gt(float(units.warrior.levels[1].regen), 0.0)
+	assert_gt(float(units.warrior.levels[2].regen), float(units.warrior.levels[1].regen))
+	for level: Dictionary in units.archer.levels:
+		assert_false(level.has("regen"))
+
 func test_level_income_is_limited() -> void:
 	assert_lte(_level_income(), MAX_LEVEL_INCOME, "início, abates e bônus, sem contar chamadas")
 
@@ -142,10 +162,67 @@ func test_full_income_cannot_max_out_a_large_defense() -> void:
 func test_calling_early_pays_little() -> void:
 	var data := GameData.load_level("level_01")
 	var most: float = float(data.wave_interval) * float(data.early_call_gold_per_second)
-	assert_lte(most, 12.0)
+	assert_lte(most, 5.0)
 
 func test_the_too_easy_match_is_no_longer_flawless() -> void:
 	var report: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(EASY_MATCH_PATH))
 	var sim := _simulation()
 	_replay(sim, report)
 	assert_false(sim.state == "won" and sim.lives == 20, "terminou %s com %d vidas" % [sim.state, sim.lives])
+
+func test_the_only_archers_match_is_no_longer_flawless() -> void:
+	var report: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(ARCHERS_MATCH_PATH))
+	var sim := _simulation()
+	_replay(sim, report)
+	assert_false(sim.state == "won" and sim.lives == 20, "terminou %s com %d vidas" % [sim.state, sim.lives])
+
+## Estratégias que compram assim que há ouro, sem reagir ao que acontece na tela.
+func _only(kind: String, cells: Array) -> Array:
+	return cells.map(func(cell): return ["place", kind, cell])
+
+func _only_upgrading(kind: String, cells: Array) -> Array:
+	var plan := []
+	for i in range(0, cells.size() - 1, 2):
+		plan.append(["place", kind, cells[i]])
+		plan.append(["place", kind, cells[i + 1]])
+		plan.append(["upgrade", cells[i]])
+		plan.append(["upgrade", cells[i + 1]])
+	return plan
+
+func _mixed_upgrading() -> Array:
+	var plan := []
+	for i in ARCHER_CELLS.size() / 2:
+		plan.append(["place", "warrior", WARRIOR_CELLS[i]])
+		plan.append(["place", "archer", ARCHER_CELLS[i * 2]])
+		plan.append(["upgrade", WARRIOR_CELLS[i]])
+		plan.append(["upgrade", ARCHER_CELLS[i * 2]])
+		plan.append(["place", "archer", ARCHER_CELLS[i * 2 + 1]])
+		plan.append(["upgrade", ARCHER_CELLS[i * 2 + 1]])
+	return plan
+
+func _played(plan: Array) -> Simulation:
+	var sim := _simulation()
+	_play(sim, plan)
+	return sim
+
+func test_strategy_cells_are_buildable() -> void:
+	var level := LevelReader.read(scene, GameData.load_level("level_01"))
+	for cell: Vector2i in ARCHER_CELLS + WARRIOR_CELLS:
+		assert_true(level.buildable.has(cell), str(cell))
+
+func test_level_one_archers_alone_do_not_win() -> void:
+	assert_eq(_played(_only("archer", ARCHER_CELLS)).state, "lost")
+
+func test_level_one_warriors_alone_reach_the_last_wave() -> void:
+	var sim := _played(_only("warrior", WARRIOR_CELLS))
+	assert_eq(sim.waves_started(), sim.waves_total())
+
+func test_upgrading_beats_only_buying_more() -> void:
+	for kind: String in ["archer", "warrior"]:
+		var cells: Array = ARCHER_CELLS if kind == "archer" else WARRIOR_CELLS
+		assert_gt(_played(_only_upgrading(kind, cells)).lives, _played(_only(kind, cells)).lives, kind)
+
+func test_mixing_classes_beats_a_single_class() -> void:
+	var mixed := _played(_mixed_upgrading()).lives
+	assert_gt(mixed, _played(_only_upgrading("archer", ARCHER_CELLS)).lives, "só arqueiros")
+	assert_gt(mixed, _played(_only_upgrading("warrior", WARRIOR_CELLS)).lives, "só guerreiros")

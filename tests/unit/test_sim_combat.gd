@@ -314,6 +314,59 @@ func test_upgrade_keeps_damage_taken_but_adds_new_hp() -> void:
 	sim.upgrade_unit(unit)
 	assert_eq(unit.hp, 25)
 
+func _damaged_warrior(level: int, hp: int):
+	var unit = sim.place_unit("warrior", Vector2i(1, 1))
+	for i in level - 1:
+		sim.upgrade_unit(unit)
+	unit.hp = hp
+	unit.time_since_hit = 0.0
+	return unit
+
+func _tick_for(seconds: float) -> void:
+	for i in roundi(seconds * 60.0):
+		sim.tick(1.0 / 60.0)
+
+func test_level_one_warrior_does_not_recover() -> void:
+	var unit = _damaged_warrior(1, 10)
+	_tick_for(10.0)
+	assert_eq(unit.hp, 10)
+
+func test_level_two_warrior_recovers_after_a_while_without_damage() -> void:
+	var unit = _damaged_warrior(2, 10)
+	_tick_for(2.9)
+	assert_eq(unit.hp, 10, "ainda na espera")
+	_tick_for(2.1)
+	assert_between(unit.hp, 13, 15, "cerca de 2 de vida por segundo depois da espera")
+
+func test_level_three_warrior_recovers_faster() -> void:
+	var unit = _damaged_warrior(3, 10)
+	_tick_for(5.0)
+	assert_between(unit.hp, 17, 19, "cerca de 4 de vida por segundo depois da espera")
+
+func test_recovery_stops_at_full_health() -> void:
+	var unit = _damaged_warrior(2, 29)
+	_tick_for(10.0)
+	assert_eq(unit.hp, 30)
+
+func test_taking_a_hit_restarts_the_wait() -> void:
+	var unit = _damaged_warrior(2, 20)
+	_tick_for(2.9)
+	var monster = _spawn("goblin", 48.0)
+	monster.hp = 1
+	sim.tick(1.0 / 60.0)
+	assert_eq(unit.hp, 16, "o goblin bate uma vez e morre")
+	_tick_for(2.9)
+	assert_eq(unit.hp, 16, "a espera recomeçou")
+	_tick_for(2.1)
+	assert_between(unit.hp, 19, 21)
+
+func test_fallen_warrior_does_not_recover_while_down() -> void:
+	var unit = _damaged_warrior(2, 1)
+	unit.hp = 0
+	unit.down_timer = 2.0
+	sim.tick(1.0)
+	assert_eq(unit.hp, 0)
+
 func test_facing_keeps_last_horizontal_direction() -> void:
 	var level = Fixtures.level()
 	level["route"] = [Vector2(100, 0), Vector2(0, 0), Vector2(0, 100)]
