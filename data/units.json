@@ -68,5 +68,47 @@
         "regen_delay": 3
       }
     ]
+  },
+  "mage": {
+    "attack": "ranged",
+    "damage_type": "magic",
+    "levels": [
+      {
+        "cost": 90,
+        "damage": 6,
+        "cooldown": 1.6,
+        "range": 80,
+        "hp": 16,
+        "respawn": 10,
+        "splash_radius": 28,
+        "splash_targets": 5
+      },
+      {
+        "cost": 60,
+        "damage": 9,
+        "cooldown": 1.5,
+        "range": 88,
+        "hp": 24,
+        "respawn": 10,
+        "splash_radius": 32,
+        "splash_targets": 6
+      },
+      {
+        "cost": 100,
+        "damage": 13,
+        "cooldown": 1.4,
+        "range": 96,
+        "hp": 32,
+        "respawn": 10,
+        "splash_radius": 36,
+        "splash_targets": 7,
+        "fire": {
+          "radius": 28,
+          "damage": 3,
+          "interval": 0.5,
+          "seconds": 2
+        }
+      }
+    ]
   }
 }

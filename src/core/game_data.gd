@@ -9,6 +9,7 @@ const DAMAGE_TYPES := ["pierce", "impact", "magic"]
 const UNIT_LEVEL_FIELDS := ["cost", "damage", "cooldown", "range", "hp", "respawn"]
 const MELEE_LEVEL_FIELDS := ["block"]
 const MONSTER_FIELDS := ["hp", "speed", "gold", "damage", "attack_cooldown", "reach", "lives", "resist"]
+const FIRE_FIELDS := ["radius", "damage", "interval", "seconds"]
 
 
 static func parse_json(text: String) -> Dictionary:
@@ -35,6 +36,7 @@ static func validate_catalog(catalog: Dictionary) -> Array:
 		errors.append_array(_validate_unit(kind, catalog.units[kind]))
 	for kind: String in catalog.monsters:
 		errors.append_array(_validate_monster(kind, catalog.monsters[kind]))
+		errors.append_array(_validate_split(kind, catalog.monsters[kind], catalog.monsters))
 	return errors
 
 
@@ -76,6 +78,22 @@ static func _validate_unit(kind: String, unit: Dictionary) -> Array:
 			errors.append("%s: cost deve ser positivo" % label)
 		if levels[i].has("regen") and not levels[i].has("regen_delay"):
 			errors.append("%s: regen precisa de regen_delay" % label)
+		if levels[i].has("splash_radius") and levels[i].get("splash_targets", 0) <= 0:
+			errors.append("%s: splash_radius precisa de splash_targets positivo" % label)
+		for field: String in FIRE_FIELDS:
+			if levels[i].has("fire") and not levels[i].fire.has(field):
+				errors.append("%s: fire sem %s" % [label, field])
+	return errors
+
+
+static func _validate_split(kind: String, monster: Dictionary, monsters: Dictionary) -> Array:
+	if not monster.has("split"):
+		return []
+	var errors := []
+	if not monsters.has(monster.split.into):
+		errors.append("monstro %s: divide-se em monstro desconhecido %s" % [kind, monster.split.into])
+	if int(monster.split.count) <= 0:
+		errors.append("monstro %s: split.count deve ser positivo" % kind)
 	return errors
 
 

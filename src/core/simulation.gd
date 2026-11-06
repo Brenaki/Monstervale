@@ -6,12 +6,14 @@ const Monster = preload("res://src/core/monster.gd")
 const Unit = preload("res://src/core/unit.gd")
 
 const DEFAULT_STAR_THRESHOLDS := [0.5, 0.9]
+const SPLIT_SPREAD := 8.0
 
 var gold: int
 var lives: int
 var state: String = "playing"
 var units: Array = []
 var monsters: Array = []
+var fires: Array = []
 var route
 var next_wave_countdown: float
 var elapsed: float = 0.0
@@ -164,6 +166,7 @@ func tick(delta: float) -> void:
 	_update_spawners(delta)
 	_update_monsters(delta)
 	_update_units(delta)
+	_update_fires(delta)
 	_update_waves_cleared()
 	_update_end_state()
 
@@ -362,12 +365,16 @@ func _attack(unit, target) -> void:
 	var stats: Dictionary = unit.stats()
 	if stats.has("pierce_extra"):
 		hits.append_array(_nearby(target, float(stats.pierce_radius), int(stats.pierce_extra)))
-	var target_x: float = target.position().x
-	if target_x != unit.position.x:
-		unit.facing = 1 if target_x > unit.position.x else -1
-	_emit({"type": "attack", "unit": unit, "target": target, "position": target.position()})
+	if stats.has("splash_radius"):
+		hits.append_array(_nearby(target, float(stats.splash_radius), int(stats.splash_targets) - 1))
+	var target_position: Vector2 = target.position()
+	if target_position.x != unit.position.x:
+		unit.facing = 1 if target_position.x > unit.position.x else -1
+	_emit({"type": "attack", "unit": unit, "target": target, "position": target_position})
 	for monster in hits:
 		_damage(monster, monster.damage_from(int(stats.damage), unit.damage_type()), unit.kind)
+	if stats.has("fire"):
+		_start_fire(unit, target_position, stats.fire)
 
 
 func _nearby(target, radius: float, count: int) -> Array:
@@ -383,6 +390,50 @@ func _damage(monster, amount: int, source: String) -> void:
 		gold += monster.gold
 		_remove(monster)
 		_emit({"type": "monster_killed", "monster": monster, "position": monster.position()})
+		_split(monster)
+
+
+func _split(monster) -> void:
+	var split = _catalog.monsters[monster.kind].get("split")
+	if split == null:
+		return
+	var count := int(split.count)
+	for i in count:
+		var child = spawn_monster(split.into)
+		child.distance = maxf(0.0, monster.distance + SPLIT_SPREAD * (i - (count - 1) / 2.0))
+		child.facing = monster.facing
+		child.wave = monster.wave
+		if monster.wave != null:
+			monster.wave.alive += 1
+
+
+func _start_fire(unit, at: Vector2, data: Dictionary) -> void:
+	fires.append({
+		"position": at,
+		"radius": float(data.radius),
+		"damage": int(data.damage),
+		"damage_type": unit.damage_type(),
+		"source": unit.kind,
+		"interval": float(data.interval),
+		"timer": float(data.interval),
+		"remaining": float(data.seconds),
+	})
+
+
+func _update_fires(delta: float) -> void:
+	for fire: Dictionary in fires:
+		fire.remaining -= delta
+		fire.timer -= delta
+		while fire.timer <= 0.0:
+			fire.timer += fire.interval
+			_burn(fire)
+	fires = fires.filter(func(f): return f.remaining > 0.0)
+
+
+func _burn(fire: Dictionary) -> void:
+	for monster in monsters.duplicate():
+		if monster.position().distance_to(fire.position) <= fire.radius:
+			_damage(monster, monster.damage_from(fire.damage, fire.damage_type), fire.source)
 
 
 func _update_waves_cleared() -> void:

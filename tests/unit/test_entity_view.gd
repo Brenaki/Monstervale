@@ -166,3 +166,12 @@ func test_fallen_archer_plays_fall() -> void:
 	view.entity.down_timer = 5.0
 	view.sync(0.0)
 	assert_eq(view.current_animation(), "fall")
+
+func test_a_monster_without_attack_frames_keeps_walking_when_it_hits() -> void:
+	var monster = sim.spawn_monster("slime")
+	var view := EntityView.new()
+	view.setup(monster, load("res://assets/sprites/slime.tres"), true)
+	add_child_autofree(view)
+	view.play_attack()
+	view.sync(0.016)
+	assert_eq(view.current_animation(), "walk")

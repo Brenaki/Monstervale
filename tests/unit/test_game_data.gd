@@ -39,6 +39,28 @@ func test_regen_needs_a_delay() -> void:
 	catalog.units.warrior.levels[1].erase("regen_delay")
 	assert_eq(GameData.validate_catalog(catalog), ["unidade warrior nível 2: regen precisa de regen_delay"])
 
+func test_fire_needs_every_field() -> void:
+	var catalog := Fixtures.catalog()
+	catalog.units.mage.levels[2].fire.erase("seconds")
+	assert_eq(GameData.validate_catalog(catalog), ["unidade mage nível 3: fire sem seconds"])
+
+func test_splash_needs_a_positive_target_limit() -> void:
+	var catalog := Fixtures.catalog()
+	catalog.units.mage.levels[0].erase("splash_targets")
+	catalog.units.mage.levels[1].splash_targets = 0
+	var errors := GameData.validate_catalog(catalog)
+	assert_eq(errors.size(), 2, str(errors))
+
+func test_split_needs_a_known_monster() -> void:
+	var catalog := Fixtures.catalog()
+	catalog.monsters.slime.split.into = "nada"
+	assert_eq(GameData.validate_catalog(catalog), ["monstro slime: divide-se em monstro desconhecido nada"])
+
+func test_split_needs_a_positive_count() -> void:
+	var catalog := Fixtures.catalog()
+	catalog.monsters.slime.split.count = 0
+	assert_eq(GameData.validate_catalog(catalog), ["monstro slime: split.count deve ser positivo"])
+
 func test_monster_needs_all_fields() -> void:
 	var catalog := Fixtures.catalog()
 	catalog.monsters.goblin.erase("speed")

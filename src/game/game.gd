@@ -10,9 +10,8 @@ const EntityView = preload("res://src/game/entity_view.gd")
 const Overlay = preload("res://src/game/overlay.gd")
 const Hud = preload("res://src/game/hud.gd")
 
-const LEVEL_INDEX := 0
-const LEVEL_ID := "level_01"
-const LEVEL_SCENE := "res://src/game/levels/level_01.tscn"
+const LEVEL_IDS := ["level_01", "level_02"]
+const LEVEL_SCENE := "res://src/game/levels/%s.tscn"
 const STEP := 1.0 / 60.0
 const MAX_SPEED := 2
 const VILLAGE_TINTS := [Color.WHITE, Color(0.8, 0.7, 0.65), Color(0.5, 0.42, 0.42)]
@@ -20,6 +19,10 @@ const BURST_PIECES := 5
 const BURST_SECONDS := 0.35
 const ARROW_SECONDS := 0.12
 const TRAIL_SECONDS := 0.3
+const EXPLOSION_SECONDS := 0.25
+const EXPLOSION_POINTS := 12
+const SPELL_COLOR := Color("8fe0f0")
+const FIRE_SPELL_COLOR := Color("e8913a")
 const NO_CELL := Vector2i(-1, -1)
 
 var progress_path := "user://progress.json"
@@ -27,6 +30,7 @@ var log_dir := "user://partidas"
 var last_log_path := ""
 var catalog: Dictionary
 var level: Dictionary
+var level_index := 0
 var sim
 var progress
 var hud
@@ -44,14 +48,14 @@ var _frame_cache := {}
 var _accumulator := 0.0
 var _match_log
 var _log_saved := false
+var _paused_before_levels := false
 
 
 func _ready() -> void:
 	catalog = GameData.load_catalog()
 	progress = _load_progress()
-	_level_node = load(LEVEL_SCENE).instantiate()
-	add_child(_level_node)
-	level = LevelReader.read(_level_node, GameData.load_level(LEVEL_ID))
+	level_index = progress.furthest_unlocked(LEVEL_IDS.size())
+	_load_level_scene()
 
 	var overlay := Overlay.new()
 	overlay.game = self
@@ -75,6 +79,10 @@ func _ready() -> void:
 	hud.priority_pressed.connect(cycle_priority)
 	hud.close_pressed.connect(clear_selection)
 	hud.log_pressed.connect(open_last_log)
+	hud.next_level_pressed.connect(next_level)
+	hud.levels_pressed.connect(toggle_levels)
+	hud.level_pressed.connect(_choose_level)
+	hud.set_levels(LEVEL_IDS.size())
 
 	_choose_initial_language()
 	restart()
@@ -183,7 +191,7 @@ func restart() -> void:
 	for child in _effects.get_children():
 		child.queue_free()
 	sim = Simulation.new(catalog, level)
-	_match_log = MatchLog.new(LEVEL_ID, Time.get_datetime_string_from_system(false, true))
+	_match_log = MatchLog.new(level.id, Time.get_datetime_string_from_system(false, true))
 	_log_saved = false
 	paused = false
 	speed = 1
@@ -192,6 +200,36 @@ func restart() -> void:
 	hud.set_classes(sim.available_classes(), _frames_for_unit)
 	hud.hide_result()
 	_update_village()
+
+
+func has_next_level() -> bool:
+	return level_index + 1 < LEVEL_IDS.size()
+
+
+func open_level(index: int) -> void:
+	if index < 0 or index >= LEVEL_IDS.size() or not progress.is_unlocked(index):
+		return
+	_save_unfinished_match("restarted")
+	level_index = index
+	_level_node.queue_free()
+	remove_child(_level_node)
+	_load_level_scene()
+	restart()
+
+
+func next_level() -> void:
+	open_level(level_index + 1)
+
+
+## O painel de fases pausa o jogo e devolve a pausa que o jogador tinha escolhido.
+func toggle_levels() -> void:
+	if hud.levels_panel.visible:
+		hud.levels_panel.visible = false
+		paused = _paused_before_levels
+	else:
+		_paused_before_levels = paused
+		paused = true
+		hud.levels_panel.visible = true
 
 
 func view_count() -> int:
@@ -205,10 +243,10 @@ func view_of(state):
 func finish_level(state: String, stars: int) -> void:
 	var won := state == "won"
 	if won:
-		progress.record(LEVEL_INDEX, stars)
+		progress.record(level_index, stars)
 		_save_progress()
 	_save_log(state)
-	hud.show_result(won, stars)
+	hud.show_result(won, stars, won and has_next_level())
 
 
 ## No navegador baixa o relatório; no desktop abre a pasta com ele selecionado.
@@ -220,6 +258,19 @@ func open_last_log() -> void:
 		JavaScriptBridge.download_buffer(data, last_log_path.get_file(), "text/markdown")
 	else:
 		OS.shell_show_in_file_manager(ProjectSettings.globalize_path(last_log_path))
+
+
+func _choose_level(index: int) -> void:
+	hud.levels_panel.visible = false
+	paused = _paused_before_levels
+	open_level(index)
+
+
+func _load_level_scene() -> void:
+	_level_node = load(LEVEL_SCENE % LEVEL_IDS[level_index]).instantiate()
+	add_child(_level_node)
+	move_child(_level_node, 0)
+	level = LevelReader.read(_level_node, GameData.load_level(LEVEL_IDS[level_index]))
 
 
 func _save_unfinished_match(result: String) -> void:
@@ -277,6 +328,7 @@ func _add_monster_view(monster) -> void:
 	var data: Dictionary = catalog.monsters[monster.kind]
 	var view := EntityView.new()
 	view.setup(monster, _frames(data.sprite), true)
+	view.shadow_radius = float(data.get("shadow", view.shadow_radius))
 	_entities.add_child(view)
 	_views[monster] = view
 
@@ -315,15 +367,45 @@ func _show_attack(unit, target_position: Vector2) -> void:
 	_play_attack(unit)
 	if unit.is_melee():
 		return
+	if unit.stats().has("splash_radius"):
+		_show_spell(unit, target_position)
+		return
 	var pierces: bool = unit.stats().has("pierce_extra")
 	var arrow := Line2D.new()
 	arrow.width = 2.0 if pierces else 1.0
 	arrow.default_color = Color("f6e05e") if pierces else Color("f4f1de")
 	arrow.points = PackedVector2Array([unit.position, target_position])
 	_effects.add_child(arrow)
-	var tween := arrow.create_tween()
-	tween.tween_property(arrow, "modulate:a", 0.0, TRAIL_SECONDS if pierces else ARROW_SECONDS)
-	tween.tween_callback(arrow.queue_free)
+	_fade_out(arrow, TRAIL_SECONDS if pierces else ARROW_SECONDS)
+
+
+func _show_spell(unit, target_position: Vector2) -> void:
+	var stats: Dictionary = unit.stats()
+	var color: Color = FIRE_SPELL_COLOR if stats.has("fire") else SPELL_COLOR
+	var bolt := Line2D.new()
+	bolt.width = 1.0
+	bolt.default_color = color
+	bolt.points = PackedVector2Array([unit.position, target_position])
+	_effects.add_child(bolt)
+	_fade_out(bolt, ARROW_SECONDS)
+	var ring := Line2D.new()
+	ring.width = 1.0
+	ring.default_color = color
+	ring.closed = true
+	var points := PackedVector2Array()
+	for i in EXPLOSION_POINTS:
+		var angle := TAU * i / EXPLOSION_POINTS
+		points.append(Vector2(cos(angle), sin(angle)) * float(stats.splash_radius))
+	ring.points = points
+	ring.position = target_position
+	_effects.add_child(ring)
+	_fade_out(ring, EXPLOSION_SECONDS)
+
+
+func _fade_out(node: CanvasItem, seconds: float) -> void:
+	var tween := node.create_tween()
+	tween.tween_property(node, "modulate:a", 0.0, seconds)
+	tween.tween_callback(node.queue_free)
 
 
 func _burst(at: Vector2, kind: String) -> void:

@@ -36,3 +36,10 @@ func stars_for(level: int) -> int:
 
 func is_unlocked(level: int) -> bool:
 	return level == 0 or stars_for(level - 1) >= 1
+
+
+func furthest_unlocked(level_count: int) -> int:
+	var level := 0
+	while level + 1 < level_count and is_unlocked(level + 1):
+		level += 1
+	return level

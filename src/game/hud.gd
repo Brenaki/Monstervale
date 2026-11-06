@@ -12,6 +12,9 @@ signal dismiss_pressed
 signal priority_pressed
 signal close_pressed
 signal log_pressed
+signal next_level_pressed
+signal levels_pressed
+signal level_pressed(index: int)
 
 const TOP_HEIGHT := 24
 const BOTTOM_TOP := 320
@@ -36,6 +39,7 @@ var pause_button: Button
 var speed_button: Button
 var restart_button: Button
 var language_button: Button
+var levels_button: Button
 var next_wave_button: Button
 var class_buttons := {}
 var wave_box: Control
@@ -50,9 +54,14 @@ var result_title: Label
 var result_stars: Label
 var result_restart: Button
 var log_button: Button
+var next_level_button: Button
+var levels_panel: Control
+var levels_title: Label
+var level_buttons: Array = []
 
 var _root: Control
 var _class_bar: Control
+var _levels_box: Control
 
 
 func _ready() -> void:
@@ -64,6 +73,7 @@ func _ready() -> void:
 	_build_top_bar()
 	_build_bottom_bar()
 	_build_result_panel()
+	_build_levels_panel()
 
 
 func set_classes(classes: Array, frames_for: Callable) -> void:
@@ -79,6 +89,13 @@ func set_classes(classes: Array, frames_for: Callable) -> void:
 		button.pressed.connect(func(): class_pressed.emit(kind))
 		class_buttons[kind] = button
 		x += CLASS_BUTTON_WIDTH + 4
+
+
+func set_levels(count: int) -> void:
+	for i in count:
+		var button := _button(_levels_box, Rect2(12, 28 + i * 24, 216, 20))
+		button.pressed.connect(func(): level_pressed.emit(i))
+		level_buttons.append(button)
 
 
 ## O quadro inteiro tem folga para armas; o ícone mostra só o corpo e a arma parada.
@@ -101,6 +118,13 @@ func refresh(game) -> void:
 	language_button.text = tr("BTN_LANGUAGE")
 	result_restart.text = tr("BTN_RESTART")
 	log_button.text = tr("BTN_OPEN_LOG")
+	next_level_button.text = tr("BTN_NEXT_LEVEL")
+	levels_button.text = tr("BTN_LEVELS") % (game.level_index + 1)
+	levels_title.text = tr("LEVELS_TITLE")
+	for i in level_buttons.size():
+		var unlocked: bool = game.progress.is_unlocked(i)
+		level_buttons[i].disabled = not unlocked
+		level_buttons[i].text = tr("LEVEL_ENTRY") % [i + 1, game.progress.stars_for(i)] if unlocked else tr("LEVEL_LOCKED") % (i + 1)
 	for kind: String in class_buttons:
 		var button: Button = class_buttons[kind]
 		var cost: int = sim.unit_cost(kind)
@@ -115,9 +139,10 @@ func refresh(game) -> void:
 		_refresh_wave(sim)
 
 
-func show_result(won: bool, stars: int) -> void:
+func show_result(won: bool, stars: int, can_advance := false) -> void:
 	result_title.text = tr("RESULT_WON") if won else tr("RESULT_LOST")
 	result_stars.text = tr("RESULT_STARS") % stars if won else ""
+	next_level_button.visible = can_advance
 	result_panel.visible = true
 
 
@@ -127,10 +152,12 @@ func hide_result() -> void:
 
 func all_buttons() -> Array:
 	var buttons := [
-		pause_button, speed_button, restart_button, language_button, next_wave_button,
+		pause_button, speed_button, restart_button, language_button, levels_button, next_wave_button,
 		upgrade_button, dismiss_button, priority_button, close_button, result_restart, log_button,
+		next_level_button,
 	]
 	buttons.append_array(class_buttons.values())
+	buttons.append_array(level_buttons)
 	return buttons
 
 
@@ -160,7 +187,9 @@ func _build_top_bar() -> void:
 	var bar := _panel(_root, Rect2(0, 0, SCREEN.x, TOP_HEIGHT), BAR_COLOR)
 	gold_label = _label(bar, Rect2(6, 3, 80, 18))
 	lives_label = _label(bar, Rect2(86, 3, 70, 18))
-	wave_label = _label(bar, Rect2(156, 3, 80, 18))
+	wave_label = _label(bar, Rect2(156, 3, 72, 18))
+	levels_button = _button(bar, Rect2(230, 2, 54, 20))
+	levels_button.pressed.connect(func(): levels_pressed.emit())
 	pause_button = _button(bar, Rect2(286, 2, 76, 20))
 	speed_button = _button(bar, Rect2(364, 2, 90, 20))
 	restart_button = _button(bar, Rect2(456, 2, 86, 20))
@@ -207,16 +236,27 @@ func _build_bottom_bar() -> void:
 
 
 func _build_result_panel() -> void:
-	result_panel = _panel(_root, Rect2(190, 120, 260, 110), PANEL_COLOR)
+	result_panel = _panel(_root, Rect2(160, 120, 320, 110), PANEL_COLOR)
 	result_panel.visible = false
-	result_title = _label(result_panel, Rect2(0, 14, 260, 22))
+	result_title = _label(result_panel, Rect2(0, 14, 320, 22))
 	result_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	result_stars = _label(result_panel, Rect2(0, 40, 260, 18))
+	result_stars = _label(result_panel, Rect2(0, 40, 320, 18))
 	result_stars.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	result_restart = _button(result_panel, Rect2(24, 68, 104, 26))
+	result_restart = _button(result_panel, Rect2(8, 68, 98, 26))
 	result_restart.pressed.connect(func(): restart_pressed.emit())
-	log_button = _button(result_panel, Rect2(132, 68, 104, 26))
+	log_button = _button(result_panel, Rect2(111, 68, 98, 26))
 	log_button.pressed.connect(func(): log_pressed.emit())
+	next_level_button = _button(result_panel, Rect2(214, 68, 98, 26))
+	next_level_button.pressed.connect(func(): next_level_pressed.emit())
+
+
+## Cobre a tela inteira para que nenhum clique chegue ao mapa com o painel aberto.
+func _build_levels_panel() -> void:
+	levels_panel = _panel(_root, Rect2(Vector2.ZERO, SCREEN), Color(0, 0, 0, 0.5))
+	levels_panel.visible = false
+	_levels_box = _panel(levels_panel, Rect2(200, 100, 240, 120), PANEL_COLOR)
+	levels_title = _label(_levels_box, Rect2(0, 6, 240, 18))
+	levels_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 
 
 func _panel(parent: Control, rect: Rect2, color: Color) -> Panel:

@@ -1,0 +1,24 @@
+{
+  "actions": [
+    {
+      "action": "place",
+      "cell": [
+        3,
+        5
+      ],
+      "gold_after": 100,
+      "level": 1,
+      "time": 3.96666666666666,
+      "unit": "archer",
+      "wave": 0
+    }
+  ],
+  "duration": 5.94999999999998,
+  "gold_final": 100,
+  "level": "level_01",
+  "lives_final": 20,
+  "result": "closed",
+  "stars": 0,
+  "started_at": "2026-11-06 12:44:22",
+  "waves": []
+}

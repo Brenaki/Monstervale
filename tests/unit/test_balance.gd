@@ -7,8 +7,8 @@ const Simulation = preload("res://src/core/simulation.gd")
 
 const STEP := 1.0 / 20.0
 const MAX_SECONDS := 1800.0
-const EASY_MATCH_PATH := "res://tests/fixtures/partida_facil_demais.json"
-const ARCHERS_MATCH_PATH := "res://tests/fixtures/partida_so_arqueiros.json"
+const EASY_MATCH_PATH := "res://tests/fixtures/partidas/partida_2026-11-06_12-38-53_level_01.json"
+const ARCHERS_MATCH_PATH := "res://tests/fixtures/partidas/partida_2026-11-06_12-56-30_level_01.json"
 const MAX_LEVEL_INCOME := 800
 
 const PLAN := [

@@ -23,6 +23,15 @@ static func catalog() -> Dictionary:
 					{"cost": 60, "damage": 9, "cooldown": 1.0, "range": 60.0, "hp": 40, "block": 2, "respawn": 5.0, "damage_taken": 0.5, "regen": 4.0, "regen_delay": 3.0},
 				],
 			},
+			"mage": {
+				"attack": "ranged", "damage_type": "magic",
+				"levels": [
+					{"cost": 60, "damage": 4, "cooldown": 1.0, "range": 100.0, "hp": 15, "respawn": 5.0, "splash_radius": 30.0, "splash_targets": 5},
+					{"cost": 40, "damage": 6, "cooldown": 1.0, "range": 100.0, "hp": 20, "respawn": 5.0, "splash_radius": 30.0, "splash_targets": 5},
+					{"cost": 70, "damage": 8, "cooldown": 1.0, "range": 100.0, "hp": 25, "respawn": 5.0, "splash_radius": 30.0, "splash_targets": 5,
+						"fire": {"radius": 30.0, "damage": 2, "interval": 0.5, "seconds": 2.0}},
+				],
+			},
 		},
 		"monsters": {
 			"goblin": {
@@ -33,6 +42,15 @@ static func catalog() -> Dictionary:
 				"hp": 40, "speed": 10.0, "gold": 8, "damage": 4, "attack_cooldown": 1.0, "reach": 40.0, "lives": 3,
 				"resist": {"pierce": 0.5, "impact": 2.0, "magic": 1.0},
 			},
+			"slime": {
+				"hp": 10, "speed": 10.0, "gold": 2, "damage": 2, "attack_cooldown": 1.0, "reach": 40.0, "lives": 2,
+				"resist": {"pierce": 1.0, "impact": 1.0, "magic": 1.0},
+				"split": {"into": "slimelet", "count": 2},
+			},
+			"slimelet": {
+				"hp": 4, "speed": 20.0, "gold": 0, "damage": 1, "attack_cooldown": 1.0, "reach": 40.0, "lives": 1,
+				"resist": {"pierce": 1.0, "impact": 1.0, "magic": 1.0},
+			},
 		},
 	}
 
@@ -40,7 +58,7 @@ static func level(waves: Array = []) -> Dictionary:
 	return {
 		"start_gold": 100,
 		"lives": 10,
-		"classes": ["archer", "warrior"],
+		"classes": ["archer", "warrior", "mage"],
 		"wave_interval": 10.0,
 		"early_call_gold_per_second": 1.0,
 		"route": [Vector2(0, 0), Vector2(200, 0)],

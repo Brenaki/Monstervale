@@ -34,7 +34,10 @@ func test_cannot_place_on_occupied_cell() -> void:
 	assert_eq(sim.units.size(), 1)
 
 func test_cannot_place_class_not_available_in_level() -> void:
-	assert_null(sim.place_unit("mage", Vector2i(2, 2)))
+	var level := Fixtures.level()
+	level.classes = ["archer"]
+	var restricted = load("res://src/core/simulation.gd").new(Fixtures.catalog(), level)
+	assert_null(restricted.place_unit("warrior", Vector2i(2, 2)))
 
 func test_upgrade_spends_gold_and_raises_level() -> void:
 	var unit = sim.place_unit("archer", Vector2i(2, 2))

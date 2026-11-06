@@ -6,16 +6,19 @@ const LevelReader = preload("res://src/game/level_reader.gd")
 var scene: Node
 var level: Dictionary
 
+func _level_id() -> String:
+	return "level_01"
+
 func before_each() -> void:
-	scene = load("res://src/game/levels/level_01.tscn").instantiate()
+	scene = load("res://src/game/levels/%s.tscn" % _level_id()).instantiate()
 	add_child_autofree(scene)
-	level = LevelReader.read(scene, GameData.load_level("level_01"))
+	level = LevelReader.read(scene, GameData.load_level(_level_id()))
 
 func _cell_of(point: Vector2) -> Vector2i:
 	return Vector2i(int(floor(point.x / 32.0)), int(floor(point.y / 32.0)))
 
 func test_reader_keeps_json_fields() -> void:
-	assert_eq(level.id, "level_01")
+	assert_eq(level.id, _level_id())
 	assert_eq(level.cell_size, 32)
 
 func test_route_starts_off_screen_and_reaches_the_village() -> void:

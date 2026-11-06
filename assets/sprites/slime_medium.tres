@@ -1,0 +1,58 @@
+[gd_resource type="SpriteFrames" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/slime_medium.png" id="1_0v5h7"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_034er"]
+atlas = ExtResource("1_0v5h7")
+region = Rect2(224, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_c7q7j"]
+atlas = ExtResource("1_0v5h7")
+region = Rect2(280, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gbttw"]
+atlas = ExtResource("1_0v5h7")
+region = Rect2(0, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3fjjt"]
+atlas = ExtResource("1_0v5h7")
+region = Rect2(56, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6j4gu"]
+atlas = ExtResource("1_0v5h7")
+region = Rect2(112, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rlhun"]
+atlas = ExtResource("1_0v5h7")
+region = Rect2(168, 0, 56, 40)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.1,
+"texture": SubResource("AtlasTexture_034er")
+}, {
+"duration": 3.0,
+"texture": SubResource("AtlasTexture_c7q7j")
+}],
+"loop": 0,
+"name": &"death",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.3,
+"texture": SubResource("AtlasTexture_gbttw")
+}, {
+"duration": 1.3,
+"texture": SubResource("AtlasTexture_3fjjt")
+}, {
+"duration": 1.3,
+"texture": SubResource("AtlasTexture_6j4gu")
+}, {
+"duration": 1.3,
+"texture": SubResource("AtlasTexture_rlhun")
+}],
+"loop": 1,
+"name": &"walk",
+"speed": 10.0
+}]

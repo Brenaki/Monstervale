@@ -3,16 +3,23 @@ extends GutTest
 
 const MONSTER_ANIMATIONS := {"walk": 4, "attack": 3, "death": 2}
 const HUMAN_ANIMATIONS := {"idle": 2, "attack": 3, "fall": 2}
+const SLIME_ANIMATIONS := {"walk": 4, "death": 2}
 const REQUIRED := {
 	"goblin": MONSTER_ANIMATIONS,
 	"goblin_fast": MONSTER_ANIMATIONS,
 	"goblin_shield": MONSTER_ANIMATIONS,
+	"slime": SLIME_ANIMATIONS,
+	"slime_medium": SLIME_ANIMATIONS,
+	"slime_small": SLIME_ANIMATIONS,
 	"archer": HUMAN_ANIMATIONS,
 	"archer_2": HUMAN_ANIMATIONS,
 	"archer_3": HUMAN_ANIMATIONS,
 	"warrior": HUMAN_ANIMATIONS,
 	"warrior_2": HUMAN_ANIMATIONS,
 	"warrior_3": HUMAN_ANIMATIONS,
+	"mage": HUMAN_ANIMATIONS,
+	"mage_2": HUMAN_ANIMATIONS,
+	"mage_3": HUMAN_ANIMATIONS,
 }
 const GROUNDED := ["walk", "idle", "attack"]
 
@@ -81,6 +88,8 @@ func test_nothing_touches_the_canvas_edge() -> void:
 func test_attacks_are_short_enough_for_the_fastest_cooldown() -> void:
 	for sprite: String in REQUIRED:
 		var frames := _frames(sprite)
+		if not frames.has_animation("attack"):
+			continue
 		var total := 0.0
 		for i in frames.get_frame_count("attack"):
 			total += frames.get_frame_duration("attack", i) / frames.get_animation_speed("attack")
@@ -99,6 +108,7 @@ func test_goblin_variants_look_different_from_each_other() -> void:
 func test_every_human_level_has_its_own_look() -> void:
 	_assert_all_different(["archer", "archer_2", "archer_3"], "idle")
 	_assert_all_different(["warrior", "warrior_2", "warrior_3"], "idle")
+	_assert_all_different(["mage", "mage_2", "mage_3"], "idle")
 
 func _opaque_pixels(sprite: String, animation: String, index: int) -> int:
 	var image := _image(_frames(sprite), animation, index)
@@ -114,3 +124,29 @@ func test_shield_goblin_carries_more_than_the_base_goblin() -> void:
 
 func test_level_three_warrior_has_a_bigger_silhouette() -> void:
 	assert_gt(_opaque_pixels("warrior_3", "idle", 0), _opaque_pixels("warrior", "idle", 0))
+
+func test_slime_sizes_are_clearly_different() -> void:
+	assert_gt(_opaque_pixels("slime", "walk", 0), _opaque_pixels("slime_medium", "walk", 0) * 3 / 2)
+	assert_gt(_opaque_pixels("slime_medium", "walk", 0), _opaque_pixels("slime_small", "walk", 0) * 3 / 2)
+
+func test_slime_really_squashes_and_stretches_while_walking() -> void:
+	for sprite: String in ["slime", "slime_medium", "slime_small"]:
+		var frames := _frames(sprite)
+		var heights := []
+		for i in frames.get_frame_count("walk"):
+			heights.append(_image(frames, "walk", i).get_used_rect().size.y)
+		assert_gte(float(heights.max()) / heights.min(), 1.3, sprite)
+
+func test_level_three_mage_carries_a_flame() -> void:
+	assert_gt(_opaque_pixels("mage_3", "idle", 0), _opaque_pixels("mage", "idle", 0))
+	assert_gt(_color_pixels("mage_3", Color("e8913a")), 0)
+	assert_eq(_color_pixels("mage", Color("e8913a")), 0)
+
+func _color_pixels(sprite: String, color: Color) -> int:
+	var image := _image(_frames(sprite), "idle", 0)
+	var count := 0
+	for y in image.get_height():
+		for x in image.get_width():
+			if image.get_pixel(x, y).is_equal_approx(color):
+				count += 1
+	return count

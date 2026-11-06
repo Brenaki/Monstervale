@@ -46,5 +46,64 @@
     "sprite": "goblin_shield",
     "burst": "#b3262e",
     "reach": 40
+  },
+  "slime": {
+    "hp": 32,
+    "speed": 16,
+    "gold": 2,
+    "damage": 4,
+    "attack_cooldown": 1.2,
+    "lives": 2,
+    "resist": {
+      "pierce": 0.8,
+      "impact": 1,
+      "magic": 1.2
+    },
+    "sprite": "slime",
+    "shadow": 14,
+    "burst": "#5fd4ae",
+    "reach": 40,
+    "split": {
+      "into": "slime_medium",
+      "count": 2
+    }
+  },
+  "slime_medium": {
+    "hp": 14,
+    "speed": 22,
+    "gold": 1,
+    "damage": 2,
+    "attack_cooldown": 1,
+    "lives": 1,
+    "resist": {
+      "pierce": 0.8,
+      "impact": 1,
+      "magic": 1.2
+    },
+    "sprite": "slime_medium",
+    "shadow": 10,
+    "burst": "#5fd4ae",
+    "reach": 40,
+    "split": {
+      "into": "slime_small",
+      "count": 2
+    }
+  },
+  "slime_small": {
+    "hp": 6,
+    "speed": 30,
+    "gold": 0,
+    "damage": 1,
+    "attack_cooldown": 0.8,
+    "lives": 1,
+    "resist": {
+      "pierce": 0.8,
+      "impact": 1,
+      "magic": 1.2
+    },
+    "sprite": "slime_small",
+    "shadow": 6,
+    "burst": "#5fd4ae",
+    "reach": 40
   }
 }

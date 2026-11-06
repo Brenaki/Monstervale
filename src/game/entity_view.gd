@@ -13,6 +13,7 @@ const FADE_SECONDS := 0.2
 var entity
 var is_monster := false
 var sprite: AnimatedSprite2D
+var shadow_radius := 10.0
 
 var _level_frames: Array = []
 var _shown_level := 1
@@ -68,7 +69,7 @@ func flash() -> void:
 
 
 func play_attack() -> void:
-	if _dying or _fallen:
+	if _dying or _fallen or not sprite.sprite_frames.has_animation("attack"):
 		return
 	_attacking = true
 	sprite.speed_scale = 1.0
@@ -147,7 +148,7 @@ func _draw() -> void:
 	if _dying:
 		return
 	draw_set_transform(Vector2(0, 0), 0.0, Vector2(1.0, 0.3))
-	draw_circle(Vector2.ZERO, 10.0, Color(0.1, 0.08, 0.15, 0.35))
+	draw_circle(Vector2.ZERO, shadow_radius, Color(0.1, 0.08, 0.15, 0.35))
 	draw_set_transform(Vector2.ZERO)
 	var max_hp := _max_hp()
 	if max_hp > 0 and entity.hp < max_hp:

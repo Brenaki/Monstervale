@@ -1,13 +1,12 @@
 extends SceneTree
-## Gera os SpriteFrames, o TileSet e a primeira versão da cena da Fase 1.
+## Gera os SpriteFrames, os TileSets e a primeira versão das cenas das fases.
 ## Uso: godot --headless --path . -s tools/build_assets.gd
 ## Depois de gerada, a cena pode ser editada no Godot; rode com --scene só para recriá-la.
 
 const AsepriteFrames = preload("res://src/core/aseprite_frames.gd")
 
 const SPRITES_DIR := "res://assets/sprites/"
-const TILESET_PATH := "res://assets/tiles/tileset.tres"
-const LEVEL_PATH := "res://src/game/levels/level_01.tscn"
+const LEVEL_PATH := "res://src/game/levels/%s.tscn"
 const TILE := 32
 const GRID := Vector2i(20, 11)
 const ATLAS_SIZE := Vector2i(8, 3)
@@ -17,17 +16,44 @@ const BERRY_BUSH := Vector2i(6, 0)
 const ROCK := Vector2i(7, 0)
 const LAST_GRASS_COLUMN := 3
 const VILLAGE_CELLS := Rect2i(15, 1, 5, 5)
-const PATH_RUNS := [
-	[Vector2i(0, 7), Vector2i(8, 7)],
-	[Vector2i(8, 3), Vector2i(8, 7)],
-	[Vector2i(8, 3), Vector2i(17, 3)],
-	[Vector2i(15, 4), Vector2i(17, 4)],
-]
-const ROUTE := [Vector2(-16, 240), Vector2(272, 240), Vector2(272, 112), Vector2(560, 112)]
-const DECOR := {
-	Vector2i(1, 2): BUSH, Vector2i(4, 1): ROCK, Vector2i(2, 5): BERRY_BUSH, Vector2i(13, 1): BUSH,
-	Vector2i(18, 7): BERRY_BUSH, Vector2i(15, 7): BUSH, Vector2i(1, 9): BUSH, Vector2i(5, 9): BERRY_BUSH,
-	Vector2i(11, 8): ROCK, Vector2i(16, 9): BUSH, Vector2i(10, 1): BERRY_BUSH, Vector2i(18, 9): ROCK,
+const LEVELS := {
+	"level_01": {
+		"node": "Level01",
+		"tiles": "res://assets/tiles/tiles.png",
+		"tileset": "res://assets/tiles/tileset.tres",
+		"path_runs": [
+			[Vector2i(0, 7), Vector2i(8, 7)],
+			[Vector2i(8, 3), Vector2i(8, 7)],
+			[Vector2i(8, 3), Vector2i(17, 3)],
+			[Vector2i(15, 4), Vector2i(17, 4)],
+		],
+		"route": [Vector2(-16, 240), Vector2(272, 240), Vector2(272, 112), Vector2(560, 112)],
+		"decor": {
+			Vector2i(1, 2): BUSH, Vector2i(4, 1): ROCK, Vector2i(2, 5): BERRY_BUSH, Vector2i(13, 1): BUSH,
+			Vector2i(18, 7): BERRY_BUSH, Vector2i(15, 7): BUSH, Vector2i(1, 9): BUSH, Vector2i(5, 9): BERRY_BUSH,
+			Vector2i(11, 8): ROCK, Vector2i(16, 9): BUSH, Vector2i(10, 1): BERRY_BUSH, Vector2i(18, 9): ROCK,
+		},
+	},
+	"level_02": {
+		"node": "Level02",
+		"tiles": "res://assets/tiles/tiles_swamp.png",
+		"tileset": "res://assets/tiles/tileset_swamp.tres",
+		"path_runs": [
+			[Vector2i(0, 2), Vector2i(4, 2)],
+			[Vector2i(4, 2), Vector2i(4, 8)],
+			[Vector2i(4, 8), Vector2i(12, 8)],
+			[Vector2i(12, 3), Vector2i(12, 8)],
+			[Vector2i(12, 3), Vector2i(17, 3)],
+			[Vector2i(15, 4), Vector2i(17, 4)],
+		],
+		"route": [Vector2(-16, 80), Vector2(144, 80), Vector2(144, 272), Vector2(400, 272), Vector2(400, 112), Vector2(560, 112)],
+		"decor": {
+			Vector2i(1, 1): BUSH, Vector2i(2, 5): BERRY_BUSH, Vector2i(3, 1): ROCK, Vector2i(7, 2): BUSH,
+			Vector2i(9, 1): BERRY_BUSH, Vector2i(13, 1): ROCK, Vector2i(2, 8): BUSH, Vector2i(1, 9): ROCK,
+			Vector2i(8, 5): BUSH, Vector2i(10, 4): BERRY_BUSH, Vector2i(7, 6): ROCK, Vector2i(15, 7): BUSH,
+			Vector2i(18, 7): BERRY_BUSH, Vector2i(14, 9): ROCK, Vector2i(17, 9): BUSH,
+		},
+	},
 }
 
 
@@ -35,9 +61,11 @@ func _init() -> void:
 	for file_name in DirAccess.get_files_at(SPRITES_DIR):
 		if file_name.get_extension() == "json":
 			_build_sprite(file_name.get_basename())
-	var tileset := _build_tileset()
-	if "--scene" in OS.get_cmdline_user_args() or not FileAccess.file_exists(LEVEL_PATH):
-		_build_level(tileset)
+	for level_id: String in LEVELS:
+		var config: Dictionary = LEVELS[level_id]
+		var tileset := _build_tileset(config.tiles, config.tileset)
+		if "--scene" in OS.get_cmdline_user_args() or not FileAccess.file_exists(LEVEL_PATH % level_id):
+			_build_level(level_id, config, tileset)
 	quit()
 
 
@@ -52,7 +80,7 @@ func _build_sprite(sprite: String) -> void:
 	ResourceSaver.save(AsepriteFrames.build(sheet, texture), "res://assets/sprites/%s.tres" % sprite)
 
 
-func _build_tileset() -> TileSet:
+func _build_tileset(tiles_path: String, tileset_path: String) -> TileSet:
 	var tileset := TileSet.new()
 	tileset.tile_size = Vector2i(TILE, TILE)
 	tileset.add_custom_data_layer()
@@ -64,7 +92,7 @@ func _build_tileset() -> TileSet:
 	tileset.set_terrain_name(0, 0, "caminho")
 
 	var source := TileSetAtlasSource.new()
-	source.texture = load("res://assets/tiles/tiles.png")
+	source.texture = load(tiles_path)
 	source.texture_region_size = Vector2i(TILE, TILE)
 	tileset.add_source(source, 0)
 	for y in ATLAS_SIZE.y:
@@ -84,18 +112,18 @@ func _build_tileset() -> TileSet:
 			data.set_terrain_peering_bit(TileSet.CELL_NEIGHBOR_BOTTOM_SIDE, 0)
 		if mask & 8:
 			data.set_terrain_peering_bit(TileSet.CELL_NEIGHBOR_LEFT_SIDE, 0)
-	ResourceSaver.save(tileset, TILESET_PATH)
-	return load(TILESET_PATH)
+	ResourceSaver.save(tileset, tileset_path)
+	return load(tileset_path)
 
 
-func _build_level(tileset: TileSet) -> void:
+func _build_level(level_id: String, config: Dictionary, tileset: TileSet) -> void:
 	var root := Node2D.new()
-	root.name = "Level01"
+	root.name = config.node
 	var ground := _layer("Ground", tileset, root)
 	var decor := _layer("Decor", tileset, root)
 	decor.y_sort_enabled = false
 
-	var path_cells := _path_cells()
+	var path_cells := _path_cells(config.path_runs)
 	for y in GRID.y:
 		for x in GRID.x:
 			var cell := Vector2i(x, y)
@@ -105,13 +133,13 @@ func _build_level(tileset: TileSet) -> void:
 				ground.set_cell(cell, 0, LOCKED_GRASS)
 			else:
 				ground.set_cell(cell, 0, Vector2i((x * 7 + y * 13) % 4, 0))
-	for cell: Vector2i in DECOR:
-		decor.set_cell(cell, 0, DECOR[cell])
+	for cell: Vector2i in config.decor:
+		decor.set_cell(cell, 0, config.decor[cell])
 
 	var route := Path2D.new()
 	route.name = "Route"
 	route.curve = Curve2D.new()
-	for point: Vector2 in ROUTE:
+	for point: Vector2 in config.route:
 		route.curve.add_point(point)
 	root.add_child(route)
 
@@ -125,8 +153,9 @@ func _build_level(tileset: TileSet) -> void:
 		child.owner = root
 	var packed := PackedScene.new()
 	packed.pack(root)
-	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(LEVEL_PATH.get_base_dir()))
-	ResourceSaver.save(packed, LEVEL_PATH)
+	var level_path := LEVEL_PATH % level_id
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(level_path.get_base_dir()))
+	ResourceSaver.save(packed, level_path)
 	root.free()
 
 
@@ -138,9 +167,9 @@ func _layer(layer_name: String, tileset: TileSet, parent: Node) -> TileMapLayer:
 	return layer
 
 
-func _path_cells() -> Dictionary:
+func _path_cells(path_runs: Array) -> Dictionary:
 	var cells := {}
-	for run: Array in PATH_RUNS:
+	for run: Array in path_runs:
 		for y in range(run[0].y, run[1].y + 1):
 			for x in range(run[0].x, run[1].x + 1):
 				cells[Vector2i(x, y)] = true

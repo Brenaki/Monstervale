@@ -1,5 +1,7 @@
 extends GutTest
 
+const GameData = preload("res://src/core/game_data.gd")
+
 const SAVE_PATH := "user://test_progress.json"
 const LOG_DIR := "user://test_partidas"
 const FREE_CELL := Vector2i(7, 5)
@@ -223,3 +225,112 @@ func test_upgrading_in_game_changes_the_unit_sprite() -> void:
 	var view = game.view_of(game.selected_unit)
 	view.sync(0.0)
 	assert_eq(view.sprite.sprite_frames, load("res://assets/sprites/warrior_3.tres"))
+
+func _win() -> void:
+	game.finish_level("won", 3)
+
+func _unlock_second_level() -> void:
+	game.progress.record(0, 1)
+
+func test_opens_on_the_first_level_without_progress() -> void:
+	assert_eq(game.level_index, 0)
+	assert_eq(game.level.id, "level_01")
+
+func test_opens_on_the_furthest_unlocked_level() -> void:
+	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
+	file.store_string(JSON.stringify({"stars": {"0": 2}}))
+	file.close()
+	var other = load("res://src/game/main.tscn").instantiate()
+	other.progress_path = SAVE_PATH
+	other.log_dir = LOG_DIR
+	add_child_autofree(other)
+	assert_eq(other.level.id, "level_02")
+
+func test_a_locked_level_does_not_open() -> void:
+	game.open_level(1)
+	assert_eq(game.level.id, "level_01")
+
+func test_next_level_button_only_appears_after_winning() -> void:
+	game.finish_level("lost", 0)
+	assert_false(game.hud.next_level_button.visible)
+	game.restart()
+	_win()
+	assert_true(game.hud.next_level_button.visible)
+
+func test_next_level_starts_a_fresh_match_on_the_new_map() -> void:
+	game.select_class("archer")
+	game.cell_clicked(FREE_CELL)
+	_win()
+	game.next_level()
+	assert_eq(game.level.id, "level_02")
+	assert_eq(game.sim.units.size(), 0)
+	assert_eq(game.sim.gold, GameData.load_level("level_02").start_gold)
+	assert_false(game.hud.result_panel.visible)
+	assert_eq(game.get_children().filter(func(c): return c.has_node("Route")).size(), 1, "só um mapa na cena")
+
+func test_new_level_offers_its_own_classes() -> void:
+	_win()
+	game.next_level()
+	await wait_physics_frames(1)
+	assert_true(game.hud.class_buttons.has("mage"))
+	assert_eq(game.hud.class_buttons.size(), 3)
+
+func test_last_level_has_no_next_level_button() -> void:
+	_win()
+	game.next_level()
+	_win()
+	assert_false(game.hud.next_level_button.visible)
+
+func test_stars_are_saved_for_the_level_being_played() -> void:
+	_win()
+	game.next_level()
+	game.finish_level("won", 2)
+	assert_eq(game.progress.stars_for(1), 2)
+	assert_eq(game.progress.stars_for(0), 3)
+
+func test_leaving_a_level_saves_the_abandoned_match() -> void:
+	_unlock_second_level()
+	game.select_class("archer")
+	game.cell_clicked(FREE_CELL)
+	game.open_level(1)
+	assert_eq(DirAccess.get_files_at(LOG_DIR).size(), 2, "um .md e um .json")
+
+func test_report_of_the_second_level_carries_its_id() -> void:
+	_unlock_second_level()
+	game.open_level(1)
+	game.select_class("archer")
+	game.cell_clicked(Vector2i(2, 4))
+	game.finish_level("lost", 0)
+	assert_true(game.last_log_path.ends_with("level_02.md"), game.last_log_path)
+
+func test_levels_panel_pauses_and_restores() -> void:
+	game.toggle_levels()
+	assert_true(game.hud.levels_panel.visible)
+	assert_true(game.paused)
+	game.toggle_levels()
+	assert_false(game.hud.levels_panel.visible)
+	assert_false(game.paused)
+
+func test_levels_panel_keeps_a_pause_the_player_chose() -> void:
+	game.toggle_pause()
+	game.toggle_levels()
+	game.toggle_levels()
+	assert_true(game.paused)
+
+func test_levels_panel_locks_what_was_not_reached() -> void:
+	game.toggle_levels()
+	game.hud.refresh(game)
+	assert_false(game.hud.level_buttons[0].disabled)
+	assert_true(game.hud.level_buttons[1].disabled)
+	_unlock_second_level()
+	game.hud.refresh(game)
+	assert_false(game.hud.level_buttons[1].disabled)
+
+func test_choosing_in_the_panel_opens_the_level_and_closes_the_panel() -> void:
+	_unlock_second_level()
+	game.toggle_levels()
+	game.hud.level_buttons[1].pressed.emit()
+	assert_eq(game.level.id, "level_02")
+	assert_false(game.hud.levels_panel.visible)
+	assert_false(game.paused)
+

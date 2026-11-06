@@ -1,9 +1,13 @@
 keys,pt_BR,en
 UNIT_ARCHER,Arqueiro,Archer
 UNIT_WARRIOR,Guerreiro,Warrior
+UNIT_MAGE,Mago,Mage
 MONSTER_GOBLIN,Goblin,Goblin
 MONSTER_GOBLIN_FAST,Goblin veloz,Swift goblin
 MONSTER_GOBLIN_SHIELD,Goblin blindado,Armored goblin
+MONSTER_SLIME,Slime,Slime
+MONSTER_SLIME_MEDIUM,Slime médio,Medium slime
+MONSTER_SLIME_SMALL,Slime pequeno,Small slime
 HUD_GOLD,Ouro: %d,Gold: %d
 HUD_LIVES,Vidas: %d,Lives: %d
 HUD_WAVE,Onda %d/%d,Wave %d/%d
@@ -30,3 +34,8 @@ RESULT_LOST,O vilarejo caiu,The village fell
 RESULT_STARS,Estrelas: %d de 3,Stars: %d of 3
 UNIT_DOWN,Caído,Down
 BTN_OPEN_LOG,Ver relatório,View report
+BTN_LEVELS,Fase %d,Level %d
+BTN_NEXT_LEVEL,Próxima fase,Next level
+LEVELS_TITLE,Escolha a fase,Choose a level
+LEVEL_ENTRY,Fase %d: %d de 3 estrelas,Level %d: %d of 3 stars
+LEVEL_LOCKED,Fase %d: bloqueada,Level %d: locked

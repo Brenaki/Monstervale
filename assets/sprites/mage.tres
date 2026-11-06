@@ -1,0 +1,70 @@
+[gd_resource type="SpriteFrames" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/mage.png" id="1_gpc3q"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nog3g"]
+atlas = ExtResource("1_gpc3q")
+region = Rect2(112, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bicym"]
+atlas = ExtResource("1_gpc3q")
+region = Rect2(168, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_i44wu"]
+atlas = ExtResource("1_gpc3q")
+region = Rect2(224, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1ou3e"]
+atlas = ExtResource("1_gpc3q")
+region = Rect2(280, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_al6a6"]
+atlas = ExtResource("1_gpc3q")
+region = Rect2(336, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6dlk0"]
+atlas = ExtResource("1_gpc3q")
+region = Rect2(0, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_drhvq"]
+atlas = ExtResource("1_gpc3q")
+region = Rect2(56, 0, 56, 40)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.9,
+"texture": SubResource("AtlasTexture_nog3g")
+}, {
+"duration": 0.8,
+"texture": SubResource("AtlasTexture_bicym")
+}, {
+"duration": 1.2,
+"texture": SubResource("AtlasTexture_i44wu")
+}],
+"loop": 0,
+"name": &"attack",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.3,
+"texture": SubResource("AtlasTexture_1ou3e")
+}, {
+"duration": 3.2,
+"texture": SubResource("AtlasTexture_al6a6")
+}],
+"loop": 0,
+"name": &"fall",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 5.0,
+"texture": SubResource("AtlasTexture_6dlk0")
+}, {
+"duration": 5.0,
+"texture": SubResource("AtlasTexture_drhvq")
+}],
+"loop": 1,
+"name": &"idle",
+"speed": 10.0
+}]

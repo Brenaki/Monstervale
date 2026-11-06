@@ -491,3 +491,176 @@ end
 warrior("warrior", 1)
 warrior("warrior_2", 2)
 warrior("warrior_3", 3)
+
+---------------------------------------------------------------- MAGO
+
+local MAGE_BASE = {
+  R = "6a56c8", r = "4a3a9c", n = "33286e", H = "7a4a2c", S = "f2c391", A = "d2905f", K = "1b1626",
+  B = "e8e8f0", b = "b6c2cc", W = "b47a42", w = "8f5c35", Y = "f6e05e", y = "e8913a", f = "d9534a",
+  O = "8fe0f0", o = "4fa0c8", T = "4a3a9c", k = "3d4757",
+}
+local MAGE_LEVELS = {
+  {},
+  { R = "4f6fd0", r = "34509c", n = "24386e", T = "f6e05e" },
+  { R = "a2406f", r = "7a2a55", n = "54203e", T = "f6e05e", W = "f6e05e", w = "e8913a" },
+}
+local MAGE_HAT = {
+  ".....RR........", "....RRRr.......", "...RRRRrr......", "...RRRRrrr.....", "..RRRRRrrrr....",
+  "..RRRRRRrrrr...", ".TTTTTTTTTTTT..", "RRRRRRRRrrrrrnn",
+}
+local MAGE_FACE = {
+  "..HSSSSSSSSSn..", "..HSSSKSSKSSn..", "..HSSSKSSKSSn..", "..HSSSSSSSSAn..",
+  "..HBBBBBBBBBn..", "...BBBBBBBBb...", "....bBBBBb.....",
+}
+local MAGE_HURT = {
+  "..HSSSSSSSSSn..", "..HSSKKSKKSSn..", "..HSSSSSSSSSn..", "..HSSSSSSSSAn..",
+  "..HBBBBBBBBBn..", "...BBBBBBBBb...", "....bBBBBb.....",
+}
+local MAGE_ROBE = {
+  ".RRRRRRr.", ".RRRRRRr.", "RRRRRRRrr", "TTTTTTTTT", "RRRRRRrrr", "RRRRRRrrrr", "RRRRRRRrrr", "RRRRRRRrrr",
+}
+local MAGE_FEET = { ".kkk..kkk." }
+local MAGE_HAND = { ".SS.", "SSSA", "ASSA", ".AA." }
+local STAFF_TOP = {
+  { rows = { ".O.", "OOo", ".o." }, x = -1, y = -3 },
+  { rows = { ".YOY.", "YOOoY", "OOOoo", "YOooY", ".YoY." }, x = -2, y = -5 },
+  { rows = { "..Y..", ".YY..", ".YyY.", "YYyyY", "YyfyY", ".yfy.", ".YOY.", "YOOoY", "OOOoo", "YOooY", ".YoY." }, x = -2, y = -11 },
+}
+
+local function mage(name, level)
+  local L = legendOf(merged(MAGE_BASE, MAGE_LEVELS[level]))
+  local top = STAFF_TOP[level]
+
+  local function head(img, dx, dy, face)
+    stamp(img, MAGE_HAT, L, 2 + dx, -4 + dy)
+    stamp(img, face or MAGE_FACE, L, 2 + dx, 4 + dy)
+  end
+  local function staff(img, x, dy)
+    stamp(img, top.rows, L, x + top.x, dy + top.y + 3)
+    line(img, x, dy + 3, x, 17, L.W)
+    line(img, x + 1, dy + 3, x + 1, 17, L.w)
+    stamp(img, MAGE_HAND, L, x - 1, 10 + dy)
+  end
+  local function stand(img, dx, dy)
+    stamp(img, MAGE_FEET, L, 5, 19)
+    stamp(img, MAGE_ROBE, L, 5 + dx, 11)
+    head(img, dx, dy)
+  end
+  local arcs = rgb("8fe0f0")
+  if level == 3 then arcs = rgb("f6e05e") end
+
+  local frames = {
+    frame(500, function(img)
+      stamp(img, MAGE_HAND, L, 2, 13); stand(img, 0, 0); staff(img, 20, 0)
+    end),
+    frame(500, function(img)
+      stamp(img, MAGE_HAND, L, 2, 14); stand(img, 0, 1); staff(img, 20, 1)
+    end),
+    -- concentra: cajado erguido atrás, corpo para trás
+    frame(190, function(img)
+      stamp(img, MAGE_HAND, L, 1, 12); stand(img, -2, 0); staff(img, 17, -3)
+    end),
+    -- lança: cajado à frente, com faíscas na ponta
+    frame(80, function(img)
+      stamp(img, MAGE_HAND, L, 4, 13); stand(img, 2, 1)
+      line(img, 21, 16, 27, 5, L.W, L.w)
+      stamp(img, top.rows, L, 27 + top.x, 5 + top.y)
+      stamp(img, MAGE_HAND, L, 21, 9)
+    end, function(img)
+      line(img, 29, 0, 33, -3, arcs); line(img, 31, 4, 36, 4, arcs); line(img, 29, 8, 33, 11, arcs)
+    end),
+    -- recuperação
+    frame(120, function(img)
+      stamp(img, MAGE_HAND, L, 3, 13); stand(img, 1, 0); staff(img, 21, 0)
+    end),
+    -- queda: ajoelha com os olhos fechados e o cajado baixo
+    frame(130, function(img)
+      stamp(img, MAGE_ROBE, L, 5, 12)
+      head(img, 0, 2, MAGE_HURT)
+      stamp(img, MAGE_HAND, L, 1, 15)
+      line(img, 20, 18, 33, 18, L.W)
+    end),
+    frame(320, function(img)
+      stamp(img, MAGE_FEET, L, 5, 19)
+      stamp(img, MAGE_ROBE, L, 5, 11)
+      head(img, 0, 0, MAGE_HURT)
+      stamp(img, MAGE_HAND, L, 1, 13)
+    end, nil, lying),
+  }
+  build(name, frames, { {"idle", 1, 2}, {"attack", 3, 5}, {"fall", 6, 7} })
+end
+
+mage("mage", 1)
+mage("mage_2", 2)
+mage("mage_3", 3)
+
+---------------------------------------------------------------- SLIMES
+
+local SLIME = { L = "9ff0c8", M = "5fd4ae", D = "2f9f94", E = "1f6f74", S = "eafff4" }
+local SLIME_CX, SLIME_BASE = 28, 35
+
+-- Domo de base reta, com luz no alto à esquerda e sombra embaixo à direita.
+local function slimeBody(img, w, h, eyes)
+  for row = 0, h - 1 do
+    local t = row / h
+    local half = (w / 2) * math.sqrt(1 - t * t)
+    if row == 0 then half = half - 1 end
+    local y = SLIME_BASE - row
+    for x = SLIME_CX - math.floor(half + 0.5), SLIME_CX + math.floor(half + 0.5) - 1 do
+      local nx = (x + 0.5 - SLIME_CX) / (w / 2)
+      local light = -nx * 0.55 + t * 0.9
+      local hex = SLIME.M
+      if row == 0 then hex = SLIME.E
+      elseif light > 0.62 then hex = SLIME.L
+      elseif light < -0.02 then hex = SLIME.D end
+      img:drawPixel(x, y, rgb(hex))
+    end
+  end
+  local shineW = math.max(1, w // 7)
+  local shineX = SLIME_CX - w // 4
+  local shineY = SLIME_BASE - math.floor(h * 0.74)
+  for x = shineX, shineX + shineW do img:drawPixel(x, shineY, rgb(SLIME.S)) end
+  if eyes then
+    local eyeY = SLIME_BASE - math.floor(h * 0.52)
+    for _, fraction in ipairs({ eyes.left, eyes.right }) do
+      local ex = SLIME_CX + math.floor(w * fraction + 0.5)
+      for dx = 0, eyes.w - 1 do
+        for dy = 0, eyes.h - 1 do
+          img:drawPixel(ex + dx, eyeY + dy, K)
+        end
+      end
+      if eyes.w > 1 then img:drawPixel(ex, eyeY, rgb(SLIME.S)) end
+    end
+  end
+end
+
+local function droplets(img, list)
+  for _, d in ipairs(list) do
+    for x = 0, d[3] - 1 do
+      for y = 0, d[3] - 1 do
+        img:drawPixel(SLIME_CX + d[1] + x, SLIME_BASE - d[2] + y, rgb(SLIME.M))
+      end
+    end
+  end
+end
+
+local function slime(name, sizes, eyes, spread)
+  local function step(pair)
+    return frame(130, function(img) slimeBody(img, pair[1], pair[2], eyes) end)
+  end
+  local frames = { step(sizes[1]), step(sizes[2]), step(sizes[3]), step(sizes[4]) }
+  -- morte: achata e espirra gosma, depois vira poça
+  frames[5] = frame(110, function(img)
+    slimeBody(img, sizes[2][1] + spread // 2, math.max(3, sizes[2][2] // 2), nil)
+    droplets(img, { { -spread, 6, 2 }, { spread - 2, 8, 2 }, { -spread // 2, 11, 1 }, { spread // 2, 12, 1 } })
+  end)
+  frames[6] = frame(300, function(img)
+    slimeBody(img, sizes[2][1], 2, nil)
+    droplets(img, { { -spread - 2, 1, 1 }, { spread + 1, 1, 1 } })
+  end)
+  build(name, frames, { {"walk", 1, 4}, {"death", 5, 6} })
+end
+
+slime("slime", { {26, 18}, {32, 12}, {20, 24}, {24, 19} }, { left = 0.04, right = 0.26, w = 3, h = 4 }, 16)
+slime("slime_medium", { {18, 13}, {23, 8}, {14, 17}, {17, 14} }, { left = 0, right = 0.26, w = 2, h = 3 }, 11)
+slime("slime_small", { {11, 8}, {14, 5}, {8, 11}, {10, 9} }, { left = 0, right = 0.26, w = 1, h = 2 }, 7)
