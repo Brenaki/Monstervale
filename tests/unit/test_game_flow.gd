@@ -3,6 +3,7 @@ extends GutTest
 const SAVE_PATH := "user://test_progress.json"
 const LOG_DIR := "user://test_partidas"
 const FREE_CELL := Vector2i(7, 5)
+const START_GOLD := 120
 
 var game
 
@@ -27,7 +28,7 @@ func _advance(seconds: float) -> void:
 	game.advance(seconds)
 
 func test_starts_with_level_gold() -> void:
-	assert_eq(game.sim.gold, 150)
+	assert_eq(game.sim.gold, START_GOLD)
 
 func test_selecting_a_class_then_clicking_places_a_unit() -> void:
 	game.select_class("archer")
@@ -65,11 +66,11 @@ func test_upgrade_and_dismiss_act_on_the_selected_unit() -> void:
 	game.cell_clicked(FREE_CELL)
 	game.upgrade_selected()
 	assert_eq(game.sim.units[0].level, 2)
-	assert_eq(game.sim.gold, 60)
+	assert_eq(game.sim.gold, START_GOLD - 105)
 	game.dismiss_selected()
 	assert_eq(game.sim.units.size(), 0)
 	assert_null(game.selected_unit)
-	assert_eq(game.sim.gold, 105)
+	assert_eq(game.sim.gold, START_GOLD - 53)
 
 func test_priority_button_changes_selected_unit() -> void:
 	game.select_class("archer")
@@ -101,7 +102,7 @@ func test_restart_resets_everything_without_penalty() -> void:
 	game.call_wave()
 	_advance(2.0)
 	game.restart()
-	assert_eq(game.sim.gold, 150)
+	assert_eq(game.sim.gold, START_GOLD)
 	assert_eq(game.sim.units.size(), 0)
 	assert_eq(game.sim.monsters.size(), 0)
 	assert_eq(game.view_count(), 0)

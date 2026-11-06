@@ -2,7 +2,7 @@
   "goblin": {
     "hp": 18,
     "speed": 24,
-    "gold": 4,
+    "gold": 2,
     "damage": 3,
     "attack_cooldown": 1,
     "lives": 1,
@@ -18,7 +18,7 @@
   "goblin_fast": {
     "hp": 12,
     "speed": 38,
-    "gold": 5,
+    "gold": 3,
     "damage": 2,
     "attack_cooldown": 0.8,
     "lives": 1,
@@ -34,7 +34,7 @@
   "goblin_shield": {
     "hp": 40,
     "speed": 20,
-    "gold": 9,
+    "gold": 5,
     "damage": 4,
     "attack_cooldown": 1.2,
     "lives": 2,

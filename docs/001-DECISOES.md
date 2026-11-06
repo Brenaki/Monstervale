@@ -105,6 +105,8 @@ O dano aparece como um breve clarão feito por código, sem quadros extras. O te
 - O relatório traz, por onda, defesa, monstros, abates, vidas, ouro, dano por classe, humanos caídos, ações e uma linha para notas. É sempre em português.
 - Primeira avaliação da Fase 1: divertida, fácil no início e bem equilibrada para ensinar.
 - Segunda avaliação: fácil demais. A partida do relatório terminou em 3 minutos, sem perder vidas e com 746 de ouro sobrando. Daí veio a regra de todo humano poder cair.
+- Terceira avaliação: ainda fácil, com ouro demais. Sem monstro nenhum passar, a partida recebeu 1447 de ouro. A renda da fase, sem contar chamadas de onda, caiu de 1257 para 746, e chamar uma onda rende até cerca de 10 de ouro em vez de 21. Essa partida fica em `tests/fixtures/partida_facil_demais.json`, e um teste exige que ela não seja mais perfeita.
+- Quarta avaliação: venceu com 3 estrelas só comprando arqueiros de nível 1 e perdeu rápido só com guerreiros. O guerreiro passou a custar 50 de ouro e o arqueiro, 65.
 
 ## Técnica
 

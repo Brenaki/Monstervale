@@ -1,20 +1,20 @@
 {
   "id": "level_01",
-  "start_gold": 150,
+  "start_gold": 120,
   "lives": 20,
   "classes": [
     "archer",
     "warrior"
   ],
   "wave_interval": 42,
-  "early_call_gold_per_second": 0.5,
+  "early_call_gold_per_second": 0.25,
   "stars": [
     0.5,
     0.9
   ],
   "waves": [
     {
-      "bonus": 15,
+      "bonus": 10,
       "groups": [
         {
           "monster": "goblin",
@@ -25,7 +25,7 @@
       ]
     },
     {
-      "bonus": 15,
+      "bonus": 10,
       "groups": [
         {
           "monster": "goblin",
@@ -36,7 +36,7 @@
       ]
     },
     {
-      "bonus": 20,
+      "bonus": 10,
       "groups": [
         {
           "monster": "goblin",
@@ -53,7 +53,7 @@
       ]
     },
     {
-      "bonus": 20,
+      "bonus": 15,
       "groups": [
         {
           "monster": "goblin",
@@ -64,7 +64,7 @@
       ]
     },
     {
-      "bonus": 25,
+      "bonus": 15,
       "groups": [
         {
           "monster": "goblin",
@@ -81,7 +81,7 @@
       ]
     },
     {
-      "bonus": 25,
+      "bonus": 15,
       "groups": [
         {
           "monster": "goblin_fast",
@@ -92,7 +92,7 @@
       ]
     },
     {
-      "bonus": 30,
+      "bonus": 20,
       "groups": [
         {
           "monster": "goblin",
@@ -109,7 +109,7 @@
       ]
     },
     {
-      "bonus": 30,
+      "bonus": 20,
       "groups": [
         {
           "monster": "goblin_fast",
@@ -126,7 +126,7 @@
       ]
     },
     {
-      "bonus": 35,
+      "bonus": 20,
       "groups": [
         {
           "monster": "goblin",
@@ -143,7 +143,7 @@
       ]
     },
     {
-      "bonus": 35,
+      "bonus": 25,
       "groups": [
         {
           "monster": "goblin",
@@ -160,7 +160,7 @@
       ]
     },
     {
-      "bonus": 40,
+      "bonus": 25,
       "groups": [
         {
           "monster": "goblin_fast",
