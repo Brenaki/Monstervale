@@ -16,6 +16,7 @@ var down_timer: float = 0.0
 var blocked: Array = []
 var facing: int = 1
 var time_since_hit: float = 0.0
+var attacks_made: int = 0
 
 var _data: Dictionary
 var _recovering: float = 0.0

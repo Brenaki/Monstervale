@@ -1,0 +1,106 @@
+{
+  "actions": [
+    {
+      "action": "place",
+      "cell": [
+        2,
+        4
+      ],
+      "gold_after": 105,
+      "level": 1,
+      "time": 26.1666666666665,
+      "unit": "archer",
+      "wave": 0
+    },
+    {
+      "action": "place",
+      "cell": [
+        3,
+        3
+      ],
+      "gold_after": 45,
+      "level": 1,
+      "time": 29.233333333333,
+      "unit": "spearman",
+      "wave": 0
+    },
+    {
+      "action": "place",
+      "cell": [
+        2,
+        3
+      ],
+      "gold_after": 5,
+      "level": 1,
+      "time": 46.3166666666653,
+      "unit": "warrior",
+      "wave": 1
+    }
+  ],
+  "duration": 92.0166666666627,
+  "gold_final": 31,
+  "level": "level_03",
+  "lives_final": 16,
+  "result": "restarted",
+  "stars": 0,
+  "started_at": "2026-11-06 18:30:33",
+  "waves": [
+    {
+      "bonus": 10,
+      "called_early": true,
+      "cleared_at": 47.1333333333319,
+      "damage": {
+        "archer": 45,
+        "spearman": 56,
+        "warrior": 10
+      },
+      "defenders": {
+        "archer 1": 1,
+        "spearman 1": 1
+      },
+      "early_bonus": 0,
+      "escaped": {},
+      "gold_end": 17,
+      "gold_start": 45,
+      "kill_gold": 12,
+      "killed": {
+        "goblin": 6
+      },
+      "lives_end": 20,
+      "lives_start": 20,
+      "number": 1,
+      "spawned": {
+        "goblin": 6
+      },
+      "started_at": 37.1333333333325,
+      "units_down": 0
+    },
+    {
+      "bonus": 10,
+      "called_early": true,
+      "cleared_at": 70.6166666666639,
+      "damage": {},
+      "defenders": {
+        "archer 1": 1,
+        "spearman 1": 1,
+        "warrior 1": 1
+      },
+      "early_bonus": 4,
+      "escaped": {
+        "wolf": 4
+      },
+      "gold_end": 31,
+      "gold_start": 21,
+      "kill_gold": 0,
+      "killed": {},
+      "lives_end": 16,
+      "lives_start": 20,
+      "number": 2,
+      "spawned": {
+        "wolf": 4
+      },
+      "started_at": 49.7999999999985,
+      "units_down": 0
+    }
+  ]
+}

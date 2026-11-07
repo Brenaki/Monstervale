@@ -15,6 +15,7 @@ var units: Array = []
 var monsters: Array = []
 var fires: Array = []
 var route
+var routes: Array = []
 var next_wave_countdown: float
 var elapsed: float = 0.0
 
@@ -32,8 +33,14 @@ func _init(catalog: Dictionary, level: Dictionary) -> void:
 	gold = level.start_gold
 	lives = level.lives
 	_start_lives = level.lives
-	route = Route.new(level.route)
+	for points: Array in level.get("routes", [level.route]):
+		routes.append(Route.new(points))
+	route = routes[0]
 	next_wave_countdown = level.wave_interval
+
+
+func start_lives() -> int:
+	return _start_lives
 
 
 func available_classes() -> Array:
@@ -91,8 +98,8 @@ func dismiss_unit(unit) -> void:
 	_emit({"type": "unit_dismissed", "unit": unit})
 
 
-func spawn_monster(kind: String):
-	var monster = Monster.new(kind, _catalog.monsters[kind], route)
+func spawn_monster(kind: String, route_index: int = 0):
+	var monster = Monster.new(kind, _catalog.monsters[kind], routes[route_index], route_index)
 	monsters.append(monster)
 	_emit({"type": "monster_spawned", "monster": monster})
 	return monster
@@ -130,6 +137,19 @@ func next_wave_preview() -> Dictionary:
 	for group: Dictionary in _level.waves[_next_wave].groups:
 		preview[group.monster] = preview.get(group.monster, 0) + int(group.count)
 	return preview
+
+
+## Entradas usadas pela próxima onda, para o jogador saber de onde ela vem.
+func next_wave_routes() -> Array:
+	var used := []
+	if _next_wave >= waves_total():
+		return used
+	for group: Dictionary in _level.waves[_next_wave].groups:
+		var index := int(group.get("route", 0))
+		if index not in used:
+			used.append(index)
+	used.sort()
+	return used
 
 
 func stars() -> int:
@@ -195,6 +215,7 @@ func _start_next_wave(early_bonus: int = 0, called_early: bool = false) -> void:
 			"remaining": int(group.count),
 			"interval": float(group.interval),
 			"timer": float(group.delay),
+			"route": int(group.get("route", 0)),
 		})
 	_next_wave += 1
 	_active_waves.append({"number": _next_wave, "spawners": spawners, "alive": 0, "bonus": int(definition.bonus)})
@@ -215,7 +236,7 @@ func _update_spawners(delta: float) -> void:
 		for spawner in wave.spawners:
 			spawner.timer -= delta
 			while spawner.timer <= 0.0 and spawner.remaining > 0:
-				var monster = spawn_monster(spawner.monster)
+				var monster = spawn_monster(spawner.monster, spawner.route)
 				monster.wave = wave
 				wave.alive += 1
 				spawner.remaining -= 1
@@ -225,6 +246,7 @@ func _update_spawners(delta: float) -> void:
 
 func _update_monsters(delta: float) -> void:
 	for monster in monsters.duplicate():
+		monster.update_effects(delta)
 		if monster.blocker == null:
 			_try_block(monster)
 		if monster.blocker != null:
@@ -237,7 +259,7 @@ func _update_monsters(delta: float) -> void:
 
 func _try_block(monster) -> void:
 	for unit in units:
-		if unit.has_block_room() and unit.position.distance_to(monster.position()) <= float(unit.stats().range):
+		if unit.has_block_room() and unit.position.distance_to(monster.position()) <= float(unit.stats().get("block_range", unit.stats().range)):
 			monster.blocker = unit
 			unit.blocked.append(monster)
 			monster.cooldown = 0.0
@@ -292,11 +314,11 @@ func _release_blocked(unit) -> void:
 
 
 func _walk(monster, delta: float) -> void:
-	monster.distance += monster.speed * delta
-	var direction: int = route.horizontal_direction_at(monster.distance)
+	monster.distance += monster.current_speed() * delta
+	var direction: int = monster.horizontal_direction()
 	if direction != 0:
 		monster.facing = direction
-	if monster.distance >= route.length:
+	if monster.distance >= monster.route_length():
 		_escape(monster)
 
 
@@ -367,6 +389,8 @@ func _attack(unit, target) -> void:
 		hits.append_array(_nearby(target, float(stats.pierce_radius), int(stats.pierce_extra)))
 	if stats.has("splash_radius"):
 		hits.append_array(_nearby(target, float(stats.splash_radius), int(stats.splash_targets) - 1))
+	if stats.has("line_width"):
+		hits.append_array(_in_line(unit, target, float(stats.line_width)))
 	var target_position: Vector2 = target.position()
 	if target_position.x != unit.position.x:
 		unit.facing = 1 if target_position.x > unit.position.x else -1
@@ -375,6 +399,31 @@ func _attack(unit, target) -> void:
 		_damage(monster, monster.damage_from(int(stats.damage), unit.damage_type()), unit.kind)
 	if stats.has("fire"):
 		_start_fire(unit, target_position, stats.fire)
+	_apply_control(unit, target, stats)
+
+
+## Quem está no segmento que sai do humano, passa pelo alvo e termina no alcance do golpe.
+func _in_line(unit, target, width: float) -> Array:
+	var direction: Vector2 = unit.position.direction_to(target.position())
+	var line_end: Vector2 = unit.position + direction * float(unit.stats().range)
+	return monsters.filter(func(m):
+		if m == target:
+			return false
+		var position: Vector2 = m.position()
+		var closest := Geometry2D.get_closest_point_to_segment(position, unit.position, line_end)
+		return closest.distance_to(position) <= width
+	)
+
+
+func _apply_control(unit, target, stats: Dictionary) -> void:
+	unit.attacks_made += 1
+	if stats.has("slow"):
+		var slowed := [target]
+		slowed.append_array(_nearby(target, float(stats.slow.get("radius", 0.0)), monsters.size()))
+		for monster in slowed:
+			monster.apply_slow(float(stats.slow.factor), float(stats.slow.seconds))
+	if stats.has("root") and unit.attacks_made % int(stats.root.every) == 0:
+		target.apply_root(float(stats.root.seconds))
 
 
 func _nearby(target, radius: float, count: int) -> Array:
@@ -399,7 +448,7 @@ func _split(monster) -> void:
 		return
 	var count := int(split.count)
 	for i in count:
-		var child = spawn_monster(split.into)
+		var child = spawn_monster(split.into, monster.route_index)
 		child.distance = maxf(0.0, monster.distance + SPLIT_SPREAD * (i - (count - 1) / 2.0))
 		child.facing = monster.facing
 		child.wave = monster.wave

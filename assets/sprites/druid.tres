@@ -1,0 +1,70 @@
+[gd_resource type="SpriteFrames" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/druid.png" id="1_h6rfv"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_og5no"]
+atlas = ExtResource("1_h6rfv")
+region = Rect2(112, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_u3k5h"]
+atlas = ExtResource("1_h6rfv")
+region = Rect2(168, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_k3go5"]
+atlas = ExtResource("1_h6rfv")
+region = Rect2(224, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_g3waq"]
+atlas = ExtResource("1_h6rfv")
+region = Rect2(280, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vb3h2"]
+atlas = ExtResource("1_h6rfv")
+region = Rect2(336, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_eohas"]
+atlas = ExtResource("1_h6rfv")
+region = Rect2(0, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ha42r"]
+atlas = ExtResource("1_h6rfv")
+region = Rect2(56, 0, 56, 40)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.9,
+"texture": SubResource("AtlasTexture_og5no")
+}, {
+"duration": 0.8,
+"texture": SubResource("AtlasTexture_u3k5h")
+}, {
+"duration": 1.2,
+"texture": SubResource("AtlasTexture_k3go5")
+}],
+"loop": 0,
+"name": &"attack",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.3,
+"texture": SubResource("AtlasTexture_g3waq")
+}, {
+"duration": 3.2,
+"texture": SubResource("AtlasTexture_vb3h2")
+}],
+"loop": 0,
+"name": &"fall",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 5.0,
+"texture": SubResource("AtlasTexture_eohas")
+}, {
+"duration": 5.0,
+"texture": SubResource("AtlasTexture_ha42r")
+}],
+"loop": 1,
+"name": &"idle",
+"speed": 10.0
+}]

@@ -2,14 +2,18 @@ keys,pt_BR,en
 UNIT_ARCHER,Arqueiro,Archer
 UNIT_WARRIOR,Guerreiro,Warrior
 UNIT_MAGE,Mago,Mage
+UNIT_SPEARMAN,Lanceiro,Spearman
+UNIT_DRUID,Druida,Druid
 MONSTER_GOBLIN,Goblin,Goblin
 MONSTER_GOBLIN_FAST,Goblin veloz,Swift goblin
 MONSTER_GOBLIN_SHIELD,Goblin blindado,Armored goblin
+MONSTER_WOLF,Lobo,Wolf
 MONSTER_SLIME,Slime,Slime
 MONSTER_SLIME_MEDIUM,Slime médio,Medium slime
 MONSTER_SLIME_SMALL,Slime pequeno,Small slime
 HUD_GOLD,Ouro: %d,Gold: %d
-HUD_LIVES,Vidas: %d,Lives: %d
+HUD_LIVES,Vidas: %d/%d,Lives: %d/%d
+VILLAGE_LIFE,Vila %d/%d,Village %d/%d
 HUD_WAVE,Onda %d/%d,Wave %d/%d
 HUD_NEXT,Próxima:,Next:
 HUD_LEVEL,Nível %d,Level %d
@@ -35,6 +39,9 @@ RESULT_STARS,Estrelas: %d de 3,Stars: %d of 3
 UNIT_DOWN,Caído,Down
 BTN_OPEN_LOG,Ver relatório,View report
 BTN_LEVELS,Fase %d,Level %d
+BTN_MENU,Menu,Menu
+BTN_QUIT,Sair,Quit
+MENU_TITLE,Jogo pausado,Game paused
 BTN_NEXT_LEVEL,Próxima fase,Next level
 LEVELS_TITLE,Escolha a fase,Choose a level
 LEVEL_ENTRY,Fase %d: %d de 3 estrelas,Level %d: %d of 3 stars

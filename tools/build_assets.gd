@@ -54,6 +54,31 @@ const LEVELS := {
 			Vector2i(18, 7): BERRY_BUSH, Vector2i(14, 9): ROCK, Vector2i(17, 9): BUSH,
 		},
 	},
+	"level_03": {
+		"node": "Level03",
+		"tiles": "res://assets/tiles/tiles_forest.png",
+		"tileset": "res://assets/tiles/tileset_forest.tres",
+		"path_runs": [
+			[Vector2i(0, 2), Vector2i(7, 2)],
+			[Vector2i(7, 2), Vector2i(7, 4)],
+			[Vector2i(7, 4), Vector2i(13, 4)],
+			[Vector2i(0, 8), Vector2i(10, 8)],
+			[Vector2i(10, 6), Vector2i(10, 8)],
+			[Vector2i(10, 6), Vector2i(13, 6)],
+			[Vector2i(13, 3), Vector2i(13, 6)],
+			[Vector2i(13, 3), Vector2i(17, 3)],
+			[Vector2i(15, 4), Vector2i(17, 4)],
+		],
+		"route": [Vector2(-16, 80), Vector2(240, 80), Vector2(240, 144), Vector2(432, 144), Vector2(432, 112), Vector2(560, 112)],
+		"route2": [Vector2(-16, 272), Vector2(336, 272), Vector2(336, 208), Vector2(432, 208), Vector2(432, 112), Vector2(560, 112)],
+		"decor": {
+			Vector2i(1, 1): BUSH, Vector2i(4, 1): BUSH, Vector2i(9, 1): ROCK, Vector2i(11, 2): BUSH,
+			Vector2i(13, 1): BUSH, Vector2i(1, 4): BERRY_BUSH, Vector2i(3, 5): BUSH, Vector2i(9, 2): BUSH,
+			Vector2i(5, 6): ROCK, Vector2i(2, 6): ROCK, Vector2i(8, 6): BUSH, Vector2i(12, 8): BERRY_BUSH,
+			Vector2i(15, 7): BUSH, Vector2i(1, 9): BUSH, Vector2i(6, 9): ROCK, Vector2i(13, 9): BUSH,
+			Vector2i(18, 8): BUSH, Vector2i(16, 9): ROCK, Vector2i(9, 9): BERRY_BUSH,
+		},
+	},
 }
 
 
@@ -136,12 +161,9 @@ func _build_level(level_id: String, config: Dictionary, tileset: TileSet) -> voi
 	for cell: Vector2i in config.decor:
 		decor.set_cell(cell, 0, config.decor[cell])
 
-	var route := Path2D.new()
-	route.name = "Route"
-	route.curve = Curve2D.new()
-	for point: Vector2 in config.route:
-		route.curve.add_point(point)
-	root.add_child(route)
+	root.add_child(_route_node("Route", config.route))
+	if config.has("route2"):
+		root.add_child(_route_node("Route2", config.route2))
 
 	var village := Sprite2D.new()
 	village.name = "Village"
@@ -157,6 +179,15 @@ func _build_level(level_id: String, config: Dictionary, tileset: TileSet) -> voi
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(level_path.get_base_dir()))
 	ResourceSaver.save(packed, level_path)
 	root.free()
+
+
+func _route_node(node_name: String, points: Array) -> Path2D:
+	var route := Path2D.new()
+	route.name = node_name
+	route.curve = Curve2D.new()
+	for point: Vector2 in points:
+		route.curve.add_point(point)
+	return route
 
 
 func _layer(layer_name: String, tileset: TileSet, parent: Node) -> TileMapLayer:

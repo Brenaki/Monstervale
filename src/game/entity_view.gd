@@ -9,6 +9,7 @@ const BAR_Y := -24.0
 const BASE_WALK_SPEED := 24.0
 const FLASH_SECONDS := 0.12
 const FADE_SECONDS := 0.2
+const SLOW_TINT := Color(0.65, 0.85, 1.0)
 
 var entity
 var is_monster := false
@@ -45,6 +46,7 @@ func sync(_delta: float, time_scale := 1.0) -> void:
 		return
 	if is_monster:
 		position = entity.position() + FOOT_OFFSET
+		sprite.modulate = SLOW_TINT if entity.is_slowed() else Color.WHITE
 	else:
 		position = entity.position + FOOT_OFFSET
 	sprite.flip_h = entity.facing < 0
@@ -86,7 +88,7 @@ func play_death() -> void:
 
 func _cadence() -> float:
 	if is_monster and not _dying and not _attacking:
-		return entity.speed / BASE_WALK_SPEED
+		return entity.current_speed() / BASE_WALK_SPEED
 	return 1.0
 
 

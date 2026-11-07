@@ -10,7 +10,7 @@ const EntityView = preload("res://src/game/entity_view.gd")
 const Overlay = preload("res://src/game/overlay.gd")
 const Hud = preload("res://src/game/hud.gd")
 
-const LEVEL_IDS := ["level_01", "level_02"]
+const LEVEL_IDS := ["level_01", "level_02", "level_03"]
 const LEVEL_SCENE := "res://src/game/levels/%s.tscn"
 const STEP := 1.0 / 60.0
 const MAX_SPEED := 2
@@ -23,6 +23,7 @@ const EXPLOSION_SECONDS := 0.25
 const EXPLOSION_POINTS := 12
 const SPELL_COLOR := Color("8fe0f0")
 const FIRE_SPELL_COLOR := Color("e8913a")
+const THRUST_COLOR := Color("f6e05e")
 const NO_CELL := Vector2i(-1, -1)
 
 var progress_path := "user://progress.json"
@@ -39,6 +40,7 @@ var paused := false
 var selected_class := ""
 var selected_unit = null
 var hover_cell := NO_CELL
+var quit_action := func(): get_tree().quit()
 
 var _level_node: Node
 var _entities: Node2D
@@ -82,6 +84,10 @@ func _ready() -> void:
 	hud.next_level_pressed.connect(next_level)
 	hud.levels_pressed.connect(toggle_levels)
 	hud.level_pressed.connect(_choose_level)
+	hud.menu_pressed.connect(open_menu)
+	hud.resume_pressed.connect(resume_game)
+	hud.quit_pressed.connect(quit_game)
+	hud.quit_button.visible = not OS.has_feature("web")
 	hud.set_levels(LEVEL_IDS.size())
 
 	_choose_initial_language()
@@ -183,6 +189,22 @@ func toggle_language() -> void:
 	TranslationServer.set_locale("en" if TranslationServer.get_locale().begins_with("pt") else "pt_BR")
 
 
+func open_menu() -> void:
+	paused = true
+	hud.menu_panel.visible = true
+
+
+func resume_game() -> void:
+	hud.menu_panel.visible = false
+	paused = false
+
+
+## No navegador o botão fica escondido, porque a aba não pode ser fechada pelo jogo.
+func quit_game() -> void:
+	_save_unfinished_match("closed")
+	quit_action.call()
+
+
 func restart() -> void:
 	_save_unfinished_match("restarted")
 	_views.clear()
@@ -199,6 +221,8 @@ func restart() -> void:
 	_accumulator = 0.0
 	hud.set_classes(sim.available_classes(), _frames_for_unit)
 	hud.hide_result()
+	hud.menu_panel.visible = false
+	_place_village_marker()
 	_update_village()
 
 
@@ -365,6 +389,9 @@ func _kill_view(state) -> void:
 
 func _show_attack(unit, target_position: Vector2) -> void:
 	_play_attack(unit)
+	if unit.stats().has("line_width"):
+		_show_thrust(unit, target_position)
+		return
 	if unit.is_melee():
 		return
 	if unit.stats().has("splash_radius"):
@@ -377,6 +404,16 @@ func _show_attack(unit, target_position: Vector2) -> void:
 	arrow.points = PackedVector2Array([unit.position, target_position])
 	_effects.add_child(arrow)
 	_fade_out(arrow, TRAIL_SECONDS if pierces else ARROW_SECONDS)
+
+
+func _show_thrust(unit, target_position: Vector2) -> void:
+	var thrust := Line2D.new()
+	thrust.width = 2.0
+	thrust.default_color = THRUST_COLOR
+	var reach: float = float(unit.stats().range)
+	thrust.points = PackedVector2Array([unit.position, unit.position + unit.position.direction_to(target_position) * reach])
+	_effects.add_child(thrust)
+	_fade_out(thrust, TRAIL_SECONDS)
 
 
 func _show_spell(unit, target_position: Vector2) -> void:
@@ -422,6 +459,11 @@ func _burst(at: Vector2, kind: String) -> void:
 		tween.tween_property(piece, "position", at + Vector2(cos(angle), sin(angle)) * 9.0, BURST_SECONDS)
 		tween.tween_property(piece, "modulate:a", 0.0, BURST_SECONDS)
 		tween.chain().tween_callback(piece.queue_free)
+
+
+func _place_village_marker() -> void:
+	var village: Sprite2D = _level_node.get_node("Village")
+	hud.place_village_marker(village.position.x, village.position.y - village.texture.get_height() / 2.0)
 
 
 func _update_village() -> void:

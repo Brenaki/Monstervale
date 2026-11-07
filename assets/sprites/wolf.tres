@@ -1,0 +1,84 @@
+[gd_resource type="SpriteFrames" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/wolf.png" id="1_8xlde"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_otga7"]
+atlas = ExtResource("1_8xlde")
+region = Rect2(224, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_o3ab1"]
+atlas = ExtResource("1_8xlde")
+region = Rect2(280, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5ye31"]
+atlas = ExtResource("1_8xlde")
+region = Rect2(336, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6as5v"]
+atlas = ExtResource("1_8xlde")
+region = Rect2(392, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vt6qd"]
+atlas = ExtResource("1_8xlde")
+region = Rect2(448, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hfjl3"]
+atlas = ExtResource("1_8xlde")
+region = Rect2(0, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_54n6v"]
+atlas = ExtResource("1_8xlde")
+region = Rect2(56, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4ioeq"]
+atlas = ExtResource("1_8xlde")
+region = Rect2(112, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vveb2"]
+atlas = ExtResource("1_8xlde")
+region = Rect2(168, 0, 56, 40)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.7,
+"texture": SubResource("AtlasTexture_otga7")
+}, {
+"duration": 0.7,
+"texture": SubResource("AtlasTexture_o3ab1")
+}, {
+"duration": 1.1,
+"texture": SubResource("AtlasTexture_5ye31")
+}],
+"loop": 0,
+"name": &"attack",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.2,
+"texture": SubResource("AtlasTexture_6as5v")
+}, {
+"duration": 3.2,
+"texture": SubResource("AtlasTexture_vt6qd")
+}],
+"loop": 0,
+"name": &"death",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 0.9,
+"texture": SubResource("AtlasTexture_hfjl3")
+}, {
+"duration": 0.9,
+"texture": SubResource("AtlasTexture_54n6v")
+}, {
+"duration": 0.9,
+"texture": SubResource("AtlasTexture_4ioeq")
+}, {
+"duration": 0.9,
+"texture": SubResource("AtlasTexture_vveb2")
+}],
+"loop": 1,
+"name": &"walk",
+"speed": 10.0
+}]

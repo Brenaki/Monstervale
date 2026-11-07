@@ -20,6 +20,13 @@ const REQUIRED := {
 	"mage": HUMAN_ANIMATIONS,
 	"mage_2": HUMAN_ANIMATIONS,
 	"mage_3": HUMAN_ANIMATIONS,
+	"spearman": HUMAN_ANIMATIONS,
+	"spearman_2": HUMAN_ANIMATIONS,
+	"spearman_3": HUMAN_ANIMATIONS,
+	"druid": HUMAN_ANIMATIONS,
+	"druid_2": HUMAN_ANIMATIONS,
+	"druid_3": HUMAN_ANIMATIONS,
+	"wolf": MONSTER_ANIMATIONS,
 }
 const GROUNDED := ["walk", "idle", "attack"]
 
@@ -109,6 +116,8 @@ func test_every_human_level_has_its_own_look() -> void:
 	_assert_all_different(["archer", "archer_2", "archer_3"], "idle")
 	_assert_all_different(["warrior", "warrior_2", "warrior_3"], "idle")
 	_assert_all_different(["mage", "mage_2", "mage_3"], "idle")
+	_assert_all_different(["spearman", "spearman_2", "spearman_3"], "idle")
+	_assert_all_different(["druid", "druid_2", "druid_3"], "idle")
 
 func _opaque_pixels(sprite: String, animation: String, index: int) -> int:
 	var image := _image(_frames(sprite), animation, index)
@@ -150,3 +159,8 @@ func _color_pixels(sprite: String, color: Color) -> int:
 			if image.get_pixel(x, y).is_equal_approx(color):
 				count += 1
 	return count
+
+## Mede a parte de cima do lobo, onde o corpo é mais largo que alto: a silhueta é baixa e alongada.
+func test_wolf_is_longer_than_it_is_tall() -> void:
+	var used := _image(_frames("wolf"), "walk", 0).get_used_rect()
+	assert_gt(used.size.x, used.size.y)

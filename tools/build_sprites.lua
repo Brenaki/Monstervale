@@ -527,72 +527,312 @@ local STAFF_TOP = {
   { rows = { "..Y..", ".YY..", ".YyY.", "YYyyY", "YyfyY", ".yfy.", ".YOY.", "YOOoY", "OOOoo", "YOooY", ".YoY." }, x = -2, y = -11 },
 }
 
-local function mage(name, level)
-  local L = legendOf(merged(MAGE_BASE, MAGE_LEVELS[level]))
-  local top = STAFF_TOP[level]
+local function robed(name, level, set)
+  local L = legendOf(merged(set.base, set.levels[level]))
+  local top = set.tops[level]
 
   local function head(img, dx, dy, face)
-    stamp(img, MAGE_HAT, L, 2 + dx, -4 + dy)
-    stamp(img, face or MAGE_FACE, L, 2 + dx, 4 + dy)
+    stamp(img, set.hat, L, 2 + dx, -4 + dy)
+    stamp(img, face or set.face, L, 2 + dx, 4 + dy)
   end
   local function staff(img, x, dy)
     stamp(img, top.rows, L, x + top.x, dy + top.y + 3)
     line(img, x, dy + 3, x, 17, L.W)
     line(img, x + 1, dy + 3, x + 1, 17, L.w)
-    stamp(img, MAGE_HAND, L, x - 1, 10 + dy)
+    stamp(img, set.hand, L, x - 1, 10 + dy)
   end
   local function stand(img, dx, dy)
-    stamp(img, MAGE_FEET, L, 5, 19)
-    stamp(img, MAGE_ROBE, L, 5 + dx, 11)
+    stamp(img, set.feet, L, 5, 19)
+    stamp(img, set.robe, L, 5 + dx, 11)
     head(img, dx, dy)
   end
-  local arcs = rgb("8fe0f0")
-  if level == 3 then arcs = rgb("f6e05e") end
+  local arcs = rgb(set.arcs[level])
 
   local frames = {
     frame(500, function(img)
-      stamp(img, MAGE_HAND, L, 2, 13); stand(img, 0, 0); staff(img, 20, 0)
+      stamp(img, set.hand, L, 2, 13); stand(img, 0, 0); staff(img, 20, 0)
     end),
     frame(500, function(img)
-      stamp(img, MAGE_HAND, L, 2, 14); stand(img, 0, 1); staff(img, 20, 1)
+      stamp(img, set.hand, L, 2, 14); stand(img, 0, 1); staff(img, 20, 1)
     end),
     -- concentra: cajado erguido atrás, corpo para trás
     frame(190, function(img)
-      stamp(img, MAGE_HAND, L, 1, 12); stand(img, -2, 0); staff(img, 17, -3)
+      stamp(img, set.hand, L, 1, 12); stand(img, -2, 0); staff(img, 17, -3)
     end),
     -- lança: cajado à frente, com faíscas na ponta
     frame(80, function(img)
-      stamp(img, MAGE_HAND, L, 4, 13); stand(img, 2, 1)
+      stamp(img, set.hand, L, 4, 13); stand(img, 2, 1)
       line(img, 21, 16, 27, 5, L.W, L.w)
       stamp(img, top.rows, L, 27 + top.x, 5 + top.y)
-      stamp(img, MAGE_HAND, L, 21, 9)
+      stamp(img, set.hand, L, 21, 9)
     end, function(img)
       line(img, 29, 0, 33, -3, arcs); line(img, 31, 4, 36, 4, arcs); line(img, 29, 8, 33, 11, arcs)
     end),
     -- recuperação
     frame(120, function(img)
-      stamp(img, MAGE_HAND, L, 3, 13); stand(img, 1, 0); staff(img, 21, 0)
+      stamp(img, set.hand, L, 3, 13); stand(img, 1, 0); staff(img, 21, 0)
     end),
     -- queda: ajoelha com os olhos fechados e o cajado baixo
     frame(130, function(img)
-      stamp(img, MAGE_ROBE, L, 5, 12)
-      head(img, 0, 2, MAGE_HURT)
-      stamp(img, MAGE_HAND, L, 1, 15)
+      stamp(img, set.robe, L, 5, 12)
+      head(img, 0, 2, set.hurt)
+      stamp(img, set.hand, L, 1, 15)
       line(img, 20, 18, 33, 18, L.W)
     end),
     frame(320, function(img)
-      stamp(img, MAGE_FEET, L, 5, 19)
-      stamp(img, MAGE_ROBE, L, 5, 11)
-      head(img, 0, 0, MAGE_HURT)
-      stamp(img, MAGE_HAND, L, 1, 13)
+      stamp(img, set.feet, L, 5, 19)
+      stamp(img, set.robe, L, 5, 11)
+      head(img, 0, 0, set.hurt)
+      stamp(img, set.hand, L, 1, 13)
     end, nil, lying),
   }
   build(name, frames, { {"idle", 1, 2}, {"attack", 3, 5}, {"fall", 6, 7} })
 end
 
-mage("mage", 1)
-mage("mage_2", 2)
-mage("mage_3", 3)
+local MAGE_SET = {
+  base = MAGE_BASE, levels = MAGE_LEVELS, tops = STAFF_TOP, hat = MAGE_HAT, face = MAGE_FACE, hurt = MAGE_HURT,
+  robe = MAGE_ROBE, feet = MAGE_FEET, hand = MAGE_HAND, arcs = { "8fe0f0", "8fe0f0", "f6e05e" },
+}
+robed("mage", 1, MAGE_SET)
+robed("mage_2", 2, MAGE_SET)
+robed("mage_3", 3, MAGE_SET)
+
+---------------------------------------------------------------- DRUIDA
+
+-- Capuz de folhas com galhadas: o único humano com silhueta de chifres.
+local DRUID_SET = {
+  base = {
+    R = "5f8a3a", r = "42682c", n = "2f4d22", H = "2f4d22", S = "e0a877", A = "b87d50", K = "1b1626",
+    W = "8a5a3a", w = "6b4228", G = "7fbb4e", g = "5f8a3a", T = "c9a24a", k = "3d4757", t = "8a5a3a",
+    F = "f4a6c0", f = "d9534a", V = "4f9d4a", v = "2f6f3a",
+  },
+  levels = {
+    {},
+    { R = "4a7a4a", r = "32603a", n = "234a2c", T = "e0c060" },
+    { R = "2f7a5a", r = "1f5c44", n = "16432f", T = "f6e05e", W = "6b4228", w = "4a2e1c" },
+  },
+  tops = {
+    { rows = { ".GG.", "GGVv", ".Vv." }, x = -1, y = -3 },
+    { rows = { "..GG.", ".GGVv", "GGVVv", ".VVv.", "..v.." }, x = -2, y = -5 },
+    -- Vinhas descem pelo cajado no nível 3, o destaque da habilidade de prender.
+    { rows = { "..F..", ".FfF.", "GGFGG", "GVVVv", ".VVv.", "V.v.V", "V...v", ".V.v.", "..V..", "..v..", ".V..." }, x = -2, y = -11 },
+  },
+  hat = {
+    "..t.......t....", "..t.t...t.t....", "...tt...tt.....", "....GGGGGGg....",
+    "...GGGGGGGgg...", "..GGGGGGGGggg..", "..GGGGGGGGggg..", ".GGGGGGGGGgggg.",
+  },
+  face = {
+    "..nSSSSSSSSSn..", "..nSSSKSSKSSn..", "..nSSSKSSKSSn..", "..nSSSSSSSSAn..",
+    "..nnSSSSSSAnn..", "...nnAAAAAnn...", "....nnnnnn.....",
+  },
+  hurt = {
+    "..nSSSSSSSSSn..", "..nSSKKSKKSSn..", "..nSSSSSSSSSn..", "..nSSSSSSSSAn..",
+    "..nnSSSSSSAnn..", "...nnAAAAAnn...", "....nnnnnn.....",
+  },
+  robe = MAGE_ROBE,
+  feet = MAGE_FEET,
+  hand = { ".SS.", "SSSA", "ASSA", ".AA." },
+  arcs = { "7fbb4e", "7fbb4e", "f4a6c0" },
+}
+robed("druid", 1, DRUID_SET)
+robed("druid_2", 2, DRUID_SET)
+robed("druid_3", 3, DRUID_SET)
+
+---------------------------------------------------------------- LANCEIRO
+
+local SPEARMAN_BASE = {
+  I = "dfe6ea", i = "9aa7b3", j = "5d6a7a", k = "3d4757", S = "f2c391", A = "d2905f", K = "1b1626",
+  B = "d9823a", b = "a85a2a", W = "b47a42", w = "8f5c35", X = "f4f7f8", x = "b6c2cc",
+  R = "d9534a", r = "a2303a", Y = "f6e05e", y = "e8913a",
+}
+local SPEARMAN_LEVELS = {
+  {},
+  { B = "c9622f", b = "94401f", j = "4d5a6a" },
+  { B = "b5392f", b = "7f2420", I = "f6e05e", i = "e8913a", j = "8f5c35" },
+}
+-- Chapéu de ferro de aba larga, diferente do elmo fechado do guerreiro.
+local SPEARMAN_HEAD = {
+  "....IIIiiii...", "...IIIIiiiij..", "..IIIIiiiiiij.", "jjjjjjjjjjjjjj", ".kkSSSSSSSSSk.",
+  ".kkSSSKSSKSSk.", ".kkSSSKSSKSSk.", ".kkSSSSSSSSAk.", "..kAAAAAAAAk..", "...kkkkkkkk...",
+}
+local SPEARMAN_HURT = {
+  "....IIIiiii...", "...IIIIiiiij..", "..IIIIiiiiiij.", "jjjjjjjjjjjjjj", ".kkSSSSSSSSSk.",
+  ".kkSSKKSKKSSk.", ".kkSSSSSSSSSk.", ".kkSSSSSSSSAk.", "..kAAAAAAAAk..", "...kkkkkkkk...",
+}
+local SPEARMAN_TORSO = { "BBBBBB..", "BBBBBBbb", "BBBBBBbb", "jjjjjjjj", "BBBBBbb.", "BBBBBbb." }
+local SPEARMAN_LEGS = { "jjk.jjk" }
+local SPEARMAN_FEET = { "kkkk.kkkk" }
+local SPEARMAN_HAND = { ".SSS.", "SSSSS", "ASSSA" }
+local SPEAR_TIPS = {
+  { up = { "..X..", ".XXx.", ".XXx.", ".XXx." }, ahead = { "X...", "XXX.", "XXxx", "xx.." }, top = -3 },
+  { up = { "..X..", ".XXx.", ".XXx.", "XXXxx", ".XXx." }, ahead = { "X...", "XXX.", "XXxx", "xx.." }, top = -5 },
+  -- Lança mais longa e dourada no nível 3, com flâmula, o destaque do golpe em linha.
+  { up = { "..Y..", ".YYy.", ".YYy.", ".YYy.", "YYYyy" }, ahead = { "Y...", "YYY.", "YYyy", "yy.." }, top = -9 },
+}
+
+local function spearman(name, level)
+  local L = legendOf(merged(SPEARMAN_BASE, SPEARMAN_LEVELS[level]))
+  local tip = SPEAR_TIPS[level]
+  local function head(img, dx, dy, face)
+    stamp(img, face or SPEARMAN_HEAD, L, 2 + dx, 1 + dy)
+    if level == 2 then stamp(img, { ".RRR.", "RRRRr" }, L, 7 + dx, -1 + dy) end
+    if level == 3 then stamp(img, { ".YYy.", "YYYyy", ".RRr." }, L, 7 + dx, -2 + dy) end
+  end
+  local function stand(img, dx, dy, face)
+    stamp(img, SPEARMAN_FEET, L, 4, 19)
+    stamp(img, SPEARMAN_LEGS, L, 5, 18)
+    stamp(img, SPEARMAN_TORSO, L, 5 + dx, 12)
+    head(img, dx, dy, face)
+  end
+  local function spear(img, x, dy)
+    local top = tip.top + dy
+    stamp(img, tip.up, L, x - 2, top - 5)
+    line(img, x, top, x, 17, L.W)
+    line(img, x + 1, top, x + 1, 17, L.w)
+    if level == 3 then stamp(img, { "RRRR", "RRr.", "Rr.." }, L, x + 2, top + 1) end
+    stamp(img, SPEARMAN_HAND, L, x - 2, 11 + dy)
+  end
+  local function aimed(img, from, to, y)
+    line(img, from, y, to, y, L.W, L.w)
+    stamp(img, tip.ahead, L, to + 1, y - 1)
+  end
+
+  local frames = {
+    frame(500, function(img)
+      stamp(img, SPEARMAN_HAND, L, 1, 13); stand(img, 0, 0); spear(img, 20, 0)
+    end),
+    frame(500, function(img)
+      stamp(img, SPEARMAN_HAND, L, 1, 14); stand(img, 0, 1); spear(img, 20, 1)
+    end),
+    -- recua: lança na horizontal, puxada para trás
+    frame(170, function(img)
+      stand(img, -2, 0)
+      aimed(img, -6, 22, 13)
+      stamp(img, SPEARMAN_HAND, L, 6, 12); stamp(img, SPEARMAN_HAND, L, 15, 12)
+    end),
+    -- estocada: corpo à frente e a lança esticada ao máximo, com rastro
+    frame(80, function(img)
+      stand(img, 2, 1)
+      aimed(img, 6, 31, 13)
+      stamp(img, SPEARMAN_HAND, L, 12, 12); stamp(img, SPEARMAN_HAND, L, 21, 12)
+    end, function(img)
+      line(img, 18, 11, 30, 11, SMEAR); line(img, 22, 17, 31, 17, SMEAR)
+    end),
+    -- recuperação
+    frame(120, function(img)
+      stamp(img, SPEARMAN_HAND, L, 2, 13); stand(img, 1, 0); spear(img, 21, 0)
+    end),
+    -- queda: ajoelha com os olhos fechados e a lança no chão
+    frame(130, function(img)
+      stamp(img, SPEARMAN_TORSO, L, 5, 13)
+      head(img, 0, 3, SPEARMAN_HURT)
+      stamp(img, SPEARMAN_HAND, L, 1, 15)
+      line(img, 18, 18, 34, 18, L.W)
+    end),
+    frame(320, function(img)
+      stamp(img, SPEARMAN_FEET, L, 4, 19)
+      stamp(img, SPEARMAN_LEGS, L, 5, 18)
+      stamp(img, SPEARMAN_TORSO, L, 5, 12)
+      head(img, 0, 0, SPEARMAN_HURT)
+      stamp(img, SPEARMAN_HAND, L, 1, 13)
+    end, nil, lying),
+  }
+  build(name, frames, { {"idle", 1, 2}, {"attack", 3, 5}, {"fall", 6, 7} })
+end
+
+spearman("spearman", 1)
+spearman("spearman_2", 2)
+spearman("spearman_3", 3)
+
+---------------------------------------------------------------- LOBO
+
+local WOLF = legendOf({
+  L = "b4becb", M = "838fa0", D = "5a6474", E = "3f4755", C = "d6cfbd", Y = "f6e05e", K = "1b1626",
+  S = "f4f7f8", R = "d9534a", r = "a2303a",
+})
+local WOLF_BODY = {
+  "..EEEEDDDDDDDDLLLL..", ".EEEEEDDDDDDDLLLLLL.", "DDDDDDMMMMMMMMLLLCCD", "LMMMMMMMMMMMMMMLCCCD",
+  "MMMMMMMMMMMMMMMMCCDD", "DMMMMMMMMMMMCCCCCDD.", ".DDDMMMMMMCCCCCCD...", "...DDDDDDDDDDDD.....",
+}
+local WOLF_TAIL = { "...LMMD", ".LLMMMD", "LLMMMD.", "LMMDD..", "MDD...." }
+local WOLF_HEAD = {
+  "...E......E.......", "..LME....LME......", "..LMMD..LMMD......", ".LLMMMMMMMMMD.....",
+  ".LMMMMMMMMMMMD....", "LLMMMMMYYKMMMD....", "LMMMMMMMMDMMMMMMK.", "DMMMMMMMMMMMMMMMMK",
+  "DMMMMMMMCCMMMMMDD.", ".DMMMMCCCCCCCCC...", "..DDCCCCCCDDD.....", "....DDDDDD........",
+}
+local WOLF_BITE = {
+  "...E......E.......", "..LME....LME......", "..LMMD..LMMD......", ".LLMMMMMMMMMD.....",
+  ".LMMMMMMMMMMMD....", "LLMMMMMYYKMMMD....", "LMMMMMMMMDMMMMMMK.", "DMMMMMMMMMMMMMMMMK",
+  "DMMMMMMSSSSSSSSS..", ".DMMMMRRRRRRR.....", "..DDCCRRRRSSS.....", "....DDCCCCCCCC....",
+}
+local WOLF_HURT = {
+  "...E......E.......", "..LME....LME......", "..LMMD..LMMD......", ".LLMMMMMMMMMD.....",
+  ".LMMMMMMMMMMMD....", "LLMMMMMKMKMMMD....", "LMMMMMMMKMMMMMMMK.", "DMMMMMMKMKMMMMMMMK",
+  "DMMMMMMMCCMMMMMDD.", ".DMMMMCCCCCCCCC...", "..DDCCCCCCDDD.....", "....DDDDDD........",
+}
+
+-- Uma pata vai do corpo (topX) até o chão (footX), com a almofada na última linha.
+local function wolfLeg(img, topX, footX, color, paw)
+  for row = 0, 3 do
+    local x = topX + math.floor((footX - topX) * row / 3 + 0.5)
+    for dx = 0, 2 do put(img, X0 + x + dx, Y0 + 15 + row, dx == 2 and WOLF.E or color) end
+  end
+  for dx = 0, 3 do put(img, X0 + footX + dx, Y0 + 19, paw) end
+end
+
+local function wolfBody(img, dx, dy, head, headDy)
+  stamp(img, WOLF_TAIL, WOLF, -5 + dx, 9 + dy)
+  stamp(img, WOLF_BODY, WOLF, dx, 8 + dy)
+  stamp(img, head or WOLF_HEAD, WOLF, 16 + dx, 1 + dy + (headDy or 0))
+end
+
+-- pose: posição no chão das patas de trás e da frente, de longe e de perto.
+local function wolfWalk(farBack, farFront, nearBack, nearFront, dy)
+  return function(img)
+    wolfLeg(img, 3, farBack, WOLF.D, WOLF.E)
+    wolfLeg(img, 15, farFront, WOLF.D, WOLF.E)
+    wolfBody(img, 0, dy)
+    wolfLeg(img, 1, nearBack, WOLF.M, WOLF.D)
+    wolfLeg(img, 13, nearFront, WOLF.M, WOLF.D)
+  end
+end
+
+build("wolf", {
+  frame(90, wolfWalk(6, 12, -1, 17, 0)),
+  frame(90, wolfWalk(3, 15, 2, 14, -1)),
+  frame(90, wolfWalk(-1, 18, 6, 11, 0)),
+  frame(90, wolfWalk(2, 14, 3, 15, -1)),
+  -- prepara: agacha e recolhe a cabeça
+  frame(170, function(img)
+    wolfLeg(img, 3, 3, WOLF.D, WOLF.E); wolfLeg(img, 14, 14, WOLF.D, WOLF.E)
+    wolfBody(img, -2, 1, nil, 1)
+    wolfLeg(img, 1, 0, WOLF.M, WOLF.D); wolfLeg(img, 12, 12, WOLF.M, WOLF.D)
+  end),
+  -- morde: salta à frente de boca aberta
+  frame(70, function(img)
+    wolfLeg(img, 3, 1, WOLF.D, WOLF.E); wolfLeg(img, 15, 18, WOLF.D, WOLF.E)
+    wolfBody(img, 2, 0, WOLF_BITE)
+    wolfLeg(img, 1, -1, WOLF.M, WOLF.D); wolfLeg(img, 14, 17, WOLF.M, WOLF.D)
+  end, function(img)
+    line(img, 30, 2, 34, 4, SMEAR); line(img, 31, 14, 35, 12, SMEAR)
+  end),
+  frame(110, function(img)
+    wolfLeg(img, 3, 2, WOLF.D, WOLF.E); wolfLeg(img, 15, 15, WOLF.D, WOLF.E)
+    wolfBody(img, 1, 0)
+    wolfLeg(img, 1, 1, WOLF.M, WOLF.D); wolfLeg(img, 13, 14, WOLF.M, WOLF.D)
+  end),
+  -- morte: recua de olhos fechados e deita de lado
+  frame(120, function(img)
+    wolfLeg(img, 3, 1, WOLF.D, WOLF.E); wolfLeg(img, 15, 13, WOLF.D, WOLF.E)
+    wolfBody(img, -2, 1, WOLF_HURT, 1)
+    wolfLeg(img, 1, -1, WOLF.M, WOLF.D); wolfLeg(img, 13, 11, WOLF.M, WOLF.D)
+  end),
+  frame(320, function(img)
+    stamp(img, WOLF_TAIL, WOLF, -5, 13)
+    stamp(img, WOLF_BODY, WOLF, 0, 12)
+    stamp(img, WOLF_HURT, WOLF, 16, 9)
+  end),
+}, { {"walk", 1, 4}, {"attack", 5, 7}, {"death", 8, 9} })
 
 ---------------------------------------------------------------- SLIMES
 

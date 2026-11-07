@@ -17,6 +17,14 @@ const APPROVED_LEVEL_2 := "partida_2026-11-06_17-02-07_level_02.json"
 const SPARE_CELLS_LEVEL_2 := [
 	Vector2i(7, 3), Vector2i(6, 2), Vector2i(7, 2), Vector2i(2, 5), Vector2i(2, 3), Vector2i(2, 6), Vector2i(7, 4),
 ]
+const APPROVED_LEVEL_3 := "partida_2026-11-06_21-21-02_level_03.json"
+const LEVEL_3_THREE_STARS := "partida_2026-11-06_20-23-07_level_03.json"
+const LEVEL_3_FAR := "partida_2026-11-06_19-38-14_level_03.json"
+const LEVEL_3_LATE_MAGE := "partida_2026-11-06_19-42-38_level_03.json"
+const LEVEL_3_EARLY := "partida_2026-11-06_18-34-17_level_03.json"
+const SPARE_CELLS_LEVEL_3 := [
+	Vector2i(9, 5), Vector2i(10, 5), Vector2i(12, 7), Vector2i(12, 3), Vector2i(11, 7), Vector2i(10, 3), Vector2i(9, 7), Vector2i(8, 5),
+]
 const THREE_STAR_LIVES := 18
 const TWO_STAR_LIVES := 10
 const WAVE_FIELDS := ["spawned", "killed", "escaped", "units_down", "lives_end", "gold_end"]
@@ -32,7 +40,7 @@ func before_all() -> void:
 
 func before_each() -> void:
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
-	file.store_string(JSON.stringify({"stars": {"0": 3}}))
+	file.store_string(JSON.stringify({"stars": {"0": 3, "1": 3}}))
 	file.close()
 	game = load("res://src/game/main.tscn").instantiate()
 	game.progress_path = SAVE_PATH
@@ -96,6 +104,12 @@ func test_level_1_approved_match_repeats_exactly() -> void:
 func test_level_2_approved_match_repeats_exactly() -> void:
 	await _assert_repeats_exactly(APPROVED_LEVEL_2)
 
+func test_level_3_approved_match_repeats_exactly() -> void:
+	await _assert_repeats_exactly(APPROVED_LEVEL_3)
+
+func test_level_3_three_star_match_repeats_exactly() -> void:
+	await _assert_repeats_exactly(LEVEL_3_THREE_STARS)
+
 func test_level_2_match_with_a_late_mage_still_loses() -> void:
 	await _play(_report(LOST_LEVEL_2))
 	assert_eq(game.sim.state, "lost")
@@ -117,3 +131,66 @@ func test_level_2_reacting_to_the_pressure_wins_with_more_lives() -> void:
 	assert_eq(player.failed_clicks, [])
 	assert_eq(game.sim.state, "won")
 	assert_gte(game.sim.lives, TWO_STAR_LIVES)
+
+func test_menu_works_with_real_mouse_clicks() -> void:
+	var player := RecordedPlayer.new(game, _report(EASY_LEVEL_2))
+	var locale := TranslationServer.get_locale()
+	player.click(game.hud.menu_button)
+	assert_true(game.hud.menu_panel.visible)
+	assert_true(game.paused)
+	player.click(game.hud.language_button)
+	assert_ne(TranslationServer.get_locale(), locale)
+	TranslationServer.set_locale(locale)
+	player.click(game.hud.menu_resume)
+	assert_false(game.hud.menu_panel.visible)
+	assert_false(game.paused)
+
+func test_levels_panel_closes_with_a_real_mouse_click() -> void:
+	var player := RecordedPlayer.new(game, _report(EASY_LEVEL_2))
+	player.click(game.hud.levels_button)
+	assert_true(game.hud.levels_panel.visible)
+	player.click(game.hud.levels_close)
+	assert_false(game.hud.levels_panel.visible)
+	assert_false(game.paused)
+
+## Repete a partida gastando o ouro que sobra, como quem reage à dificuldade.
+func _play_reacting(file_name: String) -> void:
+	var report := _report(file_name)
+	report.result = "lost"
+	await _play(report, SPARE_CELLS_LEVEL_3)
+
+func test_level_3_can_still_earn_three_stars() -> void:
+	await _play_reacting(LEVEL_3_FAR)
+	assert_eq(game.sim.state, "won")
+	assert_gte(game.sim.lives, THREE_STAR_LIVES)
+
+func test_level_3_early_attempt_can_also_earn_three_stars() -> void:
+	await _play_reacting(LEVEL_3_EARLY)
+	assert_eq(game.sim.state, "won")
+	assert_gte(game.sim.lives, THREE_STAR_LIVES)
+
+func test_level_3_late_mage_wins_but_costs_lives() -> void:
+	await _play_reacting(LEVEL_3_LATE_MAGE)
+	assert_eq(game.sim.state, "won")
+	assert_lt(game.sim.lives, THREE_STAR_LIVES)
+
+func test_level_3_is_lost_when_the_spare_gold_is_not_spent() -> void:
+	await _play(_report(LEVEL_3_FAR))
+	assert_eq(game.sim.state, "lost")
+
+func test_level_3_new_classes_work_with_real_mouse_clicks() -> void:
+	var report := {
+		"level": "level_03", "result": "closed", "duration": 12.0, "waves": [],
+		"actions": [
+			{"action": "place", "unit": "spearman", "cell": [12, 5], "time": 0.5, "wave": 0},
+			{"action": "place", "unit": "druid", "cell": [11, 5], "time": 1.0, "wave": 0},
+			{"action": "upgrade", "cell": [12, 5], "time": 10.0, "wave": 0},
+		],
+	}
+	game.sim.gold = 500
+	var player: RecordedPlayer = await _play(report)
+	assert_eq(player.failed_clicks, [])
+	assert_eq(player.pending_actions(), 0)
+	assert_eq(game.sim.unit_at(Vector2i(12, 5)).kind, "spearman")
+	assert_eq(game.sim.unit_at(Vector2i(12, 5)).level, 2)
+	assert_eq(game.sim.unit_at(Vector2i(11, 5)).kind, "druid")

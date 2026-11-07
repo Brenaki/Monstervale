@@ -175,3 +175,17 @@ func test_a_monster_without_attack_frames_keeps_walking_when_it_hits() -> void:
 	view.play_attack()
 	view.sync(0.016)
 	assert_eq(view.current_animation(), "walk")
+
+func test_slowed_monster_is_tinted_while_the_effect_lasts() -> void:
+	var sim := Fixtures.simulation()
+	var monster = sim.spawn_monster("goblin")
+	var view := EntityView.new()
+	add_child_autofree(view)
+	view.setup(monster, load("res://assets/sprites/goblin.tres"), true)
+	assert_eq(view.sprite.modulate, Color.WHITE)
+	monster.apply_slow(0.5, 1.0)
+	view.sync(0.0)
+	assert_eq(view.sprite.modulate, view.SLOW_TINT)
+	monster.update_effects(2.0)
+	view.sync(0.0)
+	assert_eq(view.sprite.modulate, Color.WHITE)

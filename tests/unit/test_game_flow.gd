@@ -148,6 +148,70 @@ func test_hud_buttons_call_the_game() -> void:
 	game.hud.class_buttons["warrior"].pressed.emit()
 	assert_eq(game.selected_class, "warrior")
 
+func test_menu_pauses_and_resume_continues() -> void:
+	game.hud.menu_button.pressed.emit()
+	assert_true(game.paused)
+	assert_true(game.hud.menu_panel.visible)
+	game.hud.menu_resume.pressed.emit()
+	assert_false(game.paused)
+	assert_false(game.hud.menu_panel.visible)
+
+func test_menu_gathers_resume_restart_language_and_quit() -> void:
+	for button: Button in [game.hud.menu_resume, game.hud.restart_button, game.hud.language_button, game.hud.quit_button]:
+		assert_true(game.hud.menu_panel.is_ancestor_of(button), button.name)
+
+func test_restart_from_the_menu_closes_it_and_starts_over() -> void:
+	game.select_class("archer")
+	game.cell_clicked(FREE_CELL)
+	game.hud.menu_button.pressed.emit()
+	game.hud.restart_button.pressed.emit()
+	assert_false(game.hud.menu_panel.visible)
+	assert_false(game.paused)
+	assert_eq(game.sim.units.size(), 0)
+
+func test_language_from_the_menu_keeps_it_open() -> void:
+	var before := TranslationServer.get_locale()
+	game.hud.menu_button.pressed.emit()
+	game.hud.language_button.pressed.emit()
+	assert_ne(TranslationServer.get_locale(), before)
+	assert_true(game.hud.menu_panel.visible)
+	TranslationServer.set_locale(before)
+
+func test_quit_saves_the_match_and_leaves() -> void:
+	var left := []
+	game.quit_action = func(): left.append(true)
+	game.select_class("archer")
+	game.cell_clicked(FREE_CELL)
+	game.hud.menu_button.pressed.emit()
+	game.hud.quit_button.pressed.emit()
+	assert_eq(left, [true])
+	assert_string_contains(FileAccess.get_file_as_string(game.last_log_path), "Jogo fechado")
+
+func _escape_goblin() -> void:
+	var monster = game.sim.spawn_monster("goblin")
+	monster.distance = game.sim.route.length
+	game.advance(game.STEP)
+	game.hud.refresh(game)
+
+func test_village_marker_shows_the_lives_left_of_the_total() -> void:
+	game.hud.refresh(game)
+	assert_string_contains(game.hud.village_label.text, "20/20")
+	assert_eq(game.hud.village_fill.size.x, game.hud.village_bar.size.x)
+	_escape_goblin()
+	assert_string_contains(game.hud.village_label.text, "19/20")
+	assert_almost_eq(game.hud.village_fill.size.x, game.hud.village_bar.size.x * 19.0 / 20.0, 0.01)
+
+func test_top_bar_shows_the_lives_left_of_the_total() -> void:
+	_escape_goblin()
+	assert_string_contains(game.hud.lives_label.text, "19/20")
+
+func test_village_marker_sits_above_the_village() -> void:
+	var village: Sprite2D = game._level_node.get_node("Village")
+	var bar: Control = game.hud.village_bar
+	assert_almost_eq(bar.get_rect().get_center().x, village.position.x, 1.0)
+	assert_lte(bar.get_rect().end.y, village.position.y - village.texture.get_height() / 2.0 + 8.0)
+	assert_gte(bar.position.y, float(game.hud.TOP_HEIGHT))
+
 func test_every_level_class_has_a_button() -> void:
 	for kind: String in game.sim.available_classes():
 		assert_true(game.hud.class_buttons.has(kind), kind)
@@ -276,10 +340,22 @@ func test_new_level_offers_its_own_classes() -> void:
 	assert_eq(game.hud.class_buttons.size(), 3)
 
 func test_last_level_has_no_next_level_button() -> void:
-	_win()
-	game.next_level()
+	for level_id in game.LEVEL_IDS.slice(1):
+		_win()
+		game.next_level()
 	_win()
 	assert_false(game.hud.next_level_button.visible)
+
+func test_all_five_classes_fit_in_the_bar_of_the_forest() -> void:
+	game.progress.record(0, 1)
+	game.progress.record(1, 1)
+	game.open_level(2)
+	game.hud.refresh(game)
+	assert_eq(game.hud.class_buttons.size(), 5)
+	for button: Button in game.hud.class_buttons.values():
+		assert_lte(button.get_combined_minimum_size().x, button.size.x, button.tooltip_text)
+		assert_lte(button.position.x + button.size.x, float(game.hud.CLASS_BAR_WIDTH))
+		assert_ne(button.tooltip_text, "", "o nome da classe aparece ao passar o mouse")
 
 func test_stars_are_saved_for_the_level_being_played() -> void:
 	_win()

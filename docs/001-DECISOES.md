@@ -30,7 +30,7 @@ Registro das decisões tomadas em 2026-11-06. `DT-SLIME` é um nome provisório.
 ## Mapa e posicionamento
 
 - Caminho fixo, em qualquer direção, com humanos posicionados livremente nos tiles construíveis da grade.
-- Caminho único nas fases 1 e 2; duas entradas ou bifurcação a partir da fase 3.
+- Caminho único nas fases 1 e 2; duas entradas a partir da fase 3, escolhidas por grupo de monstros em cada onda. Na floresta, os caminhos só se unem perto da vila, e uma seta avisa por qual entrada vem a próxima onda.
 - Um conjunto base de tiles com variações de cor e detalhe por ambiente.
 
 ## Humanos
@@ -39,6 +39,8 @@ Registro das decisões tomadas em 2026-11-06. `DT-SLIME` é um nome provisório.
 - 3 níveis lineares. O nível 3 libera uma habilidade automática, com variação visual que destaca essa habilidade. Os níveis 2 e 3 têm sprites próprios.
 - A explosão do mago dá dano cheio aos alvos mais próximos dentro do raio, até um limite: 5, 6 e 7 alvos nos níveis 1, 2 e 3. O fogo do nível 3 fica onde estava o alvo e queima por alguns segundos.
 - Só o corpo a corpo segura monstros. Qualquer humano ao alcance de um monstro leva dano: quem não está bloqueado continua andando e bate de passagem no humano mais próximo. Ao perder toda a vida, o humano cai e volta depois de alguns segundos, sem morte permanente. Isso obriga a afastar arqueiros e magos do caminho.
+- O lanceiro alcança 2 tiles, mas só segura quem chega perto. No nível 3, o golpe acerta todos na linha até o fim do alcance.
+- O druida causa pouco dano e deixa lentos o alvo e quem está em volta. No nível 3, a cada 4 ataques as raízes prendem o alvo por alguns segundos; o intervalo é fixo, sem sorte, para as partidas poderem ser repetidas.
 - Guerreiros de nível 2 e 3 recuperam um pouco de vida depois de alguns segundos sem levar dano, com valores em `data/units.json`.
 - As classes são inspiradas nos arquétipos de D&D, sem dados nem regras do sistema.
 
@@ -58,7 +60,7 @@ Registro das decisões tomadas em 2026-11-06. `DT-SLIME` é um nome provisório.
 - Variantes da Fase 1: goblin veloz, com bandana e adagas; goblin blindado, com capacete, escudo e maça.
 - Goblin: básico e em grupos.
 - Slime: divide-se ao morrer, de grande em médios e depois em pequenos; os filhotes rendem pouco ou nenhum ouro.
-- Lobo: quatro patas, rápido, escapa das defesas e pede bloqueio.
+- Lobo: quatro patas, rápido, escapa das defesas e pede bloqueio. Sem variantes por enquanto.
 - Esqueleto: resiste a dano perfurante e é fraco contra impacto.
 - Slime: três tamanhos em `data/monsters.json`. Cada um se divide em dois do tamanho seguinte ao morrer, e quem chega à vila não se divide.
 - Rei Slime: chefe da fase 5, ampliado e redesenhado, divide-se ao longo da luta.
@@ -78,6 +80,9 @@ Todos os comandos têm botão na tela:
 - Pausa e velocidade 1× ou 2×.
 - Botão para chamar a próxima onda.
 - Prévia dos monstros da próxima onda.
+- Menu na barra superior, que pausa o jogo e reúne continuar, reiniciar, idioma e sair. No navegador, o botão de sair fica escondido.
+- Marcador de vida acima da vila, com as vidas restantes em verde, as perdidas em vermelho e o número exato. A barra superior também mostra restantes/total.
+- Com mais de 3 classes, a barra mostra só ícone e preço, e o nome aparece ao passar o mouse. Com 7 classes, os botões não cabem: a barra precisa mudar antes da Fase 4.
 - Reiniciar a fase sem penalidade.
 - Prioridade de alvo por humano: primeiro, último, mais forte ou mais perto.
 
@@ -116,12 +121,16 @@ O dano aparece como um breve clarão feito por código, sem quadros extras. O te
 - Sexta avaliação, a primeira da Fase 2: quem joga deu nota 7 de 10 à Fase 1 e 5 de 10 à Fase 2, que deveria ser mais difícil. A partida séria venceu com 3 estrelas em 6:36, sem perder vidas, com 7 humanos, e nenhum monstro passou de 30% do caminho. Como a explosão não tinha limite de alvos, aumentar as ondas não pesava para quem tinha mago. A explosão ganhou limite, as ondas 7 a 12 cresceram até o dobro na última e o bônus das ondas 7 a 11 caiu para 10. Repetindo a mesma partida, sobram 6 vidas; reinvestindo o ouro, 16. Aguarda nova avaliação jogando.
 - Sétima avaliação: a Fase 2 ficou impossível. A partida chegou à onda 11 com 19 vidas, perdeu 13 só nela e a onda 12 entrou antes de ela acabar, mesmo com a defesa evoluída. As ondas 11 e 12 encolheram: a 11 tem 8 goblins blindados e 12 slimes; a 12 tem 15 slimes e 48 goblins. Essa partida fica em `tests/fixtures/partidas` e um teste exige que ela vença sem 3 estrelas. Repetida, vence com 15 vidas; pequenas mudanças na última onda levam esse número a algo entre 6 e 18. Aguarda nova avaliação jogando.
 - Oitava avaliação, que aprova a Fase 2 com nota 8 de 10: difícil, mas possível. Em duas tentativas com o mago comprado tarde, uma foi reiniciada com 6 vidas e a outra perdeu; a terceira abriu com o mago e venceu com 3 estrelas e 19 vidas em 6:13. Nessa vitória, as ondas 11 e 12 não derrubaram nenhum humano nem tiraram vidas, e o mago causou 2340 dos 2884 de dano da última onda. As fases seguintes devem cuidar desse fim tranquilo. Essa partida fica em `tests/fixtures/partidas` e precisa se repetir igual.
+- Nona avaliação, a primeira da Fase 3: impossível de ganhar. Em 6 tentativas ninguém passou da onda 9, que tinha 10 goblins blindados. A fase tinha sido calibrada com robôs que não chamam ondas antes da hora, e as ondas eram maiores que as da Fase 2, embora as duas entradas dividam a defesa. As ondas 4, 5 e 7 a 12 encolheram. Repetindo as partidas reais e gastando o ouro que sobra, a melhor vence com 12 vidas e outra com 7; a que abre com druida ainda perde na onda 11. Um robô com guerreiros e arqueiros de nível 3 vence sem perder vidas, então a fase pode não exigir lanceiro nem druida. Essas partidas ficam em `tests/fixtures/partidas`. Aguarda nova avaliação jogando.
+- Décima avaliação: ainda impossível, mas a partida já chegou à onda 12 com 11 vidas. Tirar monstros também tinha tirado ouro: a renda caiu para 834, abaixo dos 939 da Fase 2. As ondas ficaram como estavam, e os bônus das ondas 4 a 11 subiram, levando a renda a 914. Quem dirige o projeto pediu que 3 estrelas continuem possíveis, e os testes e2e exigem isso. Na repetição, gastar o ouro que sobra dá 20 vidas; não gastar perde a partida. Um robô com guerreiros e arqueiros de nível 3 ainda vence sem perder vidas. Aguarda nova avaliação jogando.
+- Décima primeira avaliação: ficou fácil depois das primeiras ondas. A partida venceu com 3 estrelas e 20 vidas em 6:41, com 5 humanos. O arqueiro de nível 3 em (7,6) alcança as duas entradas fora do alcance dos monstros, ninguém caiu da onda 5 em diante, e a onda 12 parou a 45% do caminho. Essa partida fica em `tests/fixtures/partidas`.
+- Décima segunda avaliação, que aprova a Fase 3 com nota 8 de 10. Na sequência das 3 fases, todas venceram com 2 estrelas: Fase 1 com 16 vidas em 5:50 e 264 de ouro sobrando, Fase 2 com 14 vidas em 7:53 e 220 de ouro, Fase 3 com 14 vidas em 8:37 e 76 de ouro. Em todas, as vidas se perderam nas primeiras ondas ou na onda 9, nunca nas duas últimas. A Fase 4 deve cuidar desse fim tranquilo e da duração, abaixo dos 10 a 15 minutos previstos, porque quem joga chama quase todas as ondas. A vitória da Fase 3 e a de 3 estrelas precisam se repetir iguais.
 
 ## Técnica
 
 - Godot 4.7.2 com GDScript e GUT 9.7.1, versões fixadas.
 - Regras do jogo em GDScript sem depender de cenas, escritas em TDD e testadas sem janela.
-- As partidas reais ficam em `tests/fixtures/partidas` e viram testes e2e em `tests/e2e`: um jogador gravado clica nos botões reais, com o ritmo relativo às ondas e esperando ter ouro. As partidas aprovadas das Fases 1 e 2 precisam se repetir iguais, onda por onda; toda partida nova nessa pasta entra sozinha na repetição geral.
+- As partidas reais ficam em `tests/fixtures/partidas` e viram testes e2e em `tests/e2e`: um jogador gravado clica nos botões reais, com o ritmo relativo às ondas e esperando ter ouro. As partidas aprovadas das Fases 1, 2 e 3 precisam se repetir iguais, onda por onda; toda partida nova nessa pasta entra sozinha na repetição geral.
 - Balanceamento em JSON, editável sem mexer no código e validado por testes. A palavra final sobre a dificuldade é de quem dirige o projeto, jogando.
 - Arquivos `.aseprite` no repositório, com um conversor próprio e testado de JSON do Aseprite para `.tres`, sem plugin.
 - Textos em arquivos de tradução do Godot.
@@ -145,7 +154,8 @@ O dano aparece como um breve clarão feito por código, sem quadros extras. O te
 5. Feito: troca de arma das variantes e visual dos níveis 2 e 3.
 6. Feito: dificuldade da Fase 1 avaliada com os relatórios e aprovada em 2026-11-06.
 7. Feito: Fase 2, aprovada em 2026-11-06, com slimes que se dividem, mago com explosão e fogo no nível 3, mapa do pântano, painel de fases e botão de próxima fase.
-8. Demais fases.
+8. Feito: Fase 3, aprovada em 2026-11-06 com nota 8 de 10, com lobo, lanceiro, druida, floresta com duas entradas, menu e marcador de vida da vila.
+9. Fases 4 e 5.
 
 ## Decisões adiadas
 
@@ -156,5 +166,6 @@ O dano aparece como um breve clarão feito por código, sem quadros extras. O te
 ## Ainda sem verificação real
 
 - Abrir o `.exe` no Windows e publicar no itch.io.
+- Fase 3 e menu nos builds de navegador, Linux e Windows: os builds atuais são do `main`, ainda com a Fase 2.
 - Pintar o caminho no editor de mapas do Godot: o TileSet já tem o terreno `caminho` configurado, mas isso não foi usado à mão.
 - Revisão do código do GUT.

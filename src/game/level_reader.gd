@@ -7,9 +7,20 @@ const CELL_SIZE := 32
 static func read(scene: Node, data: Dictionary) -> Dictionary:
 	var level := data.duplicate()
 	level["cell_size"] = CELL_SIZE
-	level["route"] = _route_points(scene.get_node("Route"))
+	level["routes"] = _all_routes(scene)
+	level["route"] = level.routes[0]
 	level["buildable"] = _buildable_cells(scene.get_node("Ground"), scene.get_node("Decor"))
 	return level
+
+
+## Route é a primeira entrada; Route2 em diante são as outras, quando a fase tem mais de uma.
+static func _all_routes(scene: Node) -> Array:
+	var routes := [_route_points(scene.get_node("Route"))]
+	var index := 2
+	while scene.has_node("Route%d" % index):
+		routes.append(_route_points(scene.get_node("Route%d" % index)))
+		index += 1
+	return routes
 
 
 static func _route_points(path: Path2D) -> Array:

@@ -1,0 +1,64 @@
+{
+  "actions": [
+    {
+      "action": "place",
+      "cell": [
+        3,
+        4
+      ],
+      "gold_after": 105,
+      "level": 1,
+      "time": 5.78333333333332,
+      "unit": "archer",
+      "wave": 0
+    },
+    {
+      "action": "place",
+      "cell": [
+        3,
+        6
+      ],
+      "gold_after": 40,
+      "level": 1,
+      "time": 9.10000000000003,
+      "unit": "archer",
+      "wave": 0
+    }
+  ],
+  "duration": 32.8166666666661,
+  "gold_final": 47,
+  "level": "level_03",
+  "lives_final": 20,
+  "result": "restarted",
+  "stars": 0,
+  "started_at": "2026-11-06 18:32:13",
+  "waves": [
+    {
+      "bonus": 0,
+      "called_early": true,
+      "cleared_at": null,
+      "damage": {
+        "archer": 60
+      },
+      "defenders": {
+        "archer 1": 2
+      },
+      "early_bonus": 3,
+      "escaped": {},
+      "gold_end": null,
+      "gold_start": 43,
+      "kill_gold": 4,
+      "killed": {
+        "goblin": 2
+      },
+      "lives_end": 20,
+      "lives_start": 20,
+      "number": 1,
+      "spawned": {
+        "goblin": 6
+      },
+      "started_at": 12.4333333333335,
+      "units_down": 0
+    }
+  ]
+}

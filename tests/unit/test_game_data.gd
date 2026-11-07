@@ -51,6 +51,16 @@ func test_splash_needs_a_positive_target_limit() -> void:
 	var errors := GameData.validate_catalog(catalog)
 	assert_eq(errors.size(), 2, str(errors))
 
+func test_slow_needs_factor_and_seconds() -> void:
+	var catalog := Fixtures.catalog()
+	catalog.units.druid.levels[0].slow.erase("factor")
+	assert_eq(GameData.validate_catalog(catalog).size(), 1)
+
+func test_root_needs_every_and_seconds() -> void:
+	var catalog := Fixtures.catalog()
+	catalog.units.druid.levels[2].root.erase("seconds")
+	assert_eq(GameData.validate_catalog(catalog).size(), 1)
+
 func test_split_needs_a_known_monster() -> void:
 	var catalog := Fixtures.catalog()
 	catalog.monsters.slime.split.into = "nada"

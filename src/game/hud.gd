@@ -15,6 +15,9 @@ signal log_pressed
 signal next_level_pressed
 signal levels_pressed
 signal level_pressed(index: int)
+signal menu_pressed
+signal resume_pressed
+signal quit_pressed
 
 const TOP_HEIGHT := 24
 const BOTTOM_TOP := 320
@@ -30,6 +33,11 @@ const BUTTON_COLOR := Color("3d4757")
 const BUTTON_HOVER_COLOR := Color("56647a")
 const BUTTON_PRESSED_COLOR := Color("2f6bb0")
 const BUTTON_DISABLED_COLOR := Color("2a2438")
+const CLASS_BAR_WIDTH := 320
+const VILLAGE_BAR_SIZE := Vector2(96, 13)
+const VILLAGE_LIFE_COLOR := Color("4f9d4a")
+const VILLAGE_LOST_COLOR := Color("8e2f36")
+const MENU_BOX := Rect2(220, 92, 200, 148)
 
 var gold_label: Label
 var lives_label: Label
@@ -40,6 +48,14 @@ var speed_button: Button
 var restart_button: Button
 var language_button: Button
 var levels_button: Button
+var menu_button: Button
+var menu_panel: Control
+var menu_title: Label
+var menu_resume: Button
+var quit_button: Button
+var village_bar: Panel
+var village_fill: ColorRect
+var village_label: Label
 var next_wave_button: Button
 var class_buttons := {}
 var wave_box: Control
@@ -58,10 +74,12 @@ var next_level_button: Button
 var levels_panel: Control
 var levels_title: Label
 var level_buttons: Array = []
+var levels_close: Button
 
 var _root: Control
 var _class_bar: Control
 var _levels_box: Control
+var _compact_classes := false
 
 
 func _ready() -> void:
@@ -74,21 +92,25 @@ func _ready() -> void:
 	_build_bottom_bar()
 	_build_result_panel()
 	_build_levels_panel()
+	_build_menu_panel()
+	_build_village_marker()
 
 
 func set_classes(classes: Array, frames_for: Callable) -> void:
 	for child in _class_bar.get_children():
 		child.queue_free()
 	class_buttons.clear()
+	var width := mini(CLASS_BUTTON_WIDTH, (CLASS_BAR_WIDTH - 4) / maxi(classes.size(), 1) - 4)
+	_compact_classes = width < CLASS_BUTTON_WIDTH
 	var x := 4
 	for kind: String in classes:
-		var button := _button(_class_bar, Rect2(x, 3, CLASS_BUTTON_WIDTH, 34))
+		var button := _button(_class_bar, Rect2(x, 3, width, 34))
 		button.clip_text = false
 		button.icon = _class_icon(frames_for.call(kind))
 		button.toggle_mode = true
 		button.pressed.connect(func(): class_pressed.emit(kind))
 		class_buttons[kind] = button
-		x += CLASS_BUTTON_WIDTH + 4
+		x += width + 4
 
 
 func set_levels(count: int) -> void:
@@ -96,6 +118,15 @@ func set_levels(count: int) -> void:
 		var button := _button(_levels_box, Rect2(12, 28 + i * 24, 216, 20))
 		button.pressed.connect(func(): level_pressed.emit(i))
 		level_buttons.append(button)
+	levels_close = _button(_levels_box, Rect2(70, 34 + count * 24, 100, 20))
+	levels_close.pressed.connect(func(): levels_pressed.emit())
+	_levels_box.size.y = 62 + count * 24
+	_levels_box.position.y = (SCREEN.y - _levels_box.size.y) / 2.0
+
+
+## O marcador fica acima da vila, centralizado nela, sem entrar na barra superior.
+func place_village_marker(center_x: float, top: float) -> void:
+	village_bar.position = Vector2(center_x - VILLAGE_BAR_SIZE.x / 2.0, maxf(top - VILLAGE_BAR_SIZE.y, TOP_HEIGHT + 1))
 
 
 ## O quadro inteiro tem folga para armas; o ícone mostra só o corpo e a arma parada.
@@ -110,7 +141,13 @@ func _class_icon(frames: SpriteFrames) -> Texture2D:
 func refresh(game) -> void:
 	var sim = game.sim
 	gold_label.text = tr("HUD_GOLD") % sim.gold
-	lives_label.text = tr("HUD_LIVES") % sim.lives
+	lives_label.text = tr("HUD_LIVES") % [sim.lives, sim.start_lives()]
+	village_label.text = tr("VILLAGE_LIFE") % [sim.lives, sim.start_lives()]
+	village_fill.size.x = VILLAGE_BAR_SIZE.x * sim.lives / sim.start_lives()
+	menu_button.text = tr("BTN_MENU")
+	menu_title.text = tr("MENU_TITLE")
+	menu_resume.text = tr("BTN_RESUME")
+	quit_button.text = tr("BTN_QUIT")
 	wave_label.text = tr("HUD_WAVE") % [sim.waves_started(), sim.waves_total()]
 	pause_button.text = tr("BTN_RESUME") if game.paused else tr("BTN_PAUSE")
 	speed_button.text = tr("BTN_SPEED") % game.speed
@@ -121,6 +158,7 @@ func refresh(game) -> void:
 	next_level_button.text = tr("BTN_NEXT_LEVEL")
 	levels_button.text = tr("BTN_LEVELS") % (game.level_index + 1)
 	levels_title.text = tr("LEVELS_TITLE")
+	levels_close.text = tr("BTN_CLOSE")
 	for i in level_buttons.size():
 		var unlocked: bool = game.progress.is_unlocked(i)
 		level_buttons[i].disabled = not unlocked
@@ -128,7 +166,9 @@ func refresh(game) -> void:
 	for kind: String in class_buttons:
 		var button: Button = class_buttons[kind]
 		var cost: int = sim.unit_cost(kind)
-		button.text = "%s\n%d" % [tr("UNIT_%s" % kind.to_upper()), cost]
+		var unit_name := tr("UNIT_%s" % kind.to_upper())
+		button.text = str(cost) if _compact_classes else "%s\n%d" % [unit_name, cost]
+		button.tooltip_text = unit_name
 		button.disabled = sim.gold < cost and game.selected_class != kind
 		button.set_pressed_no_signal(game.selected_class == kind)
 	wave_box.visible = game.selected_unit == null
@@ -154,7 +194,7 @@ func all_buttons() -> Array:
 	var buttons := [
 		pause_button, speed_button, restart_button, language_button, levels_button, next_wave_button,
 		upgrade_button, dismiss_button, priority_button, close_button, result_restart, log_button,
-		next_level_button,
+		next_level_button, menu_button, menu_resume, quit_button, levels_close,
 	]
 	buttons.append_array(class_buttons.values())
 	buttons.append_array(level_buttons)
@@ -185,19 +225,17 @@ func _refresh_unit(sim, unit) -> void:
 
 func _build_top_bar() -> void:
 	var bar := _panel(_root, Rect2(0, 0, SCREEN.x, TOP_HEIGHT), BAR_COLOR)
-	gold_label = _label(bar, Rect2(6, 3, 80, 18))
-	lives_label = _label(bar, Rect2(86, 3, 70, 18))
-	wave_label = _label(bar, Rect2(156, 3, 72, 18))
-	levels_button = _button(bar, Rect2(230, 2, 54, 20))
+	gold_label = _label(bar, Rect2(6, 3, 74, 18))
+	lives_label = _label(bar, Rect2(80, 3, 84, 18))
+	wave_label = _label(bar, Rect2(166, 3, 72, 18))
+	levels_button = _button(bar, Rect2(240, 2, 54, 20))
 	levels_button.pressed.connect(func(): levels_pressed.emit())
-	pause_button = _button(bar, Rect2(286, 2, 76, 20))
-	speed_button = _button(bar, Rect2(364, 2, 90, 20))
-	restart_button = _button(bar, Rect2(456, 2, 86, 20))
-	language_button = _button(bar, Rect2(544, 2, 92, 20))
+	pause_button = _button(bar, Rect2(298, 2, 76, 20))
+	speed_button = _button(bar, Rect2(378, 2, 90, 20))
+	menu_button = _button(bar, Rect2(562, 2, 74, 20))
 	pause_button.pressed.connect(func(): pause_pressed.emit())
 	speed_button.pressed.connect(func(): speed_pressed.emit())
-	restart_button.pressed.connect(func(): restart_pressed.emit())
-	language_button.pressed.connect(func(): language_pressed.emit())
+	menu_button.pressed.connect(func(): menu_pressed.emit())
 
 
 func _build_bottom_bar() -> void:
@@ -257,6 +295,38 @@ func _build_levels_panel() -> void:
 	_levels_box = _panel(levels_panel, Rect2(200, 100, 240, 120), PANEL_COLOR)
 	levels_title = _label(_levels_box, Rect2(0, 6, 240, 18))
 	levels_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+
+
+## Cobre a tela para o jogo não receber cliques enquanto estiver pausado no menu.
+func _build_menu_panel() -> void:
+	menu_panel = _panel(_root, Rect2(Vector2.ZERO, SCREEN), Color(0, 0, 0, 0.5))
+	menu_panel.visible = false
+	var box := _panel(menu_panel, MENU_BOX, PANEL_COLOR)
+	menu_title = _label(box, Rect2(0, 6, MENU_BOX.size.x, 18))
+	menu_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	menu_resume = _button(box, Rect2(12, 28, 176, 24))
+	restart_button = _button(box, Rect2(12, 56, 176, 24))
+	language_button = _button(box, Rect2(12, 84, 176, 24))
+	quit_button = _button(box, Rect2(12, 112, 176, 24))
+	menu_resume.pressed.connect(func(): resume_pressed.emit())
+	restart_button.pressed.connect(func(): restart_pressed.emit())
+	language_button.pressed.connect(func(): language_pressed.emit())
+	quit_button.pressed.connect(func(): quit_pressed.emit())
+
+
+## Vidas restantes em verde sobre as perdidas em vermelho. Não recebe cliques.
+func _build_village_marker() -> void:
+	village_bar = _panel(_root, Rect2(Vector2.ZERO, VILLAGE_BAR_SIZE), VILLAGE_LOST_COLOR)
+	village_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_root.move_child(village_bar, 0)
+	village_fill = ColorRect.new()
+	village_fill.color = VILLAGE_LIFE_COLOR
+	village_fill.size = VILLAGE_BAR_SIZE
+	village_fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	village_bar.add_child(village_fill)
+	village_label = _label(village_bar, Rect2(Vector2.ZERO, VILLAGE_BAR_SIZE))
+	village_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	village_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 
 func _panel(parent: Control, rect: Rect2, color: Color) -> Panel:

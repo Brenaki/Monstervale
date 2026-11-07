@@ -7,7 +7,7 @@ const CLOCK_MARGIN := 0.000001
 const MOUSE_MOVES_BEFORE_CLICK := 2
 const REINVEST_FROM_WAVE := 4
 const REINVEST_ABOVE_GOLD := 100
-const REINVEST_ORDER := ["mage", "warrior", "archer"]
+const REINVEST_ORDER := ["mage", "spearman", "warrior", "druid", "archer"]
 
 var game
 var failed_clicks: Array = []
@@ -30,8 +30,8 @@ func open_level() -> void:
 	var index: int = game.LEVEL_IDS.find(_report.level)
 	if game.level_index == index:
 		return
-	_click(game.hud.levels_button)
-	_click(game.hud.level_buttons[index])
+	click(game.hud.levels_button)
+	click(game.hud.level_buttons[index])
 
 
 func is_done() -> bool:
@@ -95,7 +95,7 @@ func _call_wave_if_due() -> void:
 	if recorded.is_empty() or not recorded.called_early or sim.elapsed < _call_time(number, recorded):
 		return
 	if game.selected_unit == null and sim.can_call_next_wave():
-		_click(game.hud.next_wave_button)
+		click(game.hud.next_wave_button)
 
 
 ## Chamou com o campo limpo: repete a pausa depois da limpeza. Chamou com monstros em campo:
@@ -129,7 +129,7 @@ func _place(kind: String, cell: Vector2i) -> bool:
 	if sim.gold < sim.unit_cost(kind) or sim.unit_at(cell) != null:
 		return false
 	game._process(0.0)
-	_click(game.hud.class_buttons[kind])
+	click(game.hud.class_buttons[kind])
 	_click_cell(cell)
 	if sim.unit_at(cell) == null:
 		failed_clicks.append("posicionar %s em %s" % [kind, cell])
@@ -144,10 +144,10 @@ func _upgrade(cell: Vector2i) -> bool:
 		return false
 	var level_before: int = unit.level
 	_select(cell)
-	_click(game.hud.upgrade_button)
+	click(game.hud.upgrade_button)
 	if unit.level == level_before:
 		failed_clicks.append("melhorar %s" % cell)
-	_click(game.hud.close_button)
+	click(game.hud.close_button)
 	return true
 
 
@@ -156,10 +156,10 @@ func _dismiss(cell: Vector2i) -> bool:
 	if unit == null:
 		return false
 	_select(cell)
-	_click(game.hud.dismiss_button)
+	click(game.hud.dismiss_button)
 	if game.sim.unit_at(cell) != null:
 		failed_clicks.append("dispensar %s" % cell)
-		_click(game.hud.close_button)
+		click(game.hud.close_button)
 	return true
 
 
@@ -168,7 +168,7 @@ func _select(cell: Vector2i) -> void:
 	game._process(0.0)
 
 
-func _click(button: Button) -> void:
+func click(button: Button) -> void:
 	game._process(0.0)
 	_mouse_click(button.get_global_rect().get_center())
 	game._process(0.0)

@@ -1,0 +1,70 @@
+[gd_resource type="SpriteFrames" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/spearman_3.png" id="1_50g2e"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vketn"]
+atlas = ExtResource("1_50g2e")
+region = Rect2(112, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7v2mm"]
+atlas = ExtResource("1_50g2e")
+region = Rect2(168, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_k5sps"]
+atlas = ExtResource("1_50g2e")
+region = Rect2(224, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0gfep"]
+atlas = ExtResource("1_50g2e")
+region = Rect2(280, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1h1l5"]
+atlas = ExtResource("1_50g2e")
+region = Rect2(336, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6k1gd"]
+atlas = ExtResource("1_50g2e")
+region = Rect2(0, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2fcv6"]
+atlas = ExtResource("1_50g2e")
+region = Rect2(56, 0, 56, 40)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.7,
+"texture": SubResource("AtlasTexture_vketn")
+}, {
+"duration": 0.8,
+"texture": SubResource("AtlasTexture_7v2mm")
+}, {
+"duration": 1.2,
+"texture": SubResource("AtlasTexture_k5sps")
+}],
+"loop": 0,
+"name": &"attack",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.3,
+"texture": SubResource("AtlasTexture_0gfep")
+}, {
+"duration": 3.2,
+"texture": SubResource("AtlasTexture_1h1l5")
+}],
+"loop": 0,
+"name": &"fall",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 5.0,
+"texture": SubResource("AtlasTexture_6k1gd")
+}, {
+"duration": 5.0,
+"texture": SubResource("AtlasTexture_2fcv6")
+}],
+"loop": 1,
+"name": &"idle",
+"speed": 10.0
+}]

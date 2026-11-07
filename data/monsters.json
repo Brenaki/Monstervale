@@ -105,5 +105,22 @@
     "shadow": 6,
     "burst": "#5fd4ae",
     "reach": 40
+  },
+  "wolf": {
+    "hp": 20,
+    "speed": 46,
+    "gold": 3,
+    "damage": 4,
+    "attack_cooldown": 0.8,
+    "lives": 1,
+    "resist": {
+      "pierce": 1,
+      "impact": 1,
+      "magic": 0.9
+    },
+    "sprite": "wolf",
+    "burst": "#b3262e",
+    "reach": 40,
+    "shadow": 14
   }
 }
