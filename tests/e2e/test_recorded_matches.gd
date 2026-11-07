@@ -31,6 +31,7 @@ const LEVEL_4_PIERCE_2 := "partida_2026-11-07_09-21-02_level_04.json"
 const SPARE_CELLS_LEVEL_4 := [
 	Vector2i(12, 2), Vector2i(14, 7), Vector2i(15, 6), Vector2i(11, 2), Vector2i(10, 7), Vector2i(12, 7), Vector2i(12, 3),
 ]
+const APPROVED_LEVEL_5 := "partida_2026-11-07_12-12-05_level_05.json"
 const THREE_STAR_LIVES := 18
 const TWO_STAR_LIVES := 10
 const WAVE_FIELDS := ["spawned", "killed", "escaped", "units_down", "lives_end", "gold_end"]
@@ -46,7 +47,7 @@ func before_all() -> void:
 
 func before_each() -> void:
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
-	file.store_string(JSON.stringify({"stars": {"0": 3, "1": 3, "2": 3}}))
+	file.store_string(JSON.stringify({"stars": {"0": 3, "1": 3, "2": 3, "3": 3}}))
 	file.close()
 	game = load("res://src/game/main.tscn").instantiate()
 	game.progress_path = SAVE_PATH
@@ -220,6 +221,9 @@ func test_level_4_piercing_defense_without_reacting_loses() -> void:
 	report.result = "lost"
 	await _play(report)
 	assert_eq(game.sim.state, "lost")
+
+func test_level_5_approved_match_repeats_exactly() -> void:
+	await _assert_repeats_exactly(APPROVED_LEVEL_5)
 
 func test_level_4_new_classes_work_with_real_mouse_clicks() -> void:
 	var report := {

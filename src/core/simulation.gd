@@ -111,6 +111,14 @@ func spawn_monster(kind: String, route_index: int = 0):
 	return monster
 
 
+## O chefe em campo, ou null.
+func boss():
+	for monster in monsters:
+		if monster.boss:
+			return monster
+	return null
+
+
 func waves_started() -> int:
 	return _next_wave
 
@@ -269,7 +277,7 @@ func _update_monsters(delta: float) -> void:
 		monster.update_effects(delta)
 		if monster.is_stunned():
 			continue
-		if monster.blocker == null:
+		if monster.blocker == null and monster.can_be_blocked():
 			_try_block(monster)
 		if monster.blocker != null:
 			_attack_blocker(monster, delta)
@@ -468,6 +476,8 @@ func _damage(monster, base_amount: int, damage_type: String, source: String, kil
 		_remove(monster)
 		_emit({"type": "monster_killed", "monster": monster, "position": monster.position(), "bonus_gold": kill_gold})
 		_split(monster)
+	else:
+		_shed(monster)
 
 
 func _hit_effect(monster, damage_type: String) -> String:
@@ -481,9 +491,26 @@ func _split(monster) -> void:
 	var split = _catalog.monsters[monster.kind].get("split")
 	if split == null:
 		return
-	var count := int(split.count)
+	_spawn_children(monster, split.into, int(split.count))
+
+
+## O chefe solta monstros cada vez que perde mais uma fração da vida.
+func _shed(monster) -> void:
+	var shed = _catalog.monsters[monster.kind].get("shed")
+	if shed == null:
+		return
+	var due := floori((monster.max_hp - monster.hp) / (monster.max_hp * float(shed.every_fraction)))
+	if due <= monster.sheds:
+		return
+	for i in due - monster.sheds:
+		_spawn_children(monster, shed.into, int(shed.count))
+	monster.sheds = due
+	_emit({"type": "monster_split", "monster": monster})
+
+
+func _spawn_children(monster, kind: String, count: int) -> void:
 	for i in count:
-		var child = spawn_monster(split.into, monster.route_index)
+		var child = spawn_monster(kind, monster.route_index)
 		child.distance = maxf(0.0, monster.distance + SPLIT_SPREAD * (i - (count - 1) / 2.0))
 		child.facing = monster.facing
 		child.wave = monster.wave

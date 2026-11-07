@@ -1,0 +1,36 @@
+{
+  "id": "level_05",
+  "start_gold": 200,
+  "lives": 20,
+  "classes": [
+    "archer",
+    "warrior",
+    "mage",
+    "spearman",
+    "druid",
+    "monk",
+    "rogue"
+  ],
+  "wave_interval": 42,
+  "early_call_gold_per_second": 0.1,
+  "stars": [
+    0.5,
+    0.9
+  ],
+  "waves": [
+    {"bonus": 10, "groups": [{"monster": "goblin", "count": 8, "interval": 1.0, "delay": 0}]},
+    {"bonus": 10, "groups": [{"monster": "slime", "count": 2, "interval": 3.0, "delay": 0, "route": 1}]},
+    {"bonus": 15, "groups": [{"monster": "skeleton", "count": 5, "interval": 1.4, "delay": 0}, {"monster": "goblin_fast", "count": 4, "interval": 0.8, "delay": 3, "route": 1}]},
+    {"bonus": 25, "groups": [{"monster": "wolf", "count": 6, "interval": 1.0, "delay": 0, "route": 1}, {"monster": "goblin_shield", "count": 2, "interval": 2.0, "delay": 3}]},
+    {"bonus": 25, "groups": [{"monster": "skeleton_knight", "count": 3, "interval": 2.6, "delay": 0}, {"monster": "slime", "count": 2, "interval": 3.0, "delay": 2, "route": 1}]},
+    {"bonus": 25, "groups": [{"monster": "goblin", "count": 10, "interval": 0.7, "delay": 0, "route": 1}, {"monster": "skeleton", "count": 6, "interval": 1.0, "delay": 3}]},
+    {"bonus": 25, "groups": [{"monster": "slime", "count": 4, "interval": 2.0, "delay": 0}, {"monster": "wolf", "count": 6, "interval": 0.8, "delay": 4, "route": 1}]},
+    {"bonus": 25, "groups": [{"monster": "skeleton_knight", "count": 4, "interval": 2.2, "delay": 0, "route": 1}, {"monster": "goblin_shield", "count": 4, "interval": 1.8, "delay": 3}]},
+    {"bonus": 25, "groups": [{"monster": "skeleton", "count": 10, "interval": 0.8, "delay": 0}, {"monster": "skeleton", "count": 6, "interval": 0.8, "delay": 3, "route": 1}]},
+    {"bonus": 25, "groups": [{"monster": "slime", "count": 5, "interval": 1.6, "delay": 0, "route": 1}, {"monster": "wolf", "count": 8, "interval": 0.7, "delay": 4}, {"monster": "goblin_fast", "count": 6, "interval": 0.6, "delay": 6, "route": 1}]},
+    {"bonus": 25, "groups": [{"monster": "skeleton_knight", "count": 6, "interval": 1.8, "delay": 0}, {"monster": "skeleton", "count": 8, "interval": 0.8, "delay": 2, "route": 1}, {"monster": "goblin_shield", "count": 4, "interval": 1.8, "delay": 5}]},
+    {"bonus": 25, "groups": [{"monster": "slime", "count": 6, "interval": 1.4, "delay": 0}, {"monster": "skeleton_knight", "count": 5, "interval": 1.8, "delay": 2, "route": 1}, {"monster": "wolf", "count": 8, "interval": 0.7, "delay": 6}]},
+    {"bonus": 20, "groups": [{"monster": "skeleton", "count": 12, "interval": 0.7, "delay": 0}, {"monster": "skeleton", "count": 12, "interval": 0.7, "delay": 2, "route": 1}, {"monster": "skeleton_knight", "count": 6, "interval": 1.8, "delay": 5, "route": 1}, {"monster": "goblin_shield", "count": 5, "interval": 1.5, "delay": 8}]},
+    {"bonus": 0, "groups": [{"monster": "slime_king", "count": 1, "interval": 1.0, "delay": 0}, {"monster": "slime", "count": 4, "interval": 2.0, "delay": 4, "route": 1}, {"monster": "skeleton", "count": 10, "interval": 0.7, "delay": 8, "route": 1}, {"monster": "wolf", "count": 8, "interval": 0.6, "delay": 14}, {"monster": "skeleton_knight", "count": 4, "interval": 2.0, "delay": 18, "route": 1}, {"monster": "goblin", "count": 12, "interval": 0.6, "delay": 22, "route": 1}]}
+  ]
+}

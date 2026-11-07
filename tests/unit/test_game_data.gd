@@ -71,6 +71,16 @@ func test_split_needs_a_positive_count() -> void:
 	catalog.monsters.slime.split.count = 0
 	assert_eq(GameData.validate_catalog(catalog), ["monstro slime: split.count deve ser positivo"])
 
+func test_shed_needs_a_known_monster() -> void:
+	var catalog := Fixtures.catalog()
+	catalog.monsters.king.shed.into = "nada"
+	assert_eq(GameData.validate_catalog(catalog), ["monstro king: solta monstro desconhecido nada"])
+
+func test_shed_needs_a_fraction_between_zero_and_one() -> void:
+	var catalog := Fixtures.catalog()
+	catalog.monsters.king.shed.every_fraction = 1.0
+	assert_eq(GameData.validate_catalog(catalog), ["monstro king: shed.every_fraction deve ficar entre 0 e 1"])
+
 func test_monster_needs_all_fields() -> void:
 	var catalog := Fixtures.catalog()
 	catalog.monsters.goblin.erase("speed")

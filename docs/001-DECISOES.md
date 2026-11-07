@@ -67,7 +67,7 @@ Registro das decisões tomadas em 2026-11-06. `DT-SLIME` é um nome provisório.
 - Esqueleto: resiste a dano perfurante e um pouco à magia, e é fraco contra impacto. Ao morrer, desfaz-se numa pilha de ossos.
 - Cavaleiro esqueleto: variante com elmo, escudo e espada, mais lenta e resistente. Resiste a perfurante e a impacto, e é fraca contra magia.
 - Slime: três tamanhos em `data/monsters.json`. Cada um se divide em dois do tamanho seguinte ao morrer, e quem chega à vila não se divide.
-- Rei Slime: chefe da fase 5, ampliado e redesenhado, divide-se ao longo da luta.
+- Rei Slime: chefe da Fase 5, num quadro de 96×72 px, com coroa, sobrancelhas bravas e um verde mais fundo que o dos slimes. A cada quarto da vida perdido solta 2 slimes grandes, e ao morrer solta 3. Não pode ser bloqueado: passa por cima dos humanos e bate em quem estiver no caminho. Não pode ser preso nem atordoado, mas pode ser lento. Resiste a perfurante e a impacto e é fraco contra magia. Se chegar à vila, leva metade das vidas: perde as 3 estrelas, mas a partida continua. Enquanto está em campo, uma barra larga no alto do mapa mostra a vida dele.
 
 ## Economia
 
@@ -133,6 +133,8 @@ O dano aparece como um breve clarão feito por código, sem quadros extras. O te
 - Primeira calibragem da Fase 4, ainda sem partida real: 13 ondas e renda de 1031. Com robôs que chamam a onda 6 segundos depois de limpar o campo, misturar classes vence com 11 a 18 vidas; arqueiros sozinhos ficam com 2 vidas e as outras classes sozinhas perdem, quase sempre na onda 13. A exceção é o mago sozinho, que vence com 17 vidas.
 - Primeira avaliação da Fase 4: difícil demais para 3 estrelas. A vitória teve 16 vidas em 8:50, perdendo vidas só nas ondas 4 e 6; duas tentativas com ladino, lanceiro e guerreiro foram reiniciadas na onda 10 depois de perder vidas nas ondas 8 a 10. As ondas 4, 6, 8, 9 e 10 encolheram, as 11 a 13 ficaram iguais, e os bônus subiram para a renda ficar em 1015. Repetida, a vitória tem 19 vidas; as tentativas reiniciadas vencem com 20 gastando o ouro que sobra, e uma delas perde sem gastar. Essas partidas ficam em `tests/fixtures/partidas`.
 - Segunda avaliação, que aprova a Fase 4 com nota 9 de 10: bem difícil. A vitória teve 16 vidas em 10:37, todas perdidas na onda 13, para slimes pequenos. A onda 13 encolheu de 56 para 44 monstros, e repetida a partida vence com 20 vidas. Seus 8 lobos viraram 8 esqueletos, porque sem eles só arqueiros também ganhavam 3 estrelas. Essa partida fica em `tests/fixtures/partidas` e precisa ganhar 3 estrelas.
+- Primeira calibragem da Fase 5, ainda sem partida real: 14 ondas, com o Rei Slime e escolta na última. Os arredores do vilarejo têm uma entrada pela esquerda e outra pelo alto, que se juntam antes da vila; um campo de trigo no meio impede uma célula de cobrir as duas a salvo. Com o rei bloqueável, monges sozinhos venciam com 20 vidas segurando tudo onde os caminhos se juntam. Sem bloqueio, quem defende só esse trecho fica com 5 vidas, e monges, arqueiros ou guerreiros sozinhos ficam abaixo de 10 ou perdem. Um robô que defende o caminho inteiro vence com 20 vidas, mas o rei só cai depois de andar 81% do caminho. O mago sozinho vence com 12. Com 850 de vida em vez de 800, aquele robô fica com 15 vidas: o resultado é sensível à vida do rei.
+- Primeira avaliação, que aprova a Fase 5 com nota 7 de 10. A vitória teve 3 estrelas e 20 vidas em 11:36, com o mago, o druida e o ladino no nível 3 abatendo o rei e os 91 slimes da última onda sem deixar nenhum passar. Repetida, a partida se repete igual; ela fica em `tests/fixtures/partidas`.
 
 ## Técnica
 
@@ -164,7 +166,8 @@ O dano aparece como um breve clarão feito por código, sem quadros extras. O te
 7. Feito: Fase 2, aprovada em 2026-11-06, com slimes que se dividem, mago com explosão e fogo no nível 3, mapa do pântano, painel de fases e botão de próxima fase.
 8. Feito: Fase 3, aprovada em 2026-11-06 com nota 8 de 10, com lobo, lanceiro, druida, floresta com duas entradas, menu e marcador de vida da vila.
 9. Feito: Fase 4, aprovada em 2026-11-07 com nota 9 de 10, com esqueletos, monge, ladino, cemitério, barra de 7 classes e indicações de tipo de dano.
-10. Fase 5.
+10. Feito: Fase 5, aprovada em 2026-11-07 com nota 7 de 10, com Rei Slime, arredores do vilarejo e mensagem de fim de campanha.
+11. Menu principal e sons.
 
 ## Decisões adiadas
 
@@ -175,6 +178,6 @@ O dano aparece como um breve clarão feito por código, sem quadros extras. O te
 ## Ainda sem verificação real
 
 - Abrir o `.exe` no Windows e publicar no itch.io.
-- Fases 3 e 4 e menu nos builds de navegador, Linux e Windows: os builds atuais ainda têm só até a Fase 2.
+- Fases 3 a 5 e menu nos builds de navegador, Linux e Windows: os builds atuais ainda têm só até a Fase 2.
 - Pintar o caminho no editor de mapas do Godot: o TileSet já tem o terreno `caminho` configurado, mas isso não foi usado à mão.
 - Revisão do código do GUT.

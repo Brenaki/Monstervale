@@ -58,13 +58,14 @@ end
 
 local function outlined(img)
   local copy = img:clone()
-  for y = 0, H - 1 do
-    for x = 0, W - 1 do
+  local w, h = img.width, img.height
+  for y = 0, h - 1 do
+    for x = 0, w - 1 do
       if pc.rgbaA(copy:getPixel(x, y)) == 0 then
         local near = (x > 0 and pc.rgbaA(copy:getPixel(x - 1, y)) > 0)
-          or (x < W - 1 and pc.rgbaA(copy:getPixel(x + 1, y)) > 0)
+          or (x < w - 1 and pc.rgbaA(copy:getPixel(x + 1, y)) > 0)
           or (y > 0 and pc.rgbaA(copy:getPixel(x, y - 1)) > 0)
-          or (y < H - 1 and pc.rgbaA(copy:getPixel(x, y + 1)) > 0)
+          or (y < h - 1 and pc.rgbaA(copy:getPixel(x, y + 1)) > 0)
         if near then img:drawPixel(x, y, K) end
       end
     end
@@ -96,8 +97,9 @@ local function lying(img)
   return out
 end
 
-local function frame(ms, draw, post, final)
-  local img = Image(SPEC)
+-- spec troca a tela padrão por uma maior, como a do chefe.
+local function frame(ms, draw, post, final, spec)
+  local img = Image(spec or SPEC)
   draw(img)
   outlined(img)
   if post then post(img) end
@@ -105,8 +107,8 @@ local function frame(ms, draw, post, final)
   return { image = img, ms = ms }
 end
 
-local function build(name, frames, tags)
-  local spr = Sprite(SPEC)
+local function build(name, frames, tags, spec)
+  local spr = Sprite(spec or SPEC)
   local layer = spr.layers[1]
   for i = 2, #frames do spr:newEmptyFrame() end
   for i, item in ipairs(frames) do
@@ -1101,38 +1103,42 @@ local SLIME = { L = "9ff0c8", M = "5fd4ae", D = "2f9f94", E = "1f6f74", S = "eaf
 local SLIME_CX, SLIME_BASE = 28, 35
 
 -- Domo de base reta, com luz no alto à esquerda e sombra embaixo à direita.
-local function slimeBody(img, w, h, eyes)
+local function blob(img, palette, cx, base, w, h, eyes)
   for row = 0, h - 1 do
     local t = row / h
     local half = (w / 2) * math.sqrt(1 - t * t)
     if row == 0 then half = half - 1 end
-    local y = SLIME_BASE - row
-    for x = SLIME_CX - math.floor(half + 0.5), SLIME_CX + math.floor(half + 0.5) - 1 do
-      local nx = (x + 0.5 - SLIME_CX) / (w / 2)
+    local y = base - row
+    for x = cx - math.floor(half + 0.5), cx + math.floor(half + 0.5) - 1 do
+      local nx = (x + 0.5 - cx) / (w / 2)
       local light = -nx * 0.55 + t * 0.9
-      local hex = SLIME.M
-      if row == 0 then hex = SLIME.E
-      elseif light > 0.62 then hex = SLIME.L
-      elseif light < -0.02 then hex = SLIME.D end
+      local hex = palette.M
+      if row == 0 then hex = palette.E
+      elseif light > 0.62 then hex = palette.L
+      elseif light < -0.02 then hex = palette.D end
       img:drawPixel(x, y, rgb(hex))
     end
   end
   local shineW = math.max(1, w // 7)
-  local shineX = SLIME_CX - w // 4
-  local shineY = SLIME_BASE - math.floor(h * 0.74)
-  for x = shineX, shineX + shineW do img:drawPixel(x, shineY, rgb(SLIME.S)) end
+  local shineX = cx - w // 4
+  local shineY = base - math.floor(h * 0.74)
+  for x = shineX, shineX + shineW do img:drawPixel(x, shineY, rgb(palette.S)) end
   if eyes then
-    local eyeY = SLIME_BASE - math.floor(h * 0.52)
+    local eyeY = base - math.floor(h * 0.52)
     for _, fraction in ipairs({ eyes.left, eyes.right }) do
-      local ex = SLIME_CX + math.floor(w * fraction + 0.5)
+      local ex = cx + math.floor(w * fraction + 0.5)
       for dx = 0, eyes.w - 1 do
         for dy = 0, eyes.h - 1 do
           img:drawPixel(ex + dx, eyeY + dy, K)
         end
       end
-      if eyes.w > 1 then img:drawPixel(ex, eyeY, rgb(SLIME.S)) end
+      if eyes.w > 1 then img:drawPixel(ex, eyeY, rgb(palette.S)) end
     end
   end
+end
+
+local function slimeBody(img, w, h, eyes)
+  blob(img, SLIME, SLIME_CX, SLIME_BASE, w, h, eyes)
 end
 
 local function droplets(img, list)
@@ -1165,3 +1171,102 @@ end
 slime("slime", { {26, 18}, {32, 12}, {20, 24}, {24, 19} }, { left = 0.04, right = 0.26, w = 3, h = 4 }, 16)
 slime("slime_medium", { {18, 13}, {23, 8}, {14, 17}, {17, 14} }, { left = 0, right = 0.26, w = 2, h = 3 }, 11)
 slime("slime_small", { {11, 8}, {14, 5}, {8, 11}, {10, 9} }, { left = 0, right = 0.26, w = 1, h = 2 }, 7)
+
+---------------------------------------------------------------- REI SLIME
+
+-- Chefe da Fase 5: um slime de outro verde, muito maior, com coroa e cara brava, numa tela própria.
+local KING_SPEC = ImageSpec{ width = 96, height = 72, colorMode = ColorMode.RGB }
+local KING = { L = "8de3b0", M = "45b98c", D = "238073", E = "16545a", S = "e9fff3" }
+local KING_CX, KING_BASE = 48, 67
+local KING_EYES = { left = 0.04, right = 0.24, w = 4, h = 6 }
+local CROWN = {
+  "..H.........H.........H..",
+  ".HYy.......HYy.......HYy.",
+  ".YYy...H...YYy...H...YYy.",
+  ".YYy..HYy..YRy..HYy..YYy.",
+  ".YYYYYYYYYYYYYYYYYYYYYYy.",
+  ".YRYYYYBYYYYRYYYYBYYYRYy.",
+  ".yyyyyyyyyyyyyyyyyyyyyyy.",
+}
+local CROWN_LEGEND = legendOf({ H = "fff3b0", Y = "f6e05e", y = "c99a2e", R = "d9534a", B = "5aa9e6" })
+
+local function crown(img, x, y)
+  for r, row in ipairs(CROWN) do
+    for i = 1, #row do
+      local c = CROWN_LEGEND[row:sub(i, i)]
+      if c then img:drawPixel(x + i - 1, y + r - 1, c) end
+    end
+  end
+end
+
+-- Sobrancelhas que descem para o meio e uma boca com dois dentes.
+local function kingFace(img, w, h)
+  local eyeY = KING_BASE - math.floor(h * 0.52)
+  local left = KING_CX + math.floor(w * KING_EYES.left + 0.5)
+  local right = KING_CX + math.floor(w * KING_EYES.right + 0.5)
+  for i = 0, 4 do
+    img:drawPixel(left - 1 + i, eyeY - 4 + i // 2, K)
+    img:drawPixel(right + 4 - i, eyeY - 4 + i // 2, K)
+  end
+  local mouthY = eyeY + KING_EYES.h + 2
+  for x = left + 1, right + 2 do img:drawPixel(x, mouthY, K) end
+  img:drawPixel(left + 2, mouthY + 1, rgb(KING.S))
+  img:drawPixel(right + 1, mouthY + 1, rgb(KING.S))
+end
+
+local function kingBody(img, w, h, face)
+  blob(img, KING, KING_CX, KING_BASE, w, h, face and KING_EYES or nil)
+  if face then kingFace(img, w, h) end
+  crown(img, KING_CX + math.floor(w * 0.14 + 0.5) - 12, KING_BASE - h - 3)
+end
+
+local function kingDrops(img, list, palette)
+  for _, d in ipairs(list) do
+    for x = 0, d[3] - 1 do
+      for y = 0, d[3] - 1 do
+        img:drawPixel(KING_CX + d[1] + x, KING_BASE - d[2] + y, rgb((palette or KING).M))
+      end
+    end
+  end
+end
+
+local function kingFrame(ms, draw)
+  return frame(ms, draw, nil, nil, KING_SPEC)
+end
+
+local function kingStep(ms, w, h)
+  return kingFrame(ms, function(img) kingBody(img, w, h, true) end)
+end
+
+build("slime_king", {
+  kingStep(160, 58, 40), kingStep(160, 68, 31), kingStep(160, 50, 48), kingStep(160, 56, 42),
+  -- ataque: estica para cima, cai esparramando e volta
+  kingStep(150, 46, 52),
+  kingFrame(130, function(img)
+    kingBody(img, 78, 26, true)
+    kingDrops(img, { { -40, 10, 2 }, { 38, 12, 2 }, { -30, 18, 1 }, { 30, 20, 1 } })
+  end),
+  kingStep(150, 60, 38),
+  -- perde um pedaço: treme e solta dois slimes comuns pelos lados
+  kingFrame(130, function(img)
+    kingBody(img, 64, 36, true)
+    blob(img, SLIME, KING_CX - 30, KING_BASE - 24, 10, 8, nil)
+    blob(img, SLIME, KING_CX + 30, KING_BASE - 26, 10, 8, nil)
+  end),
+  kingFrame(160, function(img)
+    kingBody(img, 54, 42, true)
+    blob(img, SLIME, KING_CX - 36, KING_BASE - 6, 10, 7, nil)
+    blob(img, SLIME, KING_CX + 36, KING_BASE - 6, 10, 7, nil)
+  end),
+  -- morte: esparrama e vira poça, com a coroa caída ao lado
+  kingFrame(140, function(img)
+    blob(img, KING, KING_CX, KING_BASE, 80, 18, nil)
+    kingDrops(img, { { -42, 14, 3 }, { 40, 16, 3 }, { -24, 26, 2 }, { 22, 28, 2 } })
+    crown(img, KING_CX - 4, KING_BASE - 36)
+  end),
+  kingFrame(400, function(img)
+    blob(img, KING, KING_CX, KING_BASE, 66, 4, nil)
+    kingDrops(img, { { -40, 1, 2 }, { 38, 1, 2 } })
+    crown(img, KING_CX + 6, KING_BASE - 9)
+  end),
+}, { {"walk", 1, 4}, {"attack", 5, 7}, {"split", 8, 9}, {"death", 10, 11} }, KING_SPEC)

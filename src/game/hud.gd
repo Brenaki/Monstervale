@@ -44,6 +44,8 @@ const VILLAGE_BAR_SIZE := Vector2(96, 13)
 const VILLAGE_LIFE_COLOR := Color("4f9d4a")
 const VILLAGE_LOST_COLOR := Color("8e2f36")
 const MENU_BOX := Rect2(220, 92, 200, 148)
+const BOSS_BAR := Rect2(272, 28, 216, 13)
+const BOSS_LIFE_COLOR := Color("45b98c")
 
 var gold_label: Label
 var lives_label: Label
@@ -63,6 +65,9 @@ var quit_button: Button
 var village_bar: Panel
 var village_fill: ColorRect
 var village_label: Label
+var boss_bar: Panel
+var boss_fill: ColorRect
+var boss_label: Label
 var next_wave_button: Button
 var class_buttons := {}
 var class_icons := {}
@@ -102,6 +107,7 @@ func _ready() -> void:
 	_build_levels_panel()
 	_build_menu_panel()
 	_build_village_marker()
+	_build_boss_bar()
 
 
 func set_classes(classes: Array, frames_for: Callable) -> void:
@@ -176,6 +182,7 @@ func refresh(game) -> void:
 	lives_label.text = tr("HUD_LIVES") % [sim.lives, sim.start_lives()]
 	village_label.text = tr("VILLAGE_LIFE") % [sim.lives, sim.start_lives()]
 	village_fill.size.x = VILLAGE_BAR_SIZE.x * sim.lives / sim.start_lives()
+	_refresh_boss(sim.boss())
 	menu_button.text = tr("BTN_MENU")
 	menu_title.text = tr("MENU_TITLE")
 	menu_resume.text = tr("BTN_RESUME")
@@ -213,8 +220,11 @@ func refresh(game) -> void:
 		_refresh_wave(sim)
 
 
-func show_result(won: bool, stars: int, can_advance := false) -> void:
-	result_title.text = tr("RESULT_WON") if won else tr("RESULT_LOST")
+## campaign_done troca o título na vitória da última fase.
+func show_result(won: bool, stars: int, can_advance := false, campaign_done := false) -> void:
+	result_title.text = tr("RESULT_LOST")
+	if won:
+		result_title.text = tr("RESULT_CAMPAIGN") if campaign_done else tr("RESULT_WON")
 	result_stars.text = tr("RESULT_STARS") % stars if won else ""
 	next_level_button.visible = can_advance
 	result_panel.visible = true
@@ -233,6 +243,14 @@ func all_buttons() -> Array:
 	buttons.append_array(class_buttons.values())
 	buttons.append_array(level_buttons)
 	return buttons
+
+
+func _refresh_boss(boss) -> void:
+	boss_bar.visible = boss != null
+	if boss == null:
+		return
+	boss_label.text = tr("MONSTER_%s" % boss.kind.to_upper())
+	boss_fill.size.x = BOSS_BAR.size.x * maxf(0.0, float(boss.hp) / boss.max_hp)
 
 
 func _refresh_wave(sim) -> void:
@@ -365,6 +383,21 @@ func _build_village_marker() -> void:
 	village_label = _label(village_bar, Rect2(Vector2.ZERO, VILLAGE_BAR_SIZE))
 	village_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	village_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+
+## Barra larga no alto do mapa, enquanto o chefe está em campo.
+func _build_boss_bar() -> void:
+	boss_bar = _panel(_root, BOSS_BAR, VILLAGE_LOST_COLOR)
+	boss_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	boss_bar.visible = false
+	boss_fill = ColorRect.new()
+	boss_fill.color = BOSS_LIFE_COLOR
+	boss_fill.size = BOSS_BAR.size
+	boss_fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	boss_bar.add_child(boss_fill)
+	boss_label = _label(boss_bar, Rect2(Vector2.ZERO, BOSS_BAR.size))
+	boss_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	boss_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 
 func _panel(parent: Control, rect: Rect2, color: Color) -> Panel:

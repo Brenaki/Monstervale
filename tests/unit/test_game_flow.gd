@@ -339,6 +339,14 @@ func test_new_level_offers_its_own_classes() -> void:
 	assert_true(game.hud.class_buttons.has("mage"))
 	assert_eq(game.hud.class_buttons.size(), 3)
 
+func test_winning_the_last_level_completes_the_campaign() -> void:
+	for level_id in game.LEVEL_IDS.slice(1):
+		_win()
+		assert_ne(game.hud.result_title.text, tr("RESULT_CAMPAIGN"))
+		game.next_level()
+	_win()
+	assert_eq(game.hud.result_title.text, tr("RESULT_CAMPAIGN"))
+
 func test_last_level_has_no_next_level_button() -> void:
 	for level_id in game.LEVEL_IDS.slice(1):
 		_win()
@@ -455,3 +463,25 @@ func test_choosing_in_the_panel_opens_the_level_and_closes_the_panel() -> void:
 	assert_false(game.hud.levels_panel.visible)
 	assert_false(game.paused)
 
+
+func test_boss_bar_shows_the_life_of_the_boss_only_while_it_is_on_the_field() -> void:
+	game.hud.refresh(game)
+	assert_false(game.hud.boss_bar.visible)
+	var king = game.sim.spawn_monster("slime_king")
+	king.hp = king.max_hp / 2
+	_advance(0.05)
+	game.hud.refresh(game)
+	assert_true(game.hud.boss_bar.visible)
+	assert_string_contains(game.hud.boss_label.text, tr("MONSTER_SLIME_KING"))
+	assert_almost_eq(game.hud.boss_fill.size.x, game.hud.boss_bar.size.x / 2.0, 1.0)
+	game.sim.monsters.erase(king)
+	_advance(0.05)
+	game.hud.refresh(game)
+	assert_false(game.hud.boss_bar.visible)
+
+func test_boss_plays_split_when_it_sheds_slimes() -> void:
+	var king = game.sim.spawn_monster("slime_king")
+	_advance(0.05)
+	game.sim._damage(king, king.max_hp / 3, "magic", "test")
+	_advance(0.05)
+	assert_eq(game._views[king].current_animation(), "split")

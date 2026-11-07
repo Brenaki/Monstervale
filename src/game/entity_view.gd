@@ -3,7 +3,8 @@ extends Node2D
 
 const FLASH_SHADER = preload("res://src/game/flash.gdshader")
 const FOOT_OFFSET := Vector2(0, 8)
-const SPRITE_OFFSET_Y := -16.0
+## Distância entre o pé do desenho e a borda de baixo da tela, igual em toda folha.
+const FEET_ABOVE_CANVAS_BOTTOM := 4.0
 const BAR_WIDTH := 16
 const BAR_Y := -24.0
 const BASE_WALK_SPEED := 24.0
@@ -19,6 +20,7 @@ var shadow_radius := 10.0
 var _level_frames: Array = []
 var _shown_level := 1
 var _attacking := false
+var _splitting := false
 var _dying := false
 var _fallen := false
 
@@ -30,7 +32,8 @@ func setup(state, frames: SpriteFrames, monster: bool, level_frames: Array = [])
 	_level_frames = level_frames
 	sprite = AnimatedSprite2D.new()
 	sprite.sprite_frames = frames
-	sprite.offset = Vector2(0, SPRITE_OFFSET_Y)
+	var height := frames.get_frame_texture(_base_animation(), 0).get_height()
+	sprite.offset = Vector2(0, -(height / 2.0 - FEET_ABOVE_CANVAS_BOTTOM))
 	var material := ShaderMaterial.new()
 	material.shader = FLASH_SHADER
 	sprite.material = material
@@ -79,16 +82,27 @@ func play_attack() -> void:
 	sprite.play("attack")
 
 
+## Reação do chefe quando solta monstros.
+func play_split() -> void:
+	if _dying or not sprite.sprite_frames.has_animation("split"):
+		return
+	_splitting = true
+	_attacking = false
+	sprite.speed_scale = 1.0
+	sprite.play("split")
+
+
 func play_death() -> void:
 	_dying = true
 	_attacking = false
+	_splitting = false
 	sprite.speed_scale = 1.0
 	sprite.play("death")
 	queue_redraw()
 
 
 func _cadence() -> float:
-	if is_monster and not _dying and not _attacking:
+	if is_monster and not _dying and not _attacking and not _splitting:
 		return entity.current_speed() / BASE_WALK_SPEED
 	return 1.0
 
@@ -125,7 +139,7 @@ func _update_fall() -> void:
 
 
 func _update_base_animation() -> void:
-	if _attacking or _fallen:
+	if _attacking or _splitting or _fallen:
 		return
 	if is_monster and entity.blocker != null:
 		if sprite.is_playing() or sprite.animation != &"walk":
@@ -142,8 +156,9 @@ func _on_animation_finished() -> void:
 		var tween := create_tween()
 		tween.tween_property(sprite, "modulate:a", 0.0, FADE_SECONDS)
 		tween.tween_callback(queue_free)
-	elif _attacking:
+	elif _attacking or _splitting:
 		_attacking = false
+		_splitting = false
 		sprite.play(_base_animation())
 
 
@@ -153,8 +168,8 @@ func _draw() -> void:
 	draw_set_transform(Vector2(0, 0), 0.0, Vector2(1.0, 0.3))
 	draw_circle(Vector2.ZERO, shadow_radius, Color(0.1, 0.08, 0.15, 0.35))
 	draw_set_transform(Vector2.ZERO)
-	var max_hp := _max_hp()
-	if max_hp > 0 and entity.hp < max_hp:
+	if shows_health_bar():
+		var max_hp := _max_hp()
 		var left := Vector2(-BAR_WIDTH / 2.0, BAR_Y)
 		draw_rect(Rect2(left, Vector2(BAR_WIDTH, 2)), Color("1b1626"))
 		var fill := BAR_WIDTH * float(entity.hp) / max_hp
@@ -162,6 +177,14 @@ func _draw() -> void:
 	if not is_monster:
 		for i in entity.level:
 			draw_rect(Rect2(Vector2(-6 + i * 4, 3), Vector2(2, 2)), Color("f6e05e"))
+
+
+## O chefe mostra a vida numa barra grande do HUD.
+func shows_health_bar() -> bool:
+	if is_monster and entity.boss:
+		return false
+	var max_hp := _max_hp()
+	return max_hp > 0 and entity.hp < max_hp
 
 
 func _max_hp() -> int:

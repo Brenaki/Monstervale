@@ -4,6 +4,7 @@ extends GutTest
 const MONSTER_ANIMATIONS := {"walk": 4, "attack": 3, "death": 2}
 const HUMAN_ANIMATIONS := {"idle": 2, "attack": 3, "fall": 2}
 const SLIME_ANIMATIONS := {"walk": 4, "death": 2}
+const KING_ANIMATIONS := {"walk": 4, "attack": 3, "split": 2, "death": 2}
 const REQUIRED := {
 	"goblin": MONSTER_ANIMATIONS,
 	"goblin_fast": MONSTER_ANIMATIONS,
@@ -11,6 +12,7 @@ const REQUIRED := {
 	"slime": SLIME_ANIMATIONS,
 	"slime_medium": SLIME_ANIMATIONS,
 	"slime_small": SLIME_ANIMATIONS,
+	"slime_king": KING_ANIMATIONS,
 	"archer": HUMAN_ANIMATIONS,
 	"archer_2": HUMAN_ANIMATIONS,
 	"archer_3": HUMAN_ANIMATIONS,
@@ -159,8 +161,8 @@ func test_level_three_mage_carries_a_flame() -> void:
 	assert_gt(_color_pixels("mage_3", Color("e8913a")), 0)
 	assert_eq(_color_pixels("mage", Color("e8913a")), 0)
 
-func _color_pixels(sprite: String, color: Color) -> int:
-	var image := _image(_frames(sprite), "idle", 0)
+func _color_pixels(sprite: String, color: Color, animation := "idle") -> int:
+	var image := _image(_frames(sprite), animation, 0)
 	var count := 0
 	for y in image.get_height():
 		for x in image.get_width():
@@ -172,3 +174,17 @@ func _color_pixels(sprite: String, color: Color) -> int:
 func test_wolf_is_longer_than_it_is_tall() -> void:
 	var used := _image(_frames("wolf"), "walk", 0).get_used_rect()
 	assert_gt(used.size.x, used.size.y)
+
+func test_slime_king_is_much_bigger_than_a_slime_and_wears_a_crown() -> void:
+	var king := _image(_frames("slime_king"), "walk", 0).get_used_rect()
+	var slime := _image(_frames("slime"), "walk", 0).get_used_rect()
+	assert_gte(king.size.x, slime.size.x * 2)
+	assert_gte(king.size.y, slime.size.y * 2)
+	assert_gt(_color_pixels("slime_king", Color("f6e05e"), "walk"), 20)
+
+func test_slime_king_squashes_and_stretches_while_walking() -> void:
+	var frames := _frames("slime_king")
+	var heights := []
+	for i in frames.get_frame_count("walk"):
+		heights.append(_image(frames, "walk", i).get_used_rect().size.y)
+	assert_gte(float(heights.max()) / heights.min(), 1.3)

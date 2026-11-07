@@ -107,6 +107,32 @@ const LEVELS := {
 			Vector2i(16, 8): BUSH, Vector2i(6, 8): BUSH, Vector2i(6, 9): BERRY_BUSH,
 		},
 	},
+	"level_05": {
+		"node": "Level05",
+		"tiles": "res://assets/tiles/tiles_outskirts.png",
+		"tileset": "res://assets/tiles/tileset_outskirts.tres",
+		"path_runs": [
+			[Vector2i(0, 2), Vector2i(4, 2)],
+			[Vector2i(4, 2), Vector2i(4, 8)],
+			[Vector2i(4, 8), Vector2i(9, 8)],
+			[Vector2i(9, 6), Vector2i(9, 8)],
+			[Vector2i(9, 6), Vector2i(13, 6)],
+			[Vector2i(7, 0), Vector2i(7, 4)],
+			[Vector2i(7, 4), Vector2i(11, 4)],
+			[Vector2i(11, 4), Vector2i(11, 6)],
+			[Vector2i(13, 3), Vector2i(13, 6)],
+			[Vector2i(13, 3), Vector2i(17, 3)],
+			[Vector2i(15, 4), Vector2i(17, 4)],
+		],
+		"route": [Vector2(-16, 80), Vector2(144, 80), Vector2(144, 272), Vector2(304, 272), Vector2(304, 208), Vector2(432, 208), Vector2(432, 112), Vector2(560, 112)],
+		"route2": [Vector2(240, -16), Vector2(240, 144), Vector2(368, 144), Vector2(368, 208), Vector2(432, 208), Vector2(432, 112), Vector2(560, 112)],
+		"decor": {
+			Vector2i(6, 5): BERRY_BUSH, Vector2i(6, 6): BERRY_BUSH, Vector2i(7, 6): BERRY_BUSH, Vector2i(6, 7): BUSH, Vector2i(7, 7): BERRY_BUSH,
+			Vector2i(5, 1): ROCK, Vector2i(1, 1): BUSH, Vector2i(2, 5): BERRY_BUSH, Vector2i(1, 8): ROCK,
+			Vector2i(11, 1): BUSH, Vector2i(14, 8): BERRY_BUSH, Vector2i(17, 7): BUSH, Vector2i(18, 9): ROCK,
+			Vector2i(2, 9): BUSH, Vector2i(12, 8): BERRY_BUSH,
+		},
+	},
 }
 
 
@@ -235,10 +261,10 @@ func _path_cells(path_runs: Array) -> Dictionary:
 	return cells
 
 
-## A entrada à esquerda e a saída à direita do mapa contam como caminho aberto.
+## As bordas do mapa contam como caminho aberto: por ali entram e saem os monstros.
 func _mask(cell: Vector2i, cells: Dictionary) -> int:
 	var mask := 0
-	if cells.has(cell + Vector2i.UP):
+	if cells.has(cell + Vector2i.UP) or cell.y == 0:
 		mask |= 1
 	if cells.has(cell + Vector2i.RIGHT) or cell.x == GRID.x - 1:
 		mask |= 2

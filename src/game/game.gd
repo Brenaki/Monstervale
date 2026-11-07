@@ -10,7 +10,7 @@ const EntityView = preload("res://src/game/entity_view.gd")
 const Overlay = preload("res://src/game/overlay.gd")
 const Hud = preload("res://src/game/hud.gd")
 
-const LEVEL_IDS := ["level_01", "level_02", "level_03", "level_04"]
+const LEVEL_IDS := ["level_01", "level_02", "level_03", "level_04", "level_05"]
 const LEVEL_SCENE := "res://src/game/levels/%s.tscn"
 const STEP := 1.0 / 60.0
 const MAX_SPEED := 2
@@ -275,7 +275,7 @@ func finish_level(state: String, stars: int) -> void:
 		progress.record(level_index, stars)
 		_save_progress()
 	_save_log(state)
-	hud.show_result(won, stars, won and has_next_level())
+	hud.show_result(won, stars, won and has_next_level(), won and not has_next_level())
 
 
 ## No navegador baixa o relatório; no desktop abre a pasta com ele selecionado.
@@ -340,6 +340,9 @@ func _handle_events() -> void:
 				_update_village()
 			"monster_hit":
 				_flash(event.monster, HIT_COLORS[event.effect])
+			"monster_split":
+				if _views.has(event.monster):
+					_views[event.monster].play_split()
 			"unit_placed":
 				_add_unit_view(event.unit)
 			"unit_dismissed":

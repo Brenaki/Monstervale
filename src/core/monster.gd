@@ -21,6 +21,9 @@ var slow_factor: float = 1.0
 var slow_timer: float = 0.0
 var root_timer: float = 0.0
 var stun_timer: float = 0.0
+var boss := false
+var immune: Array = []
+var sheds := 0
 
 var _route
 
@@ -36,6 +39,8 @@ func _init(monster_kind: String, data: Dictionary, route, index: int = 0) -> voi
 	reach = data.reach
 	lives = data.lives
 	resist = data.resist
+	boss = data.get("boss", false)
+	immune = data.get("immune", [])
 	_route = route
 	route_index = index
 
@@ -80,11 +85,19 @@ func apply_slow(factor: float, seconds: float) -> void:
 	slow_timer = seconds
 
 
+func can_be_blocked() -> bool:
+	return not "block" in immune
+
+
 func apply_root(seconds: float) -> void:
+	if "root" in immune:
+		return
 	root_timer = maxf(root_timer, seconds)
 
 
 func apply_stun(seconds: float) -> void:
+	if "stun" in immune:
+		return
 	stun_timer = maxf(stun_timer, seconds)
 
 

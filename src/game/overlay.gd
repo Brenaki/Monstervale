@@ -20,6 +20,8 @@ const STUN_SPIN := 6.0
 const ENTRY_COLOR := Color("f6e05e")
 const ENTRY_DISTANCE := 34.0
 const ENTRY_PULSE_SPEED := 5.0
+const ENTRY_ARROW_LENGTH := 10.0
+const HUD_TOP_HEIGHT := 24.0
 
 var game
 
@@ -71,10 +73,18 @@ func _draw_next_entries() -> void:
 	var color := Color(ENTRY_COLOR, pulse)
 	for index: int in game.sim.next_wave_routes():
 		var route = game.sim.routes[index]
-		var tip: Vector2 = route.position_at(ENTRY_DISTANCE)
-		var back: Vector2 = route.position_at(0.0).direction_to(tip) * -10.0
+		var tip := entry_tip(route)
+		var back: Vector2 = route.position_at(0.0).direction_to(tip) * -ENTRY_ARROW_LENGTH
 		var side := back.orthogonal() * 0.8
 		draw_colored_polygon(PackedVector2Array([tip, tip + back + side, tip + back - side]), color)
+
+
+## Um pouco depois da entrada; quem entra pelo alto passa antes por baixo da barra do HUD.
+static func entry_tip(route) -> Vector2:
+	var distance := ENTRY_DISTANCE
+	if route.position_at(0.0).y < 0.0:
+		distance += HUD_TOP_HEIGHT
+	return route.position_at(distance)
 
 
 ## Raízes que sobem do chão em volta dos pés do monstro preso.

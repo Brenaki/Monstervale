@@ -195,3 +195,34 @@ func test_flash_can_use_another_color_to_show_the_damage_type() -> void:
 	view.flash(Color.YELLOW)
 	var material: ShaderMaterial = view.sprite.material
 	assert_eq(material.get_shader_parameter("flash_color"), Color.YELLOW)
+
+func _king_view():
+	var king = sim.spawn_monster("king")
+	var view := EntityView.new()
+	view.setup(king, load("res://assets/sprites/slime_king.tres"), true)
+	add_child_autofree(view)
+	return view
+
+func _canvas_bottom(view) -> float:
+	var texture: Texture2D = view.sprite.sprite_frames.get_frame_texture("walk", 0)
+	return view.sprite.offset.y + texture.get_height() / 2.0
+
+func test_a_taller_canvas_keeps_the_feet_on_the_same_spot() -> void:
+	assert_eq(_canvas_bottom(_king_view()), _canvas_bottom(_monster_view()))
+
+func test_split_plays_once_and_returns_to_walking() -> void:
+	var view = _king_view()
+	view.play_split()
+	view.sync(0.0)
+	assert_eq(view.current_animation(), "split")
+	await wait_seconds(0.6)
+	view.sync(0.0)
+	assert_eq(view.current_animation(), "walk")
+
+func test_boss_shows_its_life_in_the_hud_instead_of_over_its_head() -> void:
+	var view = _king_view()
+	view.entity.hp -= 10
+	assert_false(view.shows_health_bar())
+	var goblin = _monster_view()
+	goblin.entity.hp -= 1
+	assert_true(goblin.shows_health_bar())

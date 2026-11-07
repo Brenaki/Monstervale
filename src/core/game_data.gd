@@ -41,6 +41,7 @@ static func validate_catalog(catalog: Dictionary) -> Array:
 	for kind: String in catalog.monsters:
 		errors.append_array(_validate_monster(kind, catalog.monsters[kind]))
 		errors.append_array(_validate_split(kind, catalog.monsters[kind], catalog.monsters))
+		errors.append_array(_validate_shed(kind, catalog.monsters[kind], catalog.monsters))
 	return errors
 
 
@@ -110,6 +111,18 @@ static func _validate_split(kind: String, monster: Dictionary, monsters: Diction
 		errors.append("monstro %s: divide-se em monstro desconhecido %s" % [kind, monster.split.into])
 	if int(monster.split.count) <= 0:
 		errors.append("monstro %s: split.count deve ser positivo" % kind)
+	return errors
+
+
+static func _validate_shed(kind: String, monster: Dictionary, monsters: Dictionary) -> Array:
+	if not monster.has("shed"):
+		return []
+	var errors := []
+	if not monsters.has(monster.shed.into):
+		errors.append("monstro %s: solta monstro desconhecido %s" % [kind, monster.shed.into])
+	var fraction := float(monster.shed.every_fraction)
+	if fraction <= 0.0 or fraction >= 1.0:
+		errors.append("monstro %s: shed.every_fraction deve ficar entre 0 e 1" % kind)
 	return errors
 
 

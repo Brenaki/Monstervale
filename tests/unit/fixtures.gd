@@ -79,6 +79,13 @@ static func catalog() -> Dictionary:
 				"resist": {"pierce": 1.0, "impact": 1.0, "magic": 1.0},
 				"split": {"into": "slimelet", "count": 2},
 			},
+			"king": {
+				"hp": 100, "speed": 10.0, "gold": 20, "damage": 5, "attack_cooldown": 1.0, "reach": 60.0, "lives": 10,
+				"resist": {"pierce": 1.0, "impact": 1.0, "magic": 1.0},
+				"boss": true, "immune": ["root", "stun", "block"],
+				"shed": {"every_fraction": 0.25, "into": "slime", "count": 2},
+				"split": {"into": "slime", "count": 3},
+			},
 			"slimelet": {
 				"hp": 4, "speed": 20.0, "gold": 0, "damage": 1, "attack_cooldown": 1.0, "reach": 40.0, "lives": 1,
 				"resist": {"pierce": 1.0, "impact": 1.0, "magic": 1.0},

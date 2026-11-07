@@ -19,6 +19,7 @@ MONSTER_SKELETON_KNIGHT,Cavaleiro esqueleto,Skeleton knight
 MONSTER_SLIME,Slime,Slime
 MONSTER_SLIME_MEDIUM,Slime médio,Medium slime
 MONSTER_SLIME_SMALL,Slime pequeno,Small slime
+MONSTER_SLIME_KING,Rei Slime,Slime King
 HUD_GOLD,Ouro: %d,Gold: %d
 HUD_LIVES,Vidas: %d/%d,Lives: %d/%d
 VILLAGE_LIFE,Vila %d/%d,Village %d/%d
@@ -47,6 +48,7 @@ PRIORITY_STRONGEST,mais forte,strongest
 PRIORITY_CLOSEST,mais perto,closest
 RESULT_WON,Vilarejo salvo!,Village saved!
 RESULT_LOST,O vilarejo caiu,The village fell
+RESULT_CAMPAIGN,Os monstros recuaram de vez!,The monsters are gone for good!
 RESULT_STARS,Estrelas: %d de 3,Stars: %d of 3
 UNIT_DOWN,Caído,Down
 BTN_OPEN_LOG,Ver relatório,View report
