@@ -27,6 +27,14 @@ const REQUIRED := {
 	"druid_2": HUMAN_ANIMATIONS,
 	"druid_3": HUMAN_ANIMATIONS,
 	"wolf": MONSTER_ANIMATIONS,
+	"skeleton": MONSTER_ANIMATIONS,
+	"skeleton_knight": MONSTER_ANIMATIONS,
+	"monk": HUMAN_ANIMATIONS,
+	"monk_2": HUMAN_ANIMATIONS,
+	"monk_3": HUMAN_ANIMATIONS,
+	"rogue": HUMAN_ANIMATIONS,
+	"rogue_2": HUMAN_ANIMATIONS,
+	"rogue_3": HUMAN_ANIMATIONS,
 }
 const GROUNDED := ["walk", "idle", "attack"]
 

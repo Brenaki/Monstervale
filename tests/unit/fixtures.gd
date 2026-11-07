@@ -39,6 +39,22 @@ static func catalog() -> Dictionary:
 					{"cost": 60, "damage": 4, "cooldown": 1.0, "range": 100.0, "hp": 25, "respawn": 5.0, "slow": {"factor": 0.5, "seconds": 2.0}, "root": {"every": 3, "seconds": 1.5}},
 				],
 			},
+			"monk": {
+				"attack": "melee", "damage_type": "impact",
+				"levels": [
+					{"cost": 50, "damage": 3, "cooldown": 0.5, "range": 60.0, "hp": 20, "block": 1, "respawn": 5.0},
+					{"cost": 40, "damage": 5, "cooldown": 0.5, "range": 60.0, "hp": 30, "block": 1, "respawn": 5.0},
+					{"cost": 60, "damage": 7, "cooldown": 0.5, "range": 60.0, "hp": 40, "block": 2, "respawn": 5.0, "stun": {"every": 3, "seconds": 1.0}},
+				],
+			},
+			"rogue": {
+				"attack": "ranged", "damage_type": "pierce",
+				"levels": [
+					{"cost": 50, "damage": 4, "cooldown": 1.0, "range": 60.0, "hp": 20, "respawn": 5.0, "crit": {"every": 3, "multiplier": 2.5}},
+					{"cost": 40, "damage": 6, "cooldown": 1.0, "range": 60.0, "hp": 30, "respawn": 5.0, "crit": {"every": 3, "multiplier": 2.5}},
+					{"cost": 60, "damage": 8, "cooldown": 1.0, "range": 60.0, "hp": 40, "respawn": 5.0, "crit": {"every": 3, "multiplier": 2.5}, "kill_gold": 2},
+				],
+			},
 			"mage": {
 				"attack": "ranged", "damage_type": "magic",
 				"levels": [
@@ -74,7 +90,7 @@ static func level(waves: Array = []) -> Dictionary:
 	return {
 		"start_gold": 100,
 		"lives": 10,
-		"classes": ["archer", "warrior", "mage", "spearman", "druid"],
+		"classes": ["archer", "warrior", "mage", "spearman", "druid", "monk", "rogue"],
 		"wave_interval": 10.0,
 		"early_call_gold_per_second": 1.0,
 		"route": [Vector2(0, 0), Vector2(200, 0)],

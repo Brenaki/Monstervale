@@ -51,7 +51,7 @@ func consume(events: Array, sim) -> void:
 				_count(event.monster, "killed")
 				var killed_wave = _wave_of(event.monster)
 				if killed_wave != null:
-					killed_wave.kill_gold += event.monster.gold
+					killed_wave.kill_gold += event.monster.gold + int(event.get("bonus_gold", 0))
 			"monster_escaped":
 				_count(event.monster, "escaped")
 				var escaped_wave = _wave_of(event.monster)

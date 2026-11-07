@@ -1,0 +1,104 @@
+{
+  "actions": [
+    {
+      "action": "place",
+      "cell": [
+        2,
+        6
+      ],
+      "gold_after": 130,
+      "level": 1,
+      "time": 10.4166666666668,
+      "unit": "rogue",
+      "wave": 0
+    },
+    {
+      "action": "place",
+      "cell": [
+        3,
+        6
+      ],
+      "gold_after": 75,
+      "level": 1,
+      "time": 13.4833333333336,
+      "unit": "monk",
+      "wave": 0
+    },
+    {
+      "action": "place",
+      "cell": [
+        3,
+        4
+      ],
+      "gold_after": 10,
+      "level": 1,
+      "time": 20.4500000000001,
+      "unit": "archer",
+      "wave": 0
+    }
+  ],
+  "duration": 46.0499999999987,
+  "gold_final": 33,
+  "level": "level_04",
+  "lives_final": 20,
+  "result": "restarted",
+  "stars": 0,
+  "started_at": "2026-11-06 22:02:03",
+  "waves": [
+    {
+      "bonus": 10,
+      "called_early": true,
+      "cleared_at": 34.766666666666,
+      "damage": {
+        "monk": 90,
+        "rogue": 38
+      },
+      "defenders": {
+        "archer 1": 1,
+        "monk 1": 1,
+        "rogue 1": 1
+      },
+      "early_bonus": 2,
+      "escaped": {},
+      "gold_end": 30,
+      "gold_start": 12,
+      "kill_gold": 8,
+      "killed": {
+        "skeleton": 4
+      },
+      "lives_end": 20,
+      "lives_start": 20,
+      "number": 1,
+      "spawned": {
+        "skeleton": 4
+      },
+      "started_at": 22.0666666666667,
+      "units_down": 1
+    },
+    {
+      "bonus": 0,
+      "called_early": true,
+      "cleared_at": null,
+      "damage": {},
+      "defenders": {
+        "archer 1": 1,
+        "monk 1": 1,
+        "rogue 1": 1
+      },
+      "early_bonus": 3,
+      "escaped": {},
+      "gold_end": null,
+      "gold_start": 33,
+      "kill_gold": 0,
+      "killed": {},
+      "lives_end": 20,
+      "lives_start": 20,
+      "number": 2,
+      "spawned": {
+        "goblin": 8
+      },
+      "started_at": 38.5999999999991,
+      "units_down": 0
+    }
+  ]
+}

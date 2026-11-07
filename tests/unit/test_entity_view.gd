@@ -189,3 +189,9 @@ func test_slowed_monster_is_tinted_while_the_effect_lasts() -> void:
 	monster.update_effects(2.0)
 	view.sync(0.0)
 	assert_eq(view.sprite.modulate, Color.WHITE)
+
+func test_flash_can_use_another_color_to_show_the_damage_type() -> void:
+	var view = _monster_view()
+	view.flash(Color.YELLOW)
+	var material: ShaderMaterial = view.sprite.material
+	assert_eq(material.get_shader_parameter("flash_color"), Color.YELLOW)

@@ -64,8 +64,9 @@ func is_animating() -> bool:
 	return sprite.is_playing()
 
 
-func flash() -> void:
+func flash(color := Color.WHITE) -> void:
 	var material: ShaderMaterial = sprite.material
+	material.set_shader_parameter("flash_color", color)
 	material.set_shader_parameter("flash", 1.0)
 	create_tween().tween_property(material, "shader_parameter/flash", 0.0, FLASH_SECONDS)
 

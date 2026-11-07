@@ -1,0 +1,70 @@
+[gd_resource type="SpriteFrames" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/monk_2.png" id="1_2m837"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vm830"]
+atlas = ExtResource("1_2m837")
+region = Rect2(112, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_d8x6l"]
+atlas = ExtResource("1_2m837")
+region = Rect2(168, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qkdjh"]
+atlas = ExtResource("1_2m837")
+region = Rect2(224, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4ap2a"]
+atlas = ExtResource("1_2m837")
+region = Rect2(280, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mawbm"]
+atlas = ExtResource("1_2m837")
+region = Rect2(336, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vbuwi"]
+atlas = ExtResource("1_2m837")
+region = Rect2(0, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_o4fpt"]
+atlas = ExtResource("1_2m837")
+region = Rect2(56, 0, 56, 40)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 0.9,
+"texture": SubResource("AtlasTexture_vm830")
+}, {
+"duration": 0.6,
+"texture": SubResource("AtlasTexture_d8x6l")
+}, {
+"duration": 0.8,
+"texture": SubResource("AtlasTexture_qkdjh")
+}],
+"loop": 0,
+"name": &"attack",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.3,
+"texture": SubResource("AtlasTexture_4ap2a")
+}, {
+"duration": 3.2,
+"texture": SubResource("AtlasTexture_mawbm")
+}],
+"loop": 0,
+"name": &"fall",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 5.0,
+"texture": SubResource("AtlasTexture_vbuwi")
+}, {
+"duration": 5.0,
+"texture": SubResource("AtlasTexture_o4fpt")
+}],
+"loop": 1,
+"name": &"idle",
+"speed": 10.0
+}]

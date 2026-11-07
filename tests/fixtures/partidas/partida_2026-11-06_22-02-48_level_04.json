@@ -1,0 +1,236 @@
+{
+  "actions": [
+    {
+      "action": "place",
+      "cell": [
+        3,
+        8
+      ],
+      "gold_after": 135,
+      "level": 1,
+      "time": 6.34999999999998,
+      "unit": "monk",
+      "wave": 0
+    },
+    {
+      "action": "place",
+      "cell": [
+        11,
+        8
+      ],
+      "gold_after": 80,
+      "level": 1,
+      "time": 7.86666666666664,
+      "unit": "monk",
+      "wave": 0
+    },
+    {
+      "action": "upgrade",
+      "cell": [
+        3,
+        8
+      ],
+      "gold_after": 45,
+      "level": 2,
+      "time": 14.316666666667,
+      "unit": "monk",
+      "wave": 0
+    },
+    {
+      "action": "upgrade",
+      "cell": [
+        11,
+        8
+      ],
+      "gold_after": 10,
+      "level": 2,
+      "time": 16.0500000000004,
+      "unit": "monk",
+      "wave": 0
+    },
+    {
+      "action": "place",
+      "cell": [
+        12,
+        8
+      ],
+      "gold_after": 9,
+      "level": 1,
+      "time": 56.3166666666648,
+      "unit": "warrior",
+      "wave": 2
+    },
+    {
+      "action": "place",
+      "cell": [
+        12,
+        5
+      ],
+      "gold_after": 10,
+      "level": 1,
+      "time": 130.633333333329,
+      "unit": "spearman",
+      "wave": 4
+    }
+  ],
+  "duration": 149.950000000011,
+  "gold_final": 21,
+  "level": "level_04",
+  "lives_final": 15,
+  "result": "closed",
+  "stars": 0,
+  "started_at": "2026-11-06 22:02:48",
+  "waves": [
+    {
+      "bonus": 10,
+      "called_early": true,
+      "cleared_at": 28.7999999999996,
+      "damage": {
+        "monk": 144
+      },
+      "defenders": {
+        "monk 2": 2
+      },
+      "early_bonus": 2,
+      "escaped": {},
+      "gold_end": 30,
+      "gold_start": 12,
+      "kill_gold": 8,
+      "killed": {
+        "skeleton": 4
+      },
+      "lives_end": 20,
+      "lives_start": 20,
+      "number": 1,
+      "spawned": {
+        "skeleton": 4
+      },
+      "started_at": 17.2500000000003,
+      "units_down": 0
+    },
+    {
+      "bonus": 10,
+      "called_early": true,
+      "cleared_at": 50.4833333333317,
+      "damage": {
+        "monk": 144
+      },
+      "defenders": {
+        "monk 2": 2
+      },
+      "early_bonus": 3,
+      "escaped": {},
+      "gold_end": 59,
+      "gold_start": 33,
+      "kill_gold": 16,
+      "killed": {
+        "goblin": 8
+      },
+      "lives_end": 20,
+      "lives_start": 20,
+      "number": 2,
+      "spawned": {
+        "goblin": 8
+      },
+      "started_at": 30.1499999999996,
+      "units_down": 0
+    },
+    {
+      "bonus": 15,
+      "called_early": true,
+      "cleared_at": 113.216666666662,
+      "damage": {
+        "monk": 117,
+        "warrior": 80
+      },
+      "defenders": {
+        "monk 2": 2,
+        "warrior 1": 1
+      },
+      "early_bonus": 2,
+      "escaped": {
+        "skeleton": 1
+      },
+      "gold_end": 44,
+      "gold_start": 11,
+      "kill_gold": 14,
+      "killed": {
+        "goblin": 4,
+        "skeleton": 3
+      },
+      "lives_end": 19,
+      "lives_start": 20,
+      "number": 3,
+      "spawned": {
+        "goblin": 4,
+        "skeleton": 4
+      },
+      "started_at": 61.7833333333311,
+      "units_down": 2
+    },
+    {
+      "bonus": 20,
+      "called_early": true,
+      "cleared_at": 121.499999999994,
+      "damage": {
+        "monk": 36,
+        "warrior": 96
+      },
+      "defenders": {
+        "monk 2": 2,
+        "warrior 1": 1
+      },
+      "early_bonus": 1,
+      "escaped": {
+        "wolf": 4
+      },
+      "gold_end": 70,
+      "gold_start": 26,
+      "kill_gold": 9,
+      "killed": {
+        "skeleton": 3,
+        "wolf": 1
+      },
+      "lives_end": 15,
+      "lives_start": 20,
+      "number": 4,
+      "spawned": {
+        "skeleton": 3,
+        "wolf": 5
+      },
+      "started_at": 98.3999999999957,
+      "units_down": 1
+    },
+    {
+      "bonus": 0,
+      "called_early": true,
+      "cleared_at": null,
+      "damage": {
+        "monk": 120,
+        "warrior": 5
+      },
+      "defenders": {
+        "monk 2": 2,
+        "spearman 1": 1,
+        "warrior 1": 1
+      },
+      "early_bonus": 1,
+      "escaped": {},
+      "gold_end": null,
+      "gold_start": 11,
+      "kill_gold": 10,
+      "killed": {
+        "skeleton_knight": 2
+      },
+      "lives_end": 15,
+      "lives_start": 15,
+      "number": 5,
+      "spawned": {
+        "skeleton_knight": 2,
+        "slime": 1
+      },
+      "started_at": 133.549999999998,
+      "units_down": 0
+    }
+  ]
+}

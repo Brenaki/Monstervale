@@ -4,10 +4,18 @@ UNIT_WARRIOR,Guerreiro,Warrior
 UNIT_MAGE,Mago,Mage
 UNIT_SPEARMAN,Lanceiro,Spearman
 UNIT_DRUID,Druida,Druid
+UNIT_MONK,Monge,Monk
+UNIT_ROGUE,Ladino,Rogue
+UNIT_TOOLTIP,%s (dano %s),%s (%s damage)
+DAMAGE_PIERCE,perfurante,pierce
+DAMAGE_IMPACT,de impacto,impact
+DAMAGE_MAGIC,mágico,magic
 MONSTER_GOBLIN,Goblin,Goblin
 MONSTER_GOBLIN_FAST,Goblin veloz,Swift goblin
 MONSTER_GOBLIN_SHIELD,Goblin blindado,Armored goblin
 MONSTER_WOLF,Lobo,Wolf
+MONSTER_SKELETON,Esqueleto,Skeleton
+MONSTER_SKELETON_KNIGHT,Cavaleiro esqueleto,Skeleton knight
 MONSTER_SLIME,Slime,Slime
 MONSTER_SLIME_MEDIUM,Slime médio,Medium slime
 MONSTER_SLIME_SMALL,Slime pequeno,Small slime
@@ -16,6 +24,10 @@ HUD_LIVES,Vidas: %d/%d,Lives: %d/%d
 VILLAGE_LIFE,Vila %d/%d,Village %d/%d
 HUD_WAVE,Onda %d/%d,Wave %d/%d
 HUD_NEXT,Próxima:,Next:
+HUD_WEAK,Fracos a: %s,Weak to: %s
+WEAK_PIERCE,perfurante,pierce
+WEAK_IMPACT,impacto,impact
+WEAK_MAGIC,magia,magic
 HUD_LEVEL,Nível %d,Level %d
 BTN_NEXT_WAVE,Chamar onda (+%d),Call wave (+%d)
 BTN_NO_WAVE,Sem ondas,No waves

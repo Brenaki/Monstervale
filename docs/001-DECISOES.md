@@ -31,6 +31,7 @@ Registro das decisões tomadas em 2026-11-06. `DT-SLIME` é um nome provisório.
 
 - Caminho fixo, em qualquer direção, com humanos posicionados livremente nos tiles construíveis da grade.
 - Caminho único nas fases 1 e 2; duas entradas a partir da fase 3, escolhidas por grupo de monstros em cada onda. Na floresta, os caminhos só se unem perto da vila, e uma seta avisa por qual entrada vem a próxima onda.
+- No cemitério, as entradas ficam em lados opostos do mapa. O campo de túmulos no meio impede que uma célula fora do alcance dos monstros cubra as duas entradas, o que um teste exige.
 - Um conjunto base de tiles com variações de cor e detalhe por ambiente.
 
 ## Humanos
@@ -41,6 +42,8 @@ Registro das decisões tomadas em 2026-11-06. `DT-SLIME` é um nome provisório.
 - Só o corpo a corpo segura monstros. Qualquer humano ao alcance de um monstro leva dano: quem não está bloqueado continua andando e bate de passagem no humano mais próximo. Ao perder toda a vida, o humano cai e volta depois de alguns segundos, sem morte permanente. Isso obriga a afastar arqueiros e magos do caminho.
 - O lanceiro alcança 2 tiles, mas só segura quem chega perto. No nível 3, o golpe acerta todos na linha até o fim do alcance.
 - O druida causa pouco dano e deixa lentos o alvo e quem está em volta. No nível 3, a cada 4 ataques as raízes prendem o alvo por alguns segundos; o intervalo é fixo, sem sorte, para as partidas poderem ser repetidas.
+- O monge ataca rápido e segura menos monstros que o guerreiro. No nível 3, a cada 6 ataques atordoa o alvo, que não anda nem bate por alguns segundos. O intervalo é fixo, como o das raízes.
+- O ladino tem alcance curto. A cada 3 ataques, o golpe crítico causa 2,5 vezes o dano e ignora a resistência do monstro, sem sorte. No nível 3, cada abate dele rende 1 de ouro extra, com uma moeda subindo do monstro.
 - Guerreiros de nível 2 e 3 recuperam um pouco de vida depois de alguns segundos sem levar dano, com valores em `data/units.json`.
 - As classes são inspiradas nos arquétipos de D&D, sem dados nem regras do sistema.
 
@@ -61,7 +64,8 @@ Registro das decisões tomadas em 2026-11-06. `DT-SLIME` é um nome provisório.
 - Goblin: básico e em grupos.
 - Slime: divide-se ao morrer, de grande em médios e depois em pequenos; os filhotes rendem pouco ou nenhum ouro.
 - Lobo: quatro patas, rápido, escapa das defesas e pede bloqueio. Sem variantes por enquanto.
-- Esqueleto: resiste a dano perfurante e é fraco contra impacto.
+- Esqueleto: resiste a dano perfurante e um pouco à magia, e é fraco contra impacto. Ao morrer, desfaz-se numa pilha de ossos.
+- Cavaleiro esqueleto: variante com elmo, escudo e espada, mais lenta e resistente. Resiste a perfurante e a impacto, e é fraca contra magia.
 - Slime: três tamanhos em `data/monsters.json`. Cada um se divide em dois do tamanho seguinte ao morrer, e quem chega à vila não se divide.
 - Rei Slime: chefe da fase 5, ampliado e redesenhado, divide-se ao longo da luta.
 
@@ -82,7 +86,8 @@ Todos os comandos têm botão na tela:
 - Prévia dos monstros da próxima onda.
 - Menu na barra superior, que pausa o jogo e reúne continuar, reiniciar, idioma e sair. No navegador, o botão de sair fica escondido.
 - Marcador de vida acima da vila, com as vidas restantes em verde, as perdidas em vermelho e o número exato. A barra superior também mostra restantes/total.
-- Com mais de 3 classes, a barra mostra só ícone e preço, e o nome aparece ao passar o mouse. Com 7 classes, os botões não cabem: a barra precisa mudar antes da Fase 4.
+- Com mais de 3 classes, a barra mostra só ícone e preço, e o nome e o tipo de dano aparecem ao passar o mouse. Com 7 classes, o ícone menor fica sobre o preço.
+- Tipos de dano: o golpe pisca amarelo quando o monstro é fraco, cinza quando resiste e branco no caso normal. Ao lado do botão de chamar onda, aparece a que os monstros da próxima onda são fracos, e o humano selecionado mostra o tipo do seu dano.
 - Reiniciar a fase sem penalidade.
 - Prioridade de alvo por humano: primeiro, último, mais forte ou mais perto.
 
@@ -125,6 +130,9 @@ O dano aparece como um breve clarão feito por código, sem quadros extras. O te
 - Décima avaliação: ainda impossível, mas a partida já chegou à onda 12 com 11 vidas. Tirar monstros também tinha tirado ouro: a renda caiu para 834, abaixo dos 939 da Fase 2. As ondas ficaram como estavam, e os bônus das ondas 4 a 11 subiram, levando a renda a 914. Quem dirige o projeto pediu que 3 estrelas continuem possíveis, e os testes e2e exigem isso. Na repetição, gastar o ouro que sobra dá 20 vidas; não gastar perde a partida. Um robô com guerreiros e arqueiros de nível 3 ainda vence sem perder vidas. Aguarda nova avaliação jogando.
 - Décima primeira avaliação: ficou fácil depois das primeiras ondas. A partida venceu com 3 estrelas e 20 vidas em 6:41, com 5 humanos. O arqueiro de nível 3 em (7,6) alcança as duas entradas fora do alcance dos monstros, ninguém caiu da onda 5 em diante, e a onda 12 parou a 45% do caminho. Essa partida fica em `tests/fixtures/partidas`.
 - Décima segunda avaliação, que aprova a Fase 3 com nota 8 de 10. Na sequência das 3 fases, todas venceram com 2 estrelas: Fase 1 com 16 vidas em 5:50 e 264 de ouro sobrando, Fase 2 com 14 vidas em 7:53 e 220 de ouro, Fase 3 com 14 vidas em 8:37 e 76 de ouro. Em todas, as vidas se perderam nas primeiras ondas ou na onda 9, nunca nas duas últimas. A Fase 4 deve cuidar desse fim tranquilo e da duração, abaixo dos 10 a 15 minutos previstos, porque quem joga chama quase todas as ondas. A vitória da Fase 3 e a de 3 estrelas precisam se repetir iguais.
+- Primeira calibragem da Fase 4, ainda sem partida real: 13 ondas e renda de 1031. Com robôs que chamam a onda 6 segundos depois de limpar o campo, misturar classes vence com 11 a 18 vidas; arqueiros sozinhos ficam com 2 vidas e as outras classes sozinhas perdem, quase sempre na onda 13. A exceção é o mago sozinho, que vence com 17 vidas.
+- Primeira avaliação da Fase 4: difícil demais para 3 estrelas. A vitória teve 16 vidas em 8:50, perdendo vidas só nas ondas 4 e 6; duas tentativas com ladino, lanceiro e guerreiro foram reiniciadas na onda 10 depois de perder vidas nas ondas 8 a 10. As ondas 4, 6, 8, 9 e 10 encolheram, as 11 a 13 ficaram iguais, e os bônus subiram para a renda ficar em 1015. Repetida, a vitória tem 19 vidas; as tentativas reiniciadas vencem com 20 gastando o ouro que sobra, e uma delas perde sem gastar. Essas partidas ficam em `tests/fixtures/partidas`.
+- Segunda avaliação, que aprova a Fase 4 com nota 9 de 10: bem difícil. A vitória teve 16 vidas em 10:37, todas perdidas na onda 13, para slimes pequenos. A onda 13 encolheu de 56 para 44 monstros, e repetida a partida vence com 20 vidas. Seus 8 lobos viraram 8 esqueletos, porque sem eles só arqueiros também ganhavam 3 estrelas. Essa partida fica em `tests/fixtures/partidas` e precisa ganhar 3 estrelas.
 
 ## Técnica
 
@@ -155,7 +163,8 @@ O dano aparece como um breve clarão feito por código, sem quadros extras. O te
 6. Feito: dificuldade da Fase 1 avaliada com os relatórios e aprovada em 2026-11-06.
 7. Feito: Fase 2, aprovada em 2026-11-06, com slimes que se dividem, mago com explosão e fogo no nível 3, mapa do pântano, painel de fases e botão de próxima fase.
 8. Feito: Fase 3, aprovada em 2026-11-06 com nota 8 de 10, com lobo, lanceiro, druida, floresta com duas entradas, menu e marcador de vida da vila.
-9. Fases 4 e 5.
+9. Feito: Fase 4, aprovada em 2026-11-07 com nota 9 de 10, com esqueletos, monge, ladino, cemitério, barra de 7 classes e indicações de tipo de dano.
+10. Fase 5.
 
 ## Decisões adiadas
 
@@ -166,6 +175,6 @@ O dano aparece como um breve clarão feito por código, sem quadros extras. O te
 ## Ainda sem verificação real
 
 - Abrir o `.exe` no Windows e publicar no itch.io.
-- Fase 3 e menu nos builds de navegador, Linux e Windows: os builds atuais são do `main`, ainda com a Fase 2.
+- Fases 3 e 4 e menu nos builds de navegador, Linux e Windows: os builds atuais ainda têm só até a Fase 2.
 - Pintar o caminho no editor de mapas do Godot: o TileSet já tem o terreno `caminho` configurado, mas isso não foi usado à mão.
 - Revisão do código do GUT.

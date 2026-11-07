@@ -190,18 +190,25 @@ local BANDANA = { "RRRRRRRRRRRRRRR" }
 local BANDANA_TAIL = { "RR", ".Rr", "..r" }
 local HELMET = { "......jjjjjj....", "....jIIiiiiijj..", "...jIIIiiiiiiij.", "..jjjjjjjjjjjjjj" }
 
-local function goblin(name, palette, weapon, extras)
-  local L = legendOf(merged(GOBLIN_BASE, palette))
+local GOBLIN_PARTS = {
+  base = GOBLIN_BASE, head = GOBLIN_HEAD, hurt = GOBLIN_HURT, torso = GOBLIN_TORSO, hand = GOBLIN_HAND,
+  stand = GOBLIN_STAND, stepA = GOBLIN_STEP_A, stepB = GOBLIN_STEP_B, passA = GOBLIN_PASS_A, passB = GOBLIN_PASS_B,
+  handFront = GOBLIN_HAND_FRONT, headX = 0,
+}
+
+-- Corpo de monstro cabeçudo de duas pernas: parts traz as peças, weapon a arma e extras os acessórios.
+local function biped(name, parts, palette, weapon, extras)
+  local L = legendOf(merged(parts.base, palette))
   extras = extras or {}
 
   local function backHand(img, x, y)
     if extras.shield then
-      stamp(img, SMALL_SHIELD, L, x - 2, y - 2)
+      stamp(img, extras.shield, L, x - 2, y - 2)
     elseif extras.secondDagger then
-      stamp(img, GOBLIN_HAND, L, x, y)
+      stamp(img, parts.hand, L, x, y)
       stamp(img, { "B", "B", "b" }, L, x + 1, y - 3)
     else
-      stamp(img, GOBLIN_HAND, L, x, y)
+      stamp(img, parts.hand, L, x, y)
     end
   end
   local function headWear(img, dx, dy)
@@ -210,12 +217,15 @@ local function goblin(name, palette, weapon, extras)
       stamp(img, BANDANA_TAIL, L, 0 + dx, 2 + dy)
     end
     if extras.helmet then
-      stamp(img, HELMET, L, 2 + dx, -1 + dy)
+      stamp(img, extras.helmet, L, 2 + dx, -1 + dy)
+    end
+    if extras.crest then
+      stamp(img, extras.crest, L, 6 + dx, -4 + dy)
     end
   end
   local function body(img, dx, dy, h)
-    stamp(img, GOBLIN_TORSO, L, 6 + dx, 12 + dy)
-    stamp(img, h or GOBLIN_HEAD, L, 0 + dx, 0 + dy)
+    stamp(img, parts.torso, L, 6 + dx, 12 + dy)
+    stamp(img, h or parts.head, L, parts.headX + dx, 0 + dy)
     headWear(img, dx, dy)
   end
   local function walk(legs, legRow, dy, handX, weaponX)
@@ -229,21 +239,21 @@ local function goblin(name, palette, weapon, extras)
   local low = weapon.lowEnd
 
   local frames = {
-    frame(120, walk(GOBLIN_STEP_A, 17, 0, -1, 1)),
-    frame(120, walk(GOBLIN_PASS_A, 16, -1, 0, 0)),
-    frame(120, walk(GOBLIN_STEP_B, 17, 0, 1, -1)),
-    frame(120, walk(GOBLIN_PASS_B, 16, -1, 0, 0)),
+    frame(120, walk(parts.stepA, 17, 0, -1, 1)),
+    frame(120, walk(parts.passA, 16, -1, 0, 0)),
+    frame(120, walk(parts.stepB, 17, 0, 1, -1)),
+    frame(120, walk(parts.passB, 16, -1, 0, 0)),
     -- preparação: arma atrás da cabeça, corpo inclinado para trás
     frame(180, function(img)
       stamp(img, weapon.up, L, 5, weapon.upY - 8)
       backHand(img, 0, 12)
-      stamp(img, GOBLIN_STAND, L, 5, 17)
+      stamp(img, parts.stand, L, 5, 17)
       body(img, -2, 0)
     end),
     -- golpe: corpo à frente, arma esticada e rastro
     frame(70, function(img)
       backHand(img, 3, 14)
-      stamp(img, GOBLIN_STAND, L, 5, 17)
+      stamp(img, parts.stand, L, 5, 17)
       body(img, 2, 1)
       stamp(img, weapon.forward, L, 18, 11)
     end, function(img)
@@ -252,37 +262,107 @@ local function goblin(name, palette, weapon, extras)
     -- recuperação: arma baixa
     frame(110, function(img)
       backHand(img, 2, 13)
-      stamp(img, GOBLIN_STAND, L, 5, 17)
+      stamp(img, parts.stand, L, 5, 17)
       body(img, 1, 0)
       line(img, 23, 12, low[1], low[2], rgb(weapon.lowColors[1]), rgb(weapon.lowColors[2]))
-      stamp(img, GOBLIN_HAND_FRONT, L, 18, 10)
+      stamp(img, parts.handFront, L, 18, 10)
     end),
-    -- morte: recuo com olhos fechados e a arma solta
-    frame(120, function(img)
-      stamp(img, GOBLIN_HAND, L, -1, 8)
-      stamp(img, GOBLIN_STAND, L, 5, 17)
-      stamp(img, GOBLIN_TORSO, L, 5, 12)
-      stamp(img, GOBLIN_HURT, L, -3, 2)
-      headWear(img, -3, 2)
-      stamp(img, GOBLIN_HAND, L, 18, 5)
-    end),
-    frame(320, function(img)
-      stamp(img, GOBLIN_STAND, L, 5, 17)
-      stamp(img, GOBLIN_TORSO, L, 6, 12)
-      stamp(img, GOBLIN_HURT, L, 0, 0)
-      headWear(img, 0, 0)
-      stamp(img, GOBLIN_HAND, L, 1, 13)
-      stamp(img, GOBLIN_HAND, L, 15, 13)
-    end, nil, lying),
   }
+  if parts.death then
+    frames[8] = frame(120, function(img) parts.death.falling(img, L, headWear) end)
+    frames[9] = frame(320, function(img) parts.death.pile(img, L, headWear) end)
+  else
+    -- morte: recuo com olhos fechados e a arma solta
+    frames[8] = frame(120, function(img)
+      stamp(img, parts.hand, L, -1, 8)
+      stamp(img, parts.stand, L, 5, 17)
+      stamp(img, parts.torso, L, 5, 12)
+      stamp(img, parts.hurt, L, -3 + parts.headX, 2)
+      headWear(img, -3, 2)
+      stamp(img, parts.hand, L, 18, 5)
+    end)
+    frames[9] = frame(320, function(img)
+      stamp(img, parts.stand, L, 5, 17)
+      stamp(img, parts.torso, L, 6, 12)
+      stamp(img, parts.hurt, L, parts.headX, 0)
+      headWear(img, 0, 0)
+      stamp(img, parts.hand, L, 1, 13)
+      stamp(img, parts.hand, L, 15, 13)
+    end, nil, lying)
+  end
   build(name, frames, { {"walk", 1, 4}, {"attack", 5, 7}, {"death", 8, 9} })
+end
+
+local function goblin(name, palette, weapon, extras)
+  biped(name, GOBLIN_PARTS, palette, weapon, extras)
 end
 
 goblin("goblin", nil, GOBLIN_SWORD)
 goblin("goblin_fast", { L = "ecdd72", M = "c9b84a", D = "8f8a35", E = "6f6a2a" }, GOBLIN_DAGGER,
   { bandana = true, secondDagger = true })
 goblin("goblin_shield", { L = "8fc7a0", M = "5fa37c", D = "3a7558", E = "2a5a44" }, GOBLIN_MACE,
-  { shield = true, helmet = true })
+  { shield = SMALL_SHIELD, helmet = HELMET })
+
+---------------------------------------------------------------- ESQUELETOS
+
+local SKULL = {
+  "....LLLLLLMM....", "..LLLLLLLLMMMM..", ".LLLLLLLLLMMMMM.", ".LLLLLLLLMMMMMD.", "LLLLLLLLMMMMMMMD",
+  "LLLLLMMKKKMMKKKD", "LLLLMMMKKKMMKKKD", "LLLMMMMKKKMMKKKD", ".LMMMMMMMMKMMMD.", "..MMMMMMMMMMMD..",
+  "...DMMSKSKSKD...", "....DDSKSKSD....",
+}
+-- Crânio solto na morte: as órbitas se apagam em duas frestas.
+local SKULL_OFF = {
+  "....LLLLLLMM....", "..LLLLLLLLMMMM..", ".LLLLLLLLLMMMMM.", ".LLLLLLLLMMMMMD.", "LLLLLLLLMMMMMMMD",
+  "LLLLLMMMMMMMMMMD", "LLLLMMMKKKMMKKKD", "LLLMMMMMMMMMMMMD", ".LMMMMMMMMKMMMD.", "..MMMMMMMMMMMD..",
+  "...DMMSKSKSKD...", "....DDSKSKSD....",
+}
+local RIBS = { ".LMMMD..", "LKKMKKD.", "LMMMMMD.", ".KKMKK..", "..MMDD.." }
+local BONE_HAND = { ".LM.", "LMMD", "MMMD", ".DD." }
+local BONE_HAND_FRONT = { ".LM..", "LMMMD", "DMMMD", ".WWW." }
+local BONE_STAND = { "...MD..MD..", "...MD..MD..", "..DDDD.DDDD" }
+local BONE_STEP_A = { "..MD...DD..", ".MD.....DD.", "DDD.....EEE" }
+local BONE_STEP_B = { "..DD...MD..", ".DD.....MD.", "EEE.....DDD" }
+local BONE_PASS_A = { "....MMD....", "....MMD....", "....MMD....", "....DDDD..." }
+local BONE_PASS_B = { "....DMD....", "....DMD....", "....DMD....", "....DDDD..." }
+
+-- Desfaz-se em ossos: as peças se soltam no ar e terminam numa pilha no chão.
+local SKELETON_DEATH = {
+  falling = function(img, L, headWear)
+    stamp(img, SKULL_OFF, L, 2, 4)
+    headWear(img, 0, 4)
+    stamp(img, RIBS, L, 7, 14)
+    line(img, -3, 12, 2, 15, L.M, L.D)
+    line(img, 20, 13, 25, 17, L.M, L.D)
+    stamp(img, BONE_STAND, L, 5, 17)
+  end,
+  pile = function(img, L, headWear)
+    line(img, -2, 19, 8, 19, L.M, L.D)
+    line(img, 13, 18, 24, 19, L.M, L.D)
+    line(img, 3, 17, 15, 19, L.L, L.D)
+    stamp(img, RIBS, L, 12, 15)
+    stamp(img, SKULL_OFF, L, 0, 8)
+    headWear(img, -2, 8)
+  end,
+}
+
+local SKELETON_PARTS = {
+  base = merged(GOBLIN_BASE, { L = "f4f1de", M = "d8d0b8", D = "a89f8a", E = "7a7264", S = "f4f7f8" }),
+  head = SKULL, hurt = SKULL_OFF, torso = RIBS, hand = BONE_HAND, stand = BONE_STAND,
+  stepA = BONE_STEP_A, stepB = BONE_STEP_B, passA = BONE_PASS_A, passB = BONE_PASS_B,
+  handFront = BONE_HAND_FRONT, headX = 2, death = SKELETON_DEATH,
+}
+
+-- Espada enferrujada: o perfurante pouco faz contra ossos.
+biped("skeleton", SKELETON_PARTS, { B = "c9b89a", b = "8f7a60", W = "5e3a2a" }, merged(GOBLIN_SWORD, { lowColors = { "c9b89a", "8f7a60" } }))
+
+local KNIGHT_ARMOR = { ".IIii...", "IIiiiijj", "IIiiiijj", "jjjjjjjj", "iiijjj.." }
+local KNIGHT_HELM = { "..jjjjjjjjjj....", ".jIIiiiiiiiijj..", "jIIIiiiiiiiiiij.", "jjjjjjjjjjjjjjjj" }
+local KNIGHT_CREST = { ".RRRR.", "RRRRrr", "..Rr.." }
+local KNIGHT_SHIELD = {
+  "jjjjjjjjj", "jRRRRRrrj", "jRRIIRrrj", "jRRIIRrrj", "jRRRRRrrj", ".jRRRrrj.", "..jRrrj..", "...jjj...",
+}
+biped("skeleton_knight", merged(SKELETON_PARTS, { torso = KNIGHT_ARMOR }), { B = "eef2f5", b = "9aa7b3", W = "6b2a2e" },
+  GOBLIN_SWORD, { shield = KNIGHT_SHIELD, helmet = KNIGHT_HELM, crest = KNIGHT_CREST })
 
 ---------------------------------------------------------------- ARQUEIRO
 
@@ -743,6 +823,187 @@ end
 spearman("spearman", 1)
 spearman("spearman_2", 2)
 spearman("spearman_3", 3)
+
+---------------------------------------------------------------- MONGE
+
+local MONK_BASE = {
+  S = "f2c391", A = "d2905f", K = "1b1626", G = "e8e2cf", g = "b8b09a", R = "d9534a", r = "a2303a",
+  W = "b47a42", w = "8f5c35", k = "8f5c35", O = "8fe0f0", o = "4fa0c8", Y = "f6e05e", y = "e8913a",
+}
+local MONK_LEVELS = {
+  {},
+  { G = "e0b84a", g = "b08a2f" },
+  { G = "e8913a", g = "b5602a", R = "f6e05e", r = "e8913a", W = "f6e05e", w = "e8913a" },
+}
+local MONK_HEAD = {
+  "....SSSSSSS...", "..SSSSSSSSSSA.", ".SSSSSSSSSSSSA", ".SSSSSSSSSSSSA", ".RRRRRRRRRRRRr",
+  ".SSSSSSSKSSKSA", ".SSSSSSSKSSKSA", ".SSSSSSSSSSSSA", "..ASSSSSSSSSA.", "...AAAAAAAAA..",
+}
+local MONK_HURT = {
+  "....SSSSSSS...", "..SSSSSSSSSSA.", ".SSSSSSSSSSSSA", ".SSSSSSSSSSSSA", ".RRRRRRRRRRRRr",
+  ".SSSSSSKKSKKSA", ".SSSSSSSSSSSSA", ".SSSSSSSSSSSSA", "..ASSSSSSSSSA.", "...AAAAAAAAA..",
+}
+local MONK_BAND_TAIL = { "RR.", ".Rr", ".Rr" }
+local MONK_TORSO = { "GGGGGG..", "GGGSSGgg", "GGGGGGgg", "RRRRRRrr", "GGGGGgg.", "GGGGGgg." }
+local MONK_LEGS = { "GGg.GGg" }
+local MONK_FEET = { "AAAA.AAAA" }
+local MONK_FIST = { ".WWW.", "WSSSW", "WSSSW", ".WWW." }
+-- Aura nos punhos no nível 3, o destaque da habilidade de atordoar.
+local MONK_AURA = { ".O.O.O.", "O.....o", ".......", "O.....o", ".......", "O.....o", ".o.o.o." }
+
+local function monk(name, level)
+  local L = legendOf(merged(MONK_BASE, MONK_LEVELS[level]))
+  local function head(img, dx, dy, face)
+    stamp(img, MONK_BAND_TAIL, L, 0 + dx, 4 + dy)
+    stamp(img, face or MONK_HEAD, L, 2 + dx, 1 + dy)
+    if level == 2 then stamp(img, { "W.W.W.W.W" }, L, 6 + dx, 11 + dy) end
+  end
+  local function stand(img, dx, dy, face)
+    stamp(img, MONK_FEET, L, 4, 19)
+    stamp(img, MONK_LEGS, L, 5, 18)
+    stamp(img, MONK_TORSO, L, 5 + dx, 12)
+    head(img, dx, dy, face)
+  end
+  local function fist(img, x, y)
+    stamp(img, MONK_FIST, L, x, y)
+  end
+  local function aura(x, y)
+    return function(img)
+      if level >= 3 then stamp(img, MONK_AURA, L, x - 1, y - 2) end
+    end
+  end
+
+  local frames = {
+    -- guarda alta, punhos à frente
+    frame(500, function(img)
+      fist(img, 1, 13); stand(img, 0, 0); fist(img, 19, 10)
+    end, aura(19, 10)),
+    frame(500, function(img)
+      fist(img, 1, 14); stand(img, 0, 1); fist(img, 19, 11)
+    end, aura(19, 11)),
+    -- prepara: punho recolhido ao lado do corpo
+    frame(90, function(img)
+      stand(img, -2, 0); fist(img, 1, 13); fist(img, 13, 12)
+    end, aura(13, 12)),
+    -- soco: braço esticado e rastro
+    frame(60, function(img)
+      fist(img, 3, 14); stand(img, 2, 1)
+      line(img, 14, 14, 24, 14, L.S, L.A)
+      fist(img, 25, 12)
+    end, function(img)
+      line(img, 16, 10, 25, 10, SMEAR); line(img, 18, 18, 26, 18, SMEAR)
+      if level >= 3 then stamp(img, MONK_AURA, L, 24, 10) end
+    end),
+    -- recuperação
+    frame(80, function(img)
+      fist(img, 2, 13); stand(img, 1, 0); fist(img, 20, 11)
+    end, aura(20, 11)),
+    -- queda: ajoelha com os olhos fechados
+    frame(130, function(img)
+      stamp(img, MONK_TORSO, L, 5, 13)
+      head(img, 0, 3, MONK_HURT)
+      fist(img, 1, 15); fist(img, 16, 15)
+    end),
+    frame(320, function(img)
+      stamp(img, MONK_FEET, L, 4, 19)
+      stamp(img, MONK_LEGS, L, 5, 18)
+      stamp(img, MONK_TORSO, L, 5, 12)
+      head(img, 0, 0, MONK_HURT)
+      fist(img, 1, 13)
+    end, nil, lying),
+  }
+  build(name, frames, { {"idle", 1, 2}, {"attack", 3, 5}, {"fall", 6, 7} })
+end
+
+monk("monk", 1)
+monk("monk_2", 2)
+monk("monk_3", 3)
+
+---------------------------------------------------------------- LADINO
+
+local ROGUE_BASE = {
+  H = "4a4560", h = "332f47", n = "221f33", S = "f2c391", A = "d2905f", K = "1b1626", F = "a2303a", f = "7a2430",
+  U = "5e3a2a", B = "dfe6ea", b = "9aa7b3", W = "8f5c35", Y = "f6e05e", y = "e8913a",
+}
+local ROGUE_LEVELS = {
+  {},
+  { H = "3f5a60", h = "2a4248", n = "1c2f33", B = "f4f7f8" },
+  { H = "3a3350", h = "261f3a", n = "1a1428", B = "f6e05e", b = "e8913a" },
+}
+local ROGUE_HEAD = {
+  "....HHHHhhhh...", "..HHHHHHhhhhhh.", ".HHHHHhhhhhhhh.", ".HHHhhhSSSSSSSn", ".HHhhhSSKSSKSSn",
+  ".HHhhhSSKSSKSSn", "hHhhhhFFFFFFFFn", "hhhhhFFFFFFFFFn", ".hhhhfFFFFFFFn.", ".nhhhhhhhhhhn..", "..nnhhhhhhnn...",
+}
+local ROGUE_HURT = {
+  "....HHHHhhhh...", "..HHHHHHhhhhhh.", ".HHHHHhhhhhhhh.", ".HHHhhhSSSSSSSn", ".HHhhhSKKSKKSSn",
+  ".HHhhhSSSSSSSSn", "hHhhhhFFFFFFFFn", "hhhhhFFFFFFFFFn", ".hhhhfFFFFFFFn.", ".nhhhhhhhhhhn..", "..nnhhhhhhnn...",
+}
+local ROGUE_TORSO = { "HHHHHH..", ".HHHHHH.", "HHHHHhh.", "HHhhhhh.", "UUUUUUU.", "HHHHHhh." }
+local ROGUE_LEGS = { ".hhn.hhn.", ".hhn.hhn.", "nnnn.nnnn" }
+local ROGUE_HAND = { ".SS.", "SSSA", "ASSA", ".AA." }
+local ROGUE_DAGGER = { "..B..", ".BBb.", ".BBb.", ".BBb.", "WWWWW" }
+-- Bolsa de ouro no cinto no nível 3, o destaque da habilidade de lucrar com os abates.
+local GOLD_BAG = { ".UU.", "YYYy", "YYYy", ".yy." }
+
+local function rogue(name, level)
+  local L = legendOf(merged(ROGUE_BASE, ROGUE_LEVELS[level]))
+  local function body(img, dx, dy, face)
+    stamp(img, ROGUE_TORSO, L, 6 + dx, 11)
+    stamp(img, face or ROGUE_HEAD, L, 2 + dx, dy)
+    if level >= 3 then stamp(img, GOLD_BAG, L, 3 + dx, 14) end
+  end
+  local function armed(img, x, y)
+    stamp(img, ROGUE_DAGGER, L, x, y - 5)
+    stamp(img, ROGUE_HAND, L, x, y)
+  end
+
+  local frames = {
+    frame(500, function(img)
+      armed(img, 0, 13); stamp(img, ROGUE_LEGS, L, 6, 17); body(img, 0, 0); armed(img, 18, 11)
+    end),
+    frame(500, function(img)
+      armed(img, 0, 14); stamp(img, ROGUE_LEGS, L, 6, 17); body(img, 0, 1); armed(img, 18, 12)
+    end),
+    -- prepara: adaga erguida atrás da cabeça
+    frame(150, function(img)
+      armed(img, 0, 13); stamp(img, ROGUE_LEGS, L, 6, 17); body(img, -2, 0); armed(img, 3, 3)
+    end),
+    -- arremesso: braço à frente, a adaga voa com rastro
+    frame(70, function(img)
+      armed(img, 3, 14); stamp(img, ROGUE_LEGS, L, 6, 17); body(img, 2, 1)
+      stamp(img, ROGUE_HAND, L, 20, 10)
+      line(img, 27, 11, 33, 11, L.B, L.b)
+    end, function(img)
+      line(img, 24, 9, 29, 9, SMEAR); line(img, 24, 14, 30, 14, SMEAR)
+    end),
+    -- recuperação: outra adaga na mão
+    frame(110, function(img)
+      armed(img, 1, 13); stamp(img, ROGUE_LEGS, L, 6, 17); body(img, 1, 0); armed(img, 19, 11)
+    end),
+    -- queda: ajoelha com os olhos fechados
+    frame(130, function(img)
+      stamp(img, { "nnnn.nnnn" }, L, 6, 19)
+      stamp(img, ROGUE_TORSO, L, 6, 13)
+      stamp(img, ROGUE_HURT, L, 2, 3)
+      if level >= 3 then stamp(img, GOLD_BAG, L, 3, 16) end
+      stamp(img, ROGUE_HAND, L, 1, 15)
+      stamp(img, ROGUE_HAND, L, 18, 15)
+      line(img, 23, 18, 28, 18, L.B)
+    end),
+    frame(320, function(img)
+      stamp(img, ROGUE_LEGS, L, 6, 17)
+      stamp(img, ROGUE_TORSO, L, 6, 11)
+      stamp(img, ROGUE_HURT, L, 2, 0)
+      if level >= 3 then stamp(img, GOLD_BAG, L, 3, 14) end
+      stamp(img, ROGUE_HAND, L, 1, 13)
+    end, nil, lying),
+  }
+  build(name, frames, { {"idle", 1, 2}, {"attack", 3, 5}, {"fall", 6, 7} })
+end
+
+rogue("rogue", 1)
+rogue("rogue_2", 2)
+rogue("rogue_3", 3)
 
 ---------------------------------------------------------------- LOBO
 

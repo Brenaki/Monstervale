@@ -53,7 +53,7 @@ func test_split_children_stay_on_the_route_of_the_parent() -> void:
 	var sim := _simulation()
 	var slime = sim.spawn_monster("slime", 1)
 	slime.distance = 50.0
-	sim._damage(slime, 100, "test")
+	sim._damage(slime, 100, "magic", "test")
 	assert_eq(sim.monsters.size(), 2)
 	for child in sim.monsters:
 		assert_almost_eq(child.position().y, 100.0, 0.01)

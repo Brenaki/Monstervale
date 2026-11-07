@@ -1,0 +1,70 @@
+[gd_resource type="SpriteFrames" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/rogue_3.png" id="1_q5kqk"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_n6rcb"]
+atlas = ExtResource("1_q5kqk")
+region = Rect2(112, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ooc20"]
+atlas = ExtResource("1_q5kqk")
+region = Rect2(168, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jgdeq"]
+atlas = ExtResource("1_q5kqk")
+region = Rect2(224, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_sw00o"]
+atlas = ExtResource("1_q5kqk")
+region = Rect2(280, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wpc40"]
+atlas = ExtResource("1_q5kqk")
+region = Rect2(336, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p3vns"]
+atlas = ExtResource("1_q5kqk")
+region = Rect2(0, 0, 56, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dwcsq"]
+atlas = ExtResource("1_q5kqk")
+region = Rect2(56, 0, 56, 40)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.5,
+"texture": SubResource("AtlasTexture_n6rcb")
+}, {
+"duration": 0.7,
+"texture": SubResource("AtlasTexture_ooc20")
+}, {
+"duration": 1.1,
+"texture": SubResource("AtlasTexture_jgdeq")
+}],
+"loop": 0,
+"name": &"attack",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.3,
+"texture": SubResource("AtlasTexture_sw00o")
+}, {
+"duration": 3.2,
+"texture": SubResource("AtlasTexture_wpc40")
+}],
+"loop": 0,
+"name": &"fall",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 5.0,
+"texture": SubResource("AtlasTexture_p3vns")
+}, {
+"duration": 5.0,
+"texture": SubResource("AtlasTexture_dwcsq")
+}],
+"loop": 1,
+"name": &"idle",
+"speed": 10.0
+}]

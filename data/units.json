@@ -196,5 +196,85 @@
         }
       }
     ]
+  },
+  "monk": {
+    "attack": "melee",
+    "damage_type": "impact",
+    "levels": [
+      {
+        "cost": 55,
+        "damage": 4,
+        "cooldown": 0.45,
+        "range": 44,
+        "hp": 45,
+        "block": 1,
+        "respawn": 6
+      },
+      {
+        "cost": 35,
+        "damage": 6,
+        "cooldown": 0.4,
+        "range": 44,
+        "hp": 70,
+        "block": 2,
+        "respawn": 6
+      },
+      {
+        "cost": 65,
+        "damage": 9,
+        "cooldown": 0.35,
+        "range": 44,
+        "hp": 95,
+        "block": 2,
+        "respawn": 6,
+        "stun": {
+          "every": 6,
+          "seconds": 0.8
+        }
+      }
+    ]
+  },
+  "rogue": {
+    "attack": "ranged",
+    "damage_type": "pierce",
+    "levels": [
+      {
+        "cost": 60,
+        "damage": 5,
+        "cooldown": 0.8,
+        "range": 64,
+        "hp": 22,
+        "respawn": 8,
+        "crit": {
+          "every": 3,
+          "multiplier": 2.5
+        }
+      },
+      {
+        "cost": 40,
+        "damage": 7,
+        "cooldown": 0.75,
+        "range": 68,
+        "hp": 30,
+        "respawn": 8,
+        "crit": {
+          "every": 3,
+          "multiplier": 2.5
+        }
+      },
+      {
+        "cost": 70,
+        "damage": 10,
+        "cooldown": 0.7,
+        "range": 72,
+        "hp": 40,
+        "respawn": 8,
+        "crit": {
+          "every": 3,
+          "multiplier": 2.5
+        },
+        "kill_gold": 1
+      }
+    ]
   }
 }

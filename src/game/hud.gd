@@ -26,6 +26,12 @@ const FONT_SIZE := 10
 const CLASS_BUTTON_WIDTH := 100
 const ICON_MARGIN := Vector2(16, 8)
 const ICON_SIZE := Vector2(30, 30)
+const STACK_BELOW_WIDTH := 50
+const STACKED_ICON_MARGIN := Vector2(18, 12)
+const STACKED_ICON_SIZE := Vector2(22, 22)
+const STACKED_BUTTON_Y := 2
+const STACKED_BUTTON_HEIGHT := 37
+const DISABLED_ICON_ALPHA := 0.4
 const BAR_COLOR := Color("1b1626")
 const PANEL_COLOR := Color("2a2438")
 const BORDER_COLOR := Color("5d6a7a")
@@ -43,6 +49,7 @@ var gold_label: Label
 var lives_label: Label
 var wave_label: Label
 var preview_label: Label
+var weak_label: Label
 var pause_button: Button
 var speed_button: Button
 var restart_button: Button
@@ -58,6 +65,7 @@ var village_fill: ColorRect
 var village_label: Label
 var next_wave_button: Button
 var class_buttons := {}
+var class_icons := {}
 var wave_box: Control
 var unit_box: Control
 var unit_label: Label
@@ -100,13 +108,19 @@ func set_classes(classes: Array, frames_for: Callable) -> void:
 	for child in _class_bar.get_children():
 		child.queue_free()
 	class_buttons.clear()
+	class_icons.clear()
 	var width := mini(CLASS_BUTTON_WIDTH, (CLASS_BAR_WIDTH - 4) / maxi(classes.size(), 1) - 4)
 	_compact_classes = width < CLASS_BUTTON_WIDTH
+	var stacked := width < STACK_BELOW_WIDTH
 	var x := 4
 	for kind: String in classes:
-		var button := _button(_class_bar, Rect2(x, 3, width, 34))
+		var rect := Rect2(x, STACKED_BUTTON_Y, width, STACKED_BUTTON_HEIGHT) if stacked else Rect2(x, 3, width, 34)
+		var button := _button(_class_bar, rect)
 		button.clip_text = false
-		button.icon = _class_icon(frames_for.call(kind))
+		if stacked:
+			_stack_icon_over_price(button, kind, frames_for.call(kind))
+		else:
+			button.icon = _class_icon(frames_for.call(kind), false)
 		button.toggle_mode = true
 		button.pressed.connect(func(): class_pressed.emit(kind))
 		class_buttons[kind] = button
@@ -130,11 +144,29 @@ func place_village_marker(center_x: float, top: float) -> void:
 
 
 ## O quadro inteiro tem folga para armas; o ícone mostra só o corpo e a arma parada.
-func _class_icon(frames: SpriteFrames) -> Texture2D:
+## O Button do Godot pede o dobro da altura ao empilhar ícone e texto, e estouraria a barra.
+## Por isso o ícone é um filho, e a margem de cima empurra o preço para baixo dele.
+func _stack_icon_over_price(button: Button, kind: String, frames: SpriteFrames) -> void:
+	var colors := {"normal": BUTTON_COLOR, "hover": BUTTON_HOVER_COLOR, "pressed": BUTTON_PRESSED_COLOR, "disabled": BUTTON_DISABLED_COLOR}
+	for state: String in colors:
+		var style := _button_style(colors[state])
+		style.content_margin_top = STACKED_ICON_SIZE.y
+		button.add_theme_stylebox_override(state, style)
+	var icon := TextureRect.new()
+	icon.texture = _class_icon(frames, true)
+	icon.position = Vector2((button.size.x - STACKED_ICON_SIZE.x) / 2.0, 0)
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	button.add_child(icon)
+	class_icons[kind] = icon
+
+
+## Empilhado sobre o preço, o ícone menor mostra só a cabeça e o peito.
+func _class_icon(frames: SpriteFrames, stacked: bool) -> Texture2D:
 	var frame: AtlasTexture = frames.get_frame_texture("idle", 0)
 	var icon := AtlasTexture.new()
 	icon.atlas = frame.atlas
-	icon.region = Rect2(frame.region.position + ICON_MARGIN, ICON_SIZE)
+	var margin := STACKED_ICON_MARGIN if stacked else ICON_MARGIN
+	icon.region = Rect2(frame.region.position + margin, STACKED_ICON_SIZE if stacked else ICON_SIZE)
 	return icon
 
 
@@ -168,9 +200,11 @@ func refresh(game) -> void:
 		var cost: int = sim.unit_cost(kind)
 		var unit_name := tr("UNIT_%s" % kind.to_upper())
 		button.text = str(cost) if _compact_classes else "%s\n%d" % [unit_name, cost]
-		button.tooltip_text = unit_name
+		button.tooltip_text = tr("UNIT_TOOLTIP") % [unit_name, tr("DAMAGE_%s" % sim.unit_damage_type(kind).to_upper())]
 		button.disabled = sim.gold < cost and game.selected_class != kind
 		button.set_pressed_no_signal(game.selected_class == kind)
+		if class_icons.has(kind):
+			class_icons[kind].modulate.a = DISABLED_ICON_ALPHA if button.disabled else 1.0
 	wave_box.visible = game.selected_unit == null
 	unit_box.visible = game.selected_unit != null
 	if game.selected_unit != null:
@@ -207,6 +241,8 @@ func _refresh_wave(sim) -> void:
 	for kind: String in preview:
 		parts.append("%s x%d" % [tr("MONSTER_%s" % kind.to_upper()), preview[kind]])
 	preview_label.text = "%s %s" % [tr("HUD_NEXT"), ", ".join(parts)] if not parts.is_empty() else ""
+	var weak: Array = sim.next_wave_weaknesses().map(func(damage_type): return tr("WEAK_%s" % damage_type.to_upper()))
+	weak_label.text = tr("HUD_WEAK") % ", ".join(weak) if not weak.is_empty() else ""
 	var can_call: bool = sim.can_call_next_wave()
 	next_wave_button.disabled = not can_call
 	next_wave_button.text = tr("BTN_NEXT_WAVE") % sim.early_call_bonus() if can_call else tr("BTN_NO_WAVE")
@@ -215,7 +251,7 @@ func _refresh_wave(sim) -> void:
 func _refresh_unit(sim, unit) -> void:
 	var name_text := tr("UNIT_%s" % unit.kind.to_upper())
 	var status := tr("UNIT_DOWN") if unit.is_down() else tr("HUD_LEVEL") % unit.level
-	unit_label.text = "%s - %s" % [name_text, status]
+	unit_label.text = "%s - %s - %s" % [name_text, status, tr("WEAK_%s" % unit.damage_type().to_upper())]
 	upgrade_button.disabled = not unit.can_upgrade() or sim.gold < unit.upgrade_cost()
 	upgrade_button.text = tr("BTN_UPGRADE") % unit.upgrade_cost() if unit.can_upgrade() else tr("BTN_MAX_LEVEL")
 	dismiss_button.text = tr("BTN_DISMISS") % unit.refund()
@@ -254,6 +290,8 @@ func _build_bottom_bar() -> void:
 	preview_label = _label(wave_box, Rect2(0, 2, 312, 16))
 	preview_label.clip_text = true
 	next_wave_button = _button(wave_box, Rect2(0, 19, 150, 19))
+	weak_label = _label(wave_box, Rect2(154, 20, 158, 18))
+	weak_label.clip_text = true
 	next_wave_button.pressed.connect(func(): next_wave_pressed.emit())
 
 	unit_box = Control.new()
@@ -262,7 +300,7 @@ func _build_bottom_bar() -> void:
 	unit_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	unit_box.visible = false
 	bar.add_child(unit_box)
-	unit_label = _label(unit_box, Rect2(0, 1, 170, 17))
+	unit_label = _label(unit_box, Rect2(0, 1, 240, 17))
 	close_button = _button(unit_box, Rect2(244, 1, 68, 18))
 	upgrade_button = _button(unit_box, Rect2(0, 20, 104, 18))
 	dismiss_button = _button(unit_box, Rect2(106, 20, 104, 18))

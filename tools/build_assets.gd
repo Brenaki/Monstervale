@@ -79,6 +79,34 @@ const LEVELS := {
 			Vector2i(18, 8): BUSH, Vector2i(16, 9): ROCK, Vector2i(9, 9): BERRY_BUSH,
 		},
 	},
+	"level_04": {
+		"node": "Level04",
+		"tiles": "res://assets/tiles/tiles_cemetery.png",
+		"tileset": "res://assets/tiles/tileset_cemetery.tres",
+		"path_runs": [
+			[Vector2i(0, 7), Vector2i(5, 7)],
+			[Vector2i(5, 2), Vector2i(5, 7)],
+			[Vector2i(5, 2), Vector2i(10, 2)],
+			[Vector2i(10, 2), Vector2i(10, 4)],
+			[Vector2i(10, 4), Vector2i(13, 4)],
+			[Vector2i(8, 9), Vector2i(19, 9)],
+			[Vector2i(8, 6), Vector2i(8, 9)],
+			[Vector2i(8, 6), Vector2i(13, 6)],
+			[Vector2i(13, 3), Vector2i(13, 6)],
+			[Vector2i(13, 3), Vector2i(17, 3)],
+			[Vector2i(15, 4), Vector2i(17, 4)],
+		],
+		"route": [Vector2(-16, 240), Vector2(176, 240), Vector2(176, 80), Vector2(336, 80), Vector2(336, 144), Vector2(432, 144), Vector2(432, 112), Vector2(560, 112)],
+		"route2": [Vector2(656, 304), Vector2(272, 304), Vector2(272, 208), Vector2(432, 208), Vector2(432, 112), Vector2(560, 112)],
+		"decor": {
+			Vector2i(6, 3): BUSH, Vector2i(7, 3): BERRY_BUSH, Vector2i(8, 3): BUSH, Vector2i(9, 3): ROCK,
+			Vector2i(6, 4): BERRY_BUSH, Vector2i(7, 4): BUSH, Vector2i(8, 4): BERRY_BUSH, Vector2i(9, 4): BUSH,
+			Vector2i(6, 5): ROCK, Vector2i(7, 5): BERRY_BUSH, Vector2i(8, 5): BUSH, Vector2i(9, 5): BERRY_BUSH,
+			Vector2i(1, 1): ROCK, Vector2i(3, 1): BUSH, Vector2i(1, 4): BERRY_BUSH, Vector2i(3, 5): BUSH,
+			Vector2i(1, 9): BUSH, Vector2i(4, 9): ROCK, Vector2i(12, 1): BERRY_BUSH, Vector2i(18, 7): ROCK,
+			Vector2i(16, 8): BUSH, Vector2i(6, 8): BUSH, Vector2i(6, 9): BERRY_BUSH,
+		},
+	},
 }
 
 

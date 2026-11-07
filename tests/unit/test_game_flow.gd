@@ -357,6 +357,51 @@ func test_all_five_classes_fit_in_the_bar_of_the_forest() -> void:
 		assert_lte(button.position.x + button.size.x, float(game.hud.CLASS_BAR_WIDTH))
 		assert_ne(button.tooltip_text, "", "o nome da classe aparece ao passar o mouse")
 
+func _open_cemetery() -> void:
+	for i in 3:
+		game.progress.record(i, 1)
+	game.open_level(3)
+	game.hud.refresh(game)
+
+func test_all_seven_classes_fit_in_the_bar_of_the_cemetery() -> void:
+	_open_cemetery()
+	assert_eq(game.hud.class_buttons.size(), 7)
+	for button: Button in game.hud.class_buttons.values():
+		var needed: Vector2 = button.get_combined_minimum_size()
+		assert_lte(needed.x, button.size.x, button.tooltip_text)
+		assert_lte(needed.y, button.size.y, button.tooltip_text)
+		assert_lte(button.position.x + button.size.x, float(game.hud.CLASS_BAR_WIDTH))
+		assert_lte(button.position.y + button.size.y, float(game.hud.SCREEN.y - game.hud.BOTTOM_TOP))
+		assert_true(button.text.is_valid_int(), "o botão mostra o preço")
+
+func test_class_icon_dims_when_the_class_is_too_expensive() -> void:
+	_open_cemetery()
+	game.sim.gold = 0
+	game.hud.refresh(game)
+	assert_lt(game.hud.class_icons["monk"].modulate.a, 1.0)
+	game.sim.gold = 500
+	game.hud.refresh(game)
+	assert_eq(game.hud.class_icons["monk"].modulate.a, 1.0)
+
+func test_class_tooltip_names_the_class_and_its_damage_type() -> void:
+	_open_cemetery()
+	var tooltip: String = game.hud.class_buttons["monk"].tooltip_text
+	assert_string_contains(tooltip, tr("UNIT_MONK"))
+	assert_string_contains(tooltip, tr("DAMAGE_IMPACT"))
+
+func test_next_wave_shows_what_its_monsters_are_weak_to() -> void:
+	_open_cemetery()
+	assert_string_contains(game.hud.weak_label.text, tr("WEAK_IMPACT"))
+
+func test_selected_unit_shows_its_damage_type() -> void:
+	_open_cemetery()
+	game.sim.gold = 500
+	game.select_class("rogue")
+	game.cell_clicked(Vector2i(11, 5))
+	game.cell_clicked(Vector2i(11, 5))
+	game.hud.refresh(game)
+	assert_string_contains(game.hud.unit_label.text, tr("WEAK_PIERCE"))
+
 func test_stars_are_saved_for_the_level_being_played() -> void:
 	_win()
 	game.next_level()

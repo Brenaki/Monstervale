@@ -12,6 +12,8 @@ const MONSTER_FIELDS := ["hp", "speed", "gold", "damage", "attack_cooldown", "re
 const FIRE_FIELDS := ["radius", "damage", "interval", "seconds"]
 const SLOW_FIELDS := ["factor", "seconds"]
 const ROOT_FIELDS := ["every", "seconds"]
+const STUN_FIELDS := ["every", "seconds"]
+const CRIT_FIELDS := ["every", "multiplier"]
 
 
 static func parse_json(text: String) -> Dictionary:
@@ -91,6 +93,12 @@ static func _validate_unit(kind: String, unit: Dictionary) -> Array:
 		for field: String in ROOT_FIELDS:
 			if levels[i].has("root") and not levels[i].root.has(field):
 				errors.append("%s: root sem %s" % [label, field])
+		for field: String in STUN_FIELDS:
+			if levels[i].has("stun") and not levels[i].stun.has(field):
+				errors.append("%s: stun sem %s" % [label, field])
+		for field: String in CRIT_FIELDS:
+			if levels[i].has("crit") and not levels[i].crit.has(field):
+				errors.append("%s: crit sem %s" % [label, field])
 	return errors
 
 

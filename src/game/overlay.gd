@@ -12,6 +12,11 @@ const FLAMES := 9
 const FLAME_SPEED := 12.0
 const ROOT_COLORS := [Color("4f9d4a"), Color("6b4228")]
 const ROOT_SIZE := 9
+const STUN_COLOR := Color("f6e05e")
+const STUN_STARS := 3
+const STUN_RADIUS := 7.0
+const STUN_HEIGHT := 26.0
+const STUN_SPIN := 6.0
 const ENTRY_COLOR := Color("f6e05e")
 const ENTRY_DISTANCE := 34.0
 const ENTRY_PULSE_SPEED := 5.0
@@ -32,6 +37,8 @@ func _draw() -> void:
 	for monster in game.sim.monsters:
 		if monster.is_rooted():
 			_draw_roots(monster.position())
+		if monster.is_stunned():
+			_draw_stun(monster.position())
 	if game.selected_unit != null:
 		_draw_range(game.selected_unit.position, float(game.selected_unit.stats().range))
 	if game.selected_class != "" and game.hover_cell.y >= 1 and game.hover_cell.y <= 9:
@@ -63,8 +70,11 @@ func _draw_next_entries() -> void:
 	var pulse := 0.6 + 0.4 * sin(Time.get_ticks_msec() / 1000.0 * ENTRY_PULSE_SPEED)
 	var color := Color(ENTRY_COLOR, pulse)
 	for index: int in game.sim.next_wave_routes():
-		var tip: Vector2 = game.sim.routes[index].position_at(ENTRY_DISTANCE)
-		draw_colored_polygon(PackedVector2Array([tip, tip + Vector2(-10, -8), tip + Vector2(-10, 8)]), color)
+		var route = game.sim.routes[index]
+		var tip: Vector2 = route.position_at(ENTRY_DISTANCE)
+		var back: Vector2 = route.position_at(0.0).direction_to(tip) * -10.0
+		var side := back.orthogonal() * 0.8
+		draw_colored_polygon(PackedVector2Array([tip, tip + back + side, tip + back - side]), color)
 
 
 ## Raízes que sobem do chão em volta dos pés do monstro preso.
@@ -73,6 +83,15 @@ func _draw_roots(feet: Vector2) -> void:
 		var x := float(i * 2 - ROOT_SIZE)
 		var height := 2.0 + (i * 5) % 4
 		draw_rect(Rect2(feet + Vector2(x, 8.0 - height), Vector2(2, height)), ROOT_COLORS[i % ROOT_COLORS.size()])
+
+
+## Estrelas de pixels girando sobre a cabeça do monstro atordoado.
+func _draw_stun(feet: Vector2) -> void:
+	var time := Time.get_ticks_msec() / 1000.0
+	for i in STUN_STARS:
+		var angle := time * STUN_SPIN + TAU * i / STUN_STARS
+		var star := feet + Vector2(cos(angle) * STUN_RADIUS, sin(angle) * STUN_RADIUS * 0.4 - STUN_HEIGHT)
+		draw_rect(Rect2(star, Vector2(2, 2)), STUN_COLOR)
 
 
 func _draw_range(center: Vector2, radius: float) -> void:

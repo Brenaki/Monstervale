@@ -7,6 +7,8 @@ const Unit = preload("res://src/core/unit.gd")
 
 const DEFAULT_STAR_THRESHOLDS := [0.5, 0.9]
 const SPLIT_SPREAD := 8.0
+## Tipo sem resistência em nenhum monstro: o crítico acha o ponto fraco de qualquer armadura.
+const CRITICAL_DAMAGE := "critical"
 
 var gold: int
 var lives: int
@@ -49,6 +51,10 @@ func available_classes() -> Array:
 
 func unit_cost(kind: String) -> int:
 	return _catalog.units[kind].levels[0].cost
+
+
+func unit_damage_type(kind: String) -> String:
+	return _catalog.units[kind].damage_type
 
 
 func can_place(kind: String, cell: Vector2i) -> bool:
@@ -152,6 +158,20 @@ func next_wave_routes() -> Array:
 	return used
 
 
+## Tipos de dano a que os monstros da próxima onda são fracos, para orientar o jogador.
+func next_wave_weaknesses() -> Array:
+	var weak := []
+	if _next_wave >= waves_total():
+		return weak
+	for group: Dictionary in _level.waves[_next_wave].groups:
+		var resist: Dictionary = _catalog.monsters[group.monster].resist
+		for damage_type: String in resist:
+			if float(resist[damage_type]) > 1.0 and damage_type not in weak:
+				weak.append(damage_type)
+	weak.sort()
+	return weak
+
+
 func stars() -> int:
 	var thresholds: Array = _level.get("stars", DEFAULT_STAR_THRESHOLDS)
 	var ratio := float(lives) / _start_lives
@@ -247,6 +267,8 @@ func _update_spawners(delta: float) -> void:
 func _update_monsters(delta: float) -> void:
 	for monster in monsters.duplicate():
 		monster.update_effects(delta)
+		if monster.is_stunned():
+			continue
 		if monster.blocker == null:
 			_try_block(monster)
 		if monster.blocker != null:
@@ -394,9 +416,12 @@ func _attack(unit, target) -> void:
 	var target_position: Vector2 = target.position()
 	if target_position.x != unit.position.x:
 		unit.facing = 1 if target_position.x > unit.position.x else -1
-	_emit({"type": "attack", "unit": unit, "target": target, "position": target_position})
+	var critical: bool = stats.has("crit") and (unit.attacks_made + 1) % int(stats.crit.every) == 0
+	var amount: int = roundi(stats.damage * stats.crit.multiplier) if critical else int(stats.damage)
+	var damage_type: String = CRITICAL_DAMAGE if critical else unit.damage_type()
+	_emit({"type": "attack", "unit": unit, "target": target, "position": target_position, "crit": critical})
 	for monster in hits:
-		_damage(monster, monster.damage_from(int(stats.damage), unit.damage_type()), unit.kind)
+		_damage(monster, amount, damage_type, unit.kind, int(stats.get("kill_gold", 0)))
 	if stats.has("fire"):
 		_start_fire(unit, target_position, stats.fire)
 	_apply_control(unit, target, stats)
@@ -424,6 +449,8 @@ func _apply_control(unit, target, stats: Dictionary) -> void:
 			monster.apply_slow(float(stats.slow.factor), float(stats.slow.seconds))
 	if stats.has("root") and unit.attacks_made % int(stats.root.every) == 0:
 		target.apply_root(float(stats.root.seconds))
+	if stats.has("stun") and unit.attacks_made % int(stats.stun.every) == 0:
+		target.apply_stun(float(stats.stun.seconds))
 
 
 func _nearby(target, radius: float, count: int) -> Array:
@@ -432,14 +459,22 @@ func _nearby(target, radius: float, count: int) -> Array:
 	return near.slice(0, count)
 
 
-func _damage(monster, amount: int, source: String) -> void:
+func _damage(monster, base_amount: int, damage_type: String, source: String, kill_gold: int = 0) -> void:
+	var amount: int = monster.damage_from(base_amount, damage_type)
 	monster.hp -= amount
-	_emit({"type": "monster_hit", "monster": monster, "damage": amount, "source": source})
+	_emit({"type": "monster_hit", "monster": monster, "damage": amount, "source": source, "effect": _hit_effect(monster, damage_type)})
 	if monster.hp <= 0:
-		gold += monster.gold
+		gold += monster.gold + kill_gold
 		_remove(monster)
-		_emit({"type": "monster_killed", "monster": monster, "position": monster.position()})
+		_emit({"type": "monster_killed", "monster": monster, "position": monster.position(), "bonus_gold": kill_gold})
 		_split(monster)
+
+
+func _hit_effect(monster, damage_type: String) -> String:
+	var factor := float(monster.resist.get(damage_type, 1.0))
+	if factor > 1.0:
+		return "weak"
+	return "resisted" if factor < 1.0 else "normal"
 
 
 func _split(monster) -> void:
@@ -482,7 +517,7 @@ func _update_fires(delta: float) -> void:
 func _burn(fire: Dictionary) -> void:
 	for monster in monsters.duplicate():
 		if monster.position().distance_to(fire.position) <= fire.radius:
-			_damage(monster, monster.damage_from(fire.damage, fire.damage_type), fire.source)
+			_damage(monster, fire.damage, fire.damage_type, fire.source)
 
 
 func _update_waves_cleared() -> void:

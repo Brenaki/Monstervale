@@ -1,0 +1,64 @@
+{
+  "actions": [
+    {
+      "action": "place",
+      "cell": [
+        12,
+        5
+      ],
+      "gold_after": 100,
+      "level": 1,
+      "time": 5.04999999999999,
+      "unit": "mage",
+      "wave": 0
+    },
+    {
+      "action": "place",
+      "cell": [
+        6,
+        6
+      ],
+      "gold_after": 35,
+      "level": 1,
+      "time": 12.4000000000002,
+      "unit": "druid",
+      "wave": 0
+    }
+  ],
+  "duration": 59.5166666666646,
+  "gold_final": 38,
+  "level": "level_04",
+  "lives_final": 20,
+  "result": "closed",
+  "stars": 0,
+  "started_at": "2026-11-07 09:24:23",
+  "waves": [
+    {
+      "bonus": 0,
+      "called_early": true,
+      "cleared_at": null,
+      "damage": {
+        "druid": 14,
+        "mage": 60
+      },
+      "defenders": {
+        "druid 1": 1,
+        "mage 1": 1
+      },
+      "early_bonus": 3,
+      "escaped": {},
+      "gold_end": null,
+      "gold_start": 38,
+      "kill_gold": 0,
+      "killed": {},
+      "lives_end": 20,
+      "lives_start": 20,
+      "number": 1,
+      "spawned": {
+        "skeleton": 4
+      },
+      "started_at": 13.8666666666669,
+      "units_down": 2
+    }
+  ]
+}

@@ -10,7 +10,7 @@ const EntityView = preload("res://src/game/entity_view.gd")
 const Overlay = preload("res://src/game/overlay.gd")
 const Hud = preload("res://src/game/hud.gd")
 
-const LEVEL_IDS := ["level_01", "level_02", "level_03"]
+const LEVEL_IDS := ["level_01", "level_02", "level_03", "level_04"]
 const LEVEL_SCENE := "res://src/game/levels/%s.tscn"
 const STEP := 1.0 / 60.0
 const MAX_SPEED := 2
@@ -24,6 +24,11 @@ const EXPLOSION_POINTS := 12
 const SPELL_COLOR := Color("8fe0f0")
 const FIRE_SPELL_COLOR := Color("e8913a")
 const THRUST_COLOR := Color("f6e05e")
+const CRIT_COLOR := Color("f6e05e")
+const HIT_COLORS := {"weak": Color("f6e05e"), "resisted": Color("6b7385"), "normal": Color.WHITE}
+const COIN_COLOR := Color("f6e05e")
+const COIN_RISE := 14.0
+const COIN_SECONDS := 0.5
 const NO_CELL := Vector2i(-1, -1)
 
 var progress_path := "user://progress.json"
@@ -327,12 +332,14 @@ func _handle_events() -> void:
 				_add_monster_view(event.monster)
 			"monster_killed":
 				_burst(event.position, event.monster.kind)
+				if event.bonus_gold > 0:
+					_show_coin(event.position)
 				_kill_view(event.monster)
 			"monster_escaped":
 				_remove_view(event.monster)
 				_update_village()
 			"monster_hit":
-				_flash(event.monster)
+				_flash(event.monster, HIT_COLORS[event.effect])
 			"unit_placed":
 				_add_unit_view(event.unit)
 			"unit_dismissed":
@@ -341,7 +348,7 @@ func _handle_events() -> void:
 				_flash(event.unit)
 				_play_attack(event.monster)
 			"attack":
-				_show_attack(event.unit, event.position)
+				_show_attack(event.unit, event.position, event.crit)
 			"level_won":
 				finish_level("won", event.stars)
 			"level_lost":
@@ -371,9 +378,9 @@ func _remove_view(state) -> void:
 		_views.erase(state)
 
 
-func _flash(state) -> void:
+func _flash(state, color := Color.WHITE) -> void:
 	if _views.has(state):
-		_views[state].flash()
+		_views[state].flash(color)
 
 
 func _play_attack(state) -> void:
@@ -387,7 +394,7 @@ func _kill_view(state) -> void:
 		_views.erase(state)
 
 
-func _show_attack(unit, target_position: Vector2) -> void:
+func _show_attack(unit, target_position: Vector2, critical := false) -> void:
 	_play_attack(unit)
 	if unit.stats().has("line_width"):
 		_show_thrust(unit, target_position)
@@ -397,13 +404,13 @@ func _show_attack(unit, target_position: Vector2) -> void:
 	if unit.stats().has("splash_radius"):
 		_show_spell(unit, target_position)
 		return
-	var pierces: bool = unit.stats().has("pierce_extra")
+	var strong: bool = unit.stats().has("pierce_extra") or critical
 	var arrow := Line2D.new()
-	arrow.width = 2.0 if pierces else 1.0
-	arrow.default_color = Color("f6e05e") if pierces else Color("f4f1de")
+	arrow.width = 2.0 if strong else 1.0
+	arrow.default_color = CRIT_COLOR if strong else Color("f4f1de")
 	arrow.points = PackedVector2Array([unit.position, target_position])
 	_effects.add_child(arrow)
-	_fade_out(arrow, TRAIL_SECONDS if pierces else ARROW_SECONDS)
+	_fade_out(arrow, TRAIL_SECONDS if strong else ARROW_SECONDS)
 
 
 func _show_thrust(unit, target_position: Vector2) -> void:
@@ -459,6 +466,20 @@ func _burst(at: Vector2, kind: String) -> void:
 		tween.tween_property(piece, "position", at + Vector2(cos(angle), sin(angle)) * 9.0, BURST_SECONDS)
 		tween.tween_property(piece, "modulate:a", 0.0, BURST_SECONDS)
 		tween.chain().tween_callback(piece.queue_free)
+
+
+## Uma moeda sobe do monstro quando o abate rende ouro extra.
+func _show_coin(at: Vector2) -> void:
+	var coin := ColorRect.new()
+	coin.size = Vector2(3, 3)
+	coin.color = COIN_COLOR
+	coin.position = at
+	_effects.add_child(coin)
+	var tween := coin.create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(coin, "position:y", at.y - COIN_RISE, COIN_SECONDS)
+	tween.tween_property(coin, "modulate:a", 0.0, COIN_SECONDS)
+	tween.chain().tween_callback(coin.queue_free)
 
 
 func _place_village_marker() -> void:

@@ -20,6 +20,7 @@ var route_index: int = 0
 var slow_factor: float = 1.0
 var slow_timer: float = 0.0
 var root_timer: float = 0.0
+var stun_timer: float = 0.0
 
 var _route
 
@@ -56,7 +57,7 @@ func horizontal_direction() -> int:
 
 
 func current_speed() -> float:
-	return 0.0 if is_rooted() else speed * (slow_factor if is_slowed() else 1.0)
+	return 0.0 if is_rooted() or is_stunned() else speed * (slow_factor if is_slowed() else 1.0)
 
 
 func is_slowed() -> bool:
@@ -65,6 +66,10 @@ func is_slowed() -> bool:
 
 func is_rooted() -> bool:
 	return root_timer > 0.0
+
+
+func is_stunned() -> bool:
+	return stun_timer > 0.0
 
 
 ## Um efeito mais fraco não substitui um mais forte que ainda está valendo.
@@ -79,6 +84,11 @@ func apply_root(seconds: float) -> void:
 	root_timer = maxf(root_timer, seconds)
 
 
+func apply_stun(seconds: float) -> void:
+	stun_timer = maxf(stun_timer, seconds)
+
+
 func update_effects(delta: float) -> void:
 	slow_timer = maxf(0.0, slow_timer - delta)
 	root_timer = maxf(0.0, root_timer - delta)
+	stun_timer = maxf(0.0, stun_timer - delta)
