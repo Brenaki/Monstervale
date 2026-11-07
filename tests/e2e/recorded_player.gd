@@ -30,6 +30,7 @@ func open_level() -> void:
 	var index: int = game.LEVEL_IDS.find(_report.level)
 	if game.level_index == index:
 		return
+	click(game.hud.menu_button)
 	click(game.hud.levels_button)
 	click(game.hud.level_buttons[index])
 
@@ -92,7 +93,11 @@ func _call_wave_if_due() -> void:
 	var sim = game.sim
 	var number: int = sim.waves_started() + 1
 	var recorded := _recorded_wave(number)
-	if recorded.is_empty() or not recorded.called_early or sim.elapsed < _call_time(number, recorded):
+	# Nas partidas de antes das ondas manuais, a onda não chamada começava sozinha quando a espera
+	# acabava; depois do fim da gravação, o jogo segue no mesmo ritmo.
+	var by_timer: bool = recorded.is_empty() or not recorded.called_early
+	var due: bool = sim.next_wave_countdown - game.STEP <= 0.0 if by_timer else sim.elapsed >= _call_time(number, recorded)
+	if not due:
 		return
 	if game.selected_unit == null and sim.can_call_next_wave():
 		click(game.hud.next_wave_button)

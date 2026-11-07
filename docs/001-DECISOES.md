@@ -9,7 +9,7 @@ Registro das decisões tomadas em 2026-11-06. `DT-SLIME` é um nome provisório.
 - Textos em PT-BR e EN, separados do código.
 - Classificação de 14 anos: tom leve, com efeitos de sangue pequenos e passageiros, sem desmembramento nem corpos persistentes.
 - Reação ao dano por família: slimes espirram gosma, esqueletos se desfazem em ossos, goblins e lobos soltam um pouco de sangue, humanos caem sem ferimentos.
-- Sem áudio na primeira versão. Os eventos do jogo ficam prontos para ligar sons depois.
+- Efeitos sonoros e músicas chiptune sintetizados por scripts do projeto, sem sons de terceiros, avaliados de ouvido por quem dirige o projeto. Música e efeitos têm volumes separados nas opções.
 
 ## Campanha
 
@@ -72,8 +72,8 @@ Registro das decisões tomadas em 2026-11-06. `DT-SLIME` é um nome provisório.
 ## Economia
 
 - Ouro por abate e bônus ao fim de cada onda.
-- O vilarejo tem um total de vidas que cai a cada monstro que passa, com poucos estágios visuais de dano.
-- A próxima onda pode ser chamada antes da hora em troca de ouro.
+- O vilarejo tem um total de vidas que cai a cada monstro que passa. A cada quarto das vidas perdido, uma construção treme, afunda numa nuvem de poeira e deixa escombros. Com 20 vidas, o poço cai em 15, a casa de telhado vermelho em 10, a de telhado marrom em 5 e a casa de palha em 0.
+- As ondas só começam quando o jogador chama, e o botão pisca enquanto o campo está vazio. Chamar antes de acabar a espera rende ouro proporcional ao tempo que faltava; depois disso, a onda espera sem bônus. As partidas gravadas antes dessa mudança são repetidas chamando a onda no instante em que ela começava sozinha.
 
 ## Interface
 
@@ -84,11 +84,50 @@ Todos os comandos têm botão na tela:
 - Pausa e velocidade 1× ou 2×.
 - Botão para chamar a próxima onda.
 - Prévia dos monstros da próxima onda.
-- Menu na barra superior, que pausa o jogo e reúne continuar, reiniciar, idioma e sair. No navegador, o botão de sair fica escondido.
-- Marcador de vida acima da vila, com as vidas restantes em verde, as perdidas em vermelho e o número exato. A barra superior também mostra restantes/total.
+- Menu no canto superior, que pausa o jogo e reúne continuar, escolher fase, reiniciar, opções e voltar ao menu principal.
+- Vidas restantes/total com um coração no painel do alto. O marcador que ficava sobre a vila saiu, porque repetia o número e atrapalhava a visão da vila.
 - Com mais de 3 classes, a barra mostra só ícone e preço, e o nome e o tipo de dano aparecem ao passar o mouse. Com 7 classes, o ícone menor fica sobre o preço.
 - Tipos de dano: o golpe pisca amarelo quando o monstro é fraco, cinza quando resiste e branco no caso normal. Ao lado do botão de chamar onda, aparece a que os monstros da próxima onda são fracos, e o humano selecionado mostra o tipo do seu dano.
 - Reiniciar a fase sem penalidade.
+- Tela de título com cena animada ao fundo e o nome provisório. O menu tem estes botões:
+  - Continuar, na fase mais avançada liberada, só quando já há fase vencida;
+  - Novo jogo: sem jogo salvo, é o botão principal; com jogo salvo, pede confirmação, apaga as estrelas e zera o relógio da campanha, mas mantém conquistas e tutoriais vistos;
+  - Escolher fase, com as estrelas: cada fase só abre depois de a anterior ser vencida;
+  - Tutorial, Conquistas, Opções e Sair.
+
+  No navegador, o botão de sair fica escondido.
+- Conquistas, guardadas no progresso e listadas no título; uma conquista nova aparece num aviso com troféu e som:
+  - Fase 1 a 5 concluída;
+  - Herói, por derrotar o Rei Slime;
+  - Herói dos Heróis, por 3 estrelas em todas as fases;
+  - Speedrunner, por ter 3 estrelas nas 5 fases em até 39:07 de jogo desde o Novo jogo, contando derrotas e reinícios. Voltar a uma fase para tirar as 3 estrelas vale, se o relógio ainda estiver dentro do limite.
+
+  O limite é a soma das melhores vitórias com 3 estrelas de quem dirige o projeto, pelas regras atuais. Somam 4:01 da Fase 1, 6:13 da Fase 2, 6:41 da Fase 3, 10:36 da Fase 4 e 11:36 da Fase 5. Na Fase 4 vale a partida aprovada, que repetida hoje ganha 3 estrelas. O tempo é o do jogo, então acelerar não muda a conta.
+
+  A ajuda do modo dev não dá conquistas e para o relógio da campanha. Saves de antes das conquistas recebem as de fase e o Herói dos Heróis pelas estrelas, mas o relógio só começa num Novo jogo.
+- Opções, na tela de título e no menu de pausa: volume da música, volume dos efeitos, idioma e tela cheia, salvos entre uma partida e outra.
+- Tutorial interativo: na primeira vez, a Fase 1 vira guiada. Uma caixa explica cada passo, uma moldura e uma seta apontam o lugar, e o passo espera o jogador agir:
+  - escolher e posicionar o arqueiro;
+  - ler a prévia e chamar a onda;
+  - posicionar o guerreiro na estrada;
+  - melhorar o arqueiro;
+  - acelerar e pausar.
+
+  Nas fases seguintes, cada humano novo é apresentado na primeira vez e o jogador o posiciona:
+  - Fase 2: o mago e o "Fracos a:";
+  - Fase 3: o lanceiro, o druida e a escolha de alvo;
+  - Fase 4: o monge e o ladino;
+  - Fase 5: o aviso do Rei Slime.
+
+  Os passos ficam em `data/tutorial.json`. Dá para pular, e o tutorial visto fica salvo no progresso. O botão Tutorial da tela de título repete tudo desde a Fase 1.
+- Modo dev, só nos builds de desenvolvimento, como o editor: serve para medir a dificuldade das fases, e só ele registra partidas. Nas opções, uma chave liga o modo, que mostra um selo vermelho, e outras três ligam e desligam vila imortal, ouro infinito e registrar partida. Ao ligar o modo, registrar vem ligado e as outras duas desligadas. Com vila imortal ou ouro infinito a vitória não dá estrelas. O botão de ver o relatório aparece só quando a partida está sendo registrada. As chaves ficam salvas nas configurações; no build de quem joga, nada disso aparece e nenhuma partida é registrada.
+- HUD em pixel art, a partir de referências de outros tower defense guardadas fora do git, sem copiar a arte delas:
+  - painéis com moldura e ícones no lugar do texto: vidas, ouro, onda atual/total e fase;
+  - fonte de pixel própria, de 12 px de linha, com acentos, para os textos baterem com os pixels dos ícones;
+  - pausa, velocidade e menu como botões de ícone no canto, e um botão grande para chamar a onda;
+  - classes em cartas com o preço num escudo;
+  - ao clicar num humano, botões em anel em volta dele: melhorar em cima, dispensar com o reembolso embaixo, prioridade ao lado;
+  - ficha do humano selecionado com retrato, nível e atributos: dano, tipo de dano, alcance e cadência.
 - Prioridade de alvo por humano: primeiro, último, mais forte ou mais perto.
 
 ## Arte
@@ -100,7 +139,12 @@ Todos os comandos têm botão na tela:
 - Slimes como em `Free-Slime`. Terreno como a grama e as trilhas de `of5ORW` e `Free-Slime`. Lobos de silhueta baixa e alongada (`f51e`, `L9LaBi`).
 - Humanos indicam a classe por roupa, cor e arma (`DvqwHY` como base de corpo e itens).
 - Vegetação em moitas redondas de borda serrilhada, com variantes de frutinhas e pedras (`Free-Top-Down-Bushes`, `OIP`).
-- O destino dos monstros é uma vila, não uma casa: casas em enxaimel com empena frontal, telhado inclinado, base de pedra e janelas acesas, mais poço, cerca, barris e feno (`qV+rhb`). Cada casa tem de 44 a 56 px de largura e a vila ocupa 160×160 px.
+- O destino dos monstros é uma vila medieval, não uma casa. São três casas de enxaimel com vigas escuras aparentes:
+  - uma com telhas de barro gastas e chaminé de pedra;
+  - uma taverna com térreo de pedra, andar de cima em balanço e placa;
+  - uma com telhado grosso de palha.
+
+  A vila tem ainda um poço de pedra com manivela, cercas de galhos trançados, barris e feno. Cada casa tem de 50 a 65 px de largura e a vila ocupa 160×160 px. `tools/build_village.lua` desenha cada construção numa camada de `art/village.aseprite` e gera as peças, os escombros e a poeira em `assets/sprites/village_parts.png`.
 - Paleta, contorno e luz únicos em todo o jogo.
 - Não usar o personagem de `b0d95e` nem o visual das goblins de `3080290`.
 
@@ -115,7 +159,7 @@ O dano aparece como um breve clarão feito por código, sem quadros extras. O te
 
 ## Avaliação das partidas
 
-- Cada partida gera um relatório em `user://partidas`, em Markdown e JSON, ao vencer, perder, reiniciar ou fechar o jogo. No Linux, a pasta é `~/.local/share/godot/app_userdata/DT-SLIME/partidas`.
+- Cada partida gera um relatório em `user://partidas`, em Markdown e JSON, ao vencer, perder, reiniciar ou fechar o jogo. No Linux, a pasta é `~/.local/share/godot/app_userdata/Monstervale/partidas`.
 - O relatório traz, por onda, defesa, monstros, abates, vidas, ouro, dano por classe, humanos caídos, ações e uma linha para notas. É sempre em português.
 - Primeira avaliação da Fase 1: divertida, fácil no início e bem equilibrada para ensinar.
 - Segunda avaliação: fácil demais. A partida do relatório terminou em 3 minutos, sem perder vidas e com 746 de ouro sobrando. Daí veio a regra de todo humano poder cair.
@@ -146,6 +190,9 @@ O dano aparece como um breve clarão feito por código, sem quadros extras. O te
 - Textos em arquivos de tradução do Godot.
 - Repositório local até a publicação.
 
+- Sons: os efeitos ficam descritos em `data/sounds.json` e as músicas em `data/music.json`, em compassos de oito colcheias com melodia, acordes e bateria. `tools/build_audio.gd` sintetiza tudo com `src/core/synth.gd` e grava os WAVs em `assets/sounds` e `assets/music`. Música e efeitos tocam em canais próprios, `Music` e `Sfx`, cujo volume vem das opções.
+- Interface: `tools/build_ui.lua` desenha molduras, botões e ícones e `tools/build_font.lua` desenha a fonte de pixel em formato BMFont. As duas folhas são carregadas por `src/game/ui_kit.gd`, que também monta o tema.
+
 ### Armadilhas verificadas
 
 - Os cliques de `simulate_input` usam coordenadas da janela: com a janela maior que o viewport, some a margem de `get_final_transform()` e confirme o efeito pelo estado do jogo, nunca pelo `ok` (issue #76 do `godot-mcp-runtime`).
@@ -167,12 +214,17 @@ O dano aparece como um breve clarão feito por código, sem quadros extras. O te
 8. Feito: Fase 3, aprovada em 2026-11-06 com nota 8 de 10, com lobo, lanceiro, druida, floresta com duas entradas, menu e marcador de vida da vila.
 9. Feito: Fase 4, aprovada em 2026-11-07 com nota 9 de 10, com esqueletos, monge, ladino, cemitério, barra de 7 classes e indicações de tipo de dano.
 10. Feito: Fase 5, aprovada em 2026-11-07 com nota 7 de 10, com Rei Slime, arredores do vilarejo e mensagem de fim de campanha.
-11. Menu principal e sons.
+11. Interface, menu principal e sons, avaliados um de cada vez jogando:
+    1. HUD nova em pixel art.
+    2. Tela de título, volta ao menu principal e opções com volume de música e de efeitos.
+    3. Efeitos sonoros sintetizados.
+    4. Músicas sintetizadas: tela de título, fases e chefe.
+12. Ondas chamadas pelo jogador, vila medieval que desaba com o dano e tutorial interativo.
+13. Novo jogo, continuar e conquistas, com o Speedrunner.
 
 ## Decisões adiadas
 
 - Antes de publicar: título e licença do código e da arte.
-- Depois da primeira versão: linguagem de programação de áudio, com os sons avaliados de ouvido por quem dirige o projeto.
 - Só se o núcleo pedir: casas com renda, caminhos ramificados de melhoria, novos modos de dificuldade, monstros à distância, slimes elementais, curandeiros, invocadores e voadores.
 
 ## Ainda sem verificação real

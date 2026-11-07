@@ -11,3 +11,6 @@ build/
 
 # Imagens de terceiros, usadas só como referência
 docs/referencias/
+
+# Candidatos a print gerados por tools/render_promo.gd
+promo/candidatos/

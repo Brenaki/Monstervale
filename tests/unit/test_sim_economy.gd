@@ -83,8 +83,10 @@ func test_priority_cycles_through_all_options() -> void:
 		seen.append(unit.priority)
 	assert_eq(seen, ["last", "strongest", "closest", "first"])
 
-func test_village_stage_follows_remaining_lives() -> void:
-	var expected := {10: 0, 7: 0, 6: 1, 4: 1, 3: 2, 1: 2}
-	for lives: int in expected:
-		sim.lives = lives
-		assert_eq(sim.village_stage(), expected[lives], "%d vidas" % lives)
+func test_an_invincible_village_keeps_its_lives_when_monsters_get_through() -> void:
+	sim.invincible = true
+	var monster = sim.spawn_monster("goblin")
+	monster.distance = sim.route.length
+	sim.tick(0.1)
+	assert_eq(sim.lives, sim.start_lives())
+	assert_eq(sim.monsters.size(), 0, "o monstro sai do mapa do mesmo jeito")

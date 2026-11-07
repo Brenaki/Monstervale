@@ -4,6 +4,7 @@ extends GutTest
 const GameData = preload("res://src/core/game_data.gd")
 const LevelReader = preload("res://src/game/level_reader.gd")
 const Simulation = preload("res://src/core/simulation.gd")
+const Fixtures = preload("res://tests/unit/fixtures.gd")
 
 const STEP := 1.0 / 20.0
 const MAX_SECONDS := 1800.0
@@ -79,6 +80,7 @@ func _played(plan: Array) -> Array:
 		if clear_for >= CALL_AFTER_CLEAR and sim.can_call_next_wave():
 			sim.call_next_wave()
 			clear_for = 0.0
+		Fixtures.call_when_due(sim, STEP)
 		sim.tick(STEP)
 		for event: Dictionary in sim.drain_events():
 			if event.type == "monster_killed" and event.monster.boss:

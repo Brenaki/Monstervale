@@ -3,6 +3,7 @@ extends GutTest
 const GameData = preload("res://src/core/game_data.gd")
 
 const SAVE_PATH := "user://test_progress.json"
+const SETTINGS_PATH := "user://test_settings.json"
 const LOG_DIR := "user://test_partidas"
 const FREE_CELL := Vector2i(7, 5)
 const START_GOLD := 120
@@ -10,14 +11,20 @@ const START_GOLD := 120
 var game
 
 func before_each() -> void:
+	DirAccess.remove_absolute(SETTINGS_PATH)
 	DirAccess.remove_absolute(SAVE_PATH)
 	game = load("res://src/game/main.tscn").instantiate()
 	game.progress_path = SAVE_PATH
+	game.settings_path = SETTINGS_PATH
+	game.start_on_title = false
 	game.log_dir = LOG_DIR
 	_clear_logs()
 	add_child_autofree(game)
+	# Só o modo dev registra partidas, e estes testes leem os relatórios.
+	game.set_dev("dev_mode", true)
 
 func after_all() -> void:
+	DirAccess.remove_absolute(SETTINGS_PATH)
 	DirAccess.remove_absolute(SAVE_PATH)
 	_clear_logs()
 	DirAccess.remove_absolute(LOG_DIR)
@@ -124,6 +131,8 @@ func test_winning_saves_stars() -> void:
 	assert_string_contains(saved, "stars")
 	var reopened = load("res://src/game/main.tscn").instantiate()
 	reopened.progress_path = SAVE_PATH
+	reopened.settings_path = SETTINGS_PATH
+	reopened.start_on_title = false
 	reopened.log_dir = LOG_DIR
 	add_child_autofree(reopened)
 	assert_eq(reopened.progress.stars_for(0), 2)
@@ -156,8 +165,8 @@ func test_menu_pauses_and_resume_continues() -> void:
 	assert_false(game.paused)
 	assert_false(game.hud.menu_panel.visible)
 
-func test_menu_gathers_resume_restart_language_and_quit() -> void:
-	for button: Button in [game.hud.menu_resume, game.hud.restart_button, game.hud.language_button, game.hud.quit_button]:
+func test_menu_gathers_resume_levels_restart_options_and_main_menu() -> void:
+	for button: Button in [game.hud.menu_resume, game.hud.levels_button, game.hud.restart_button, game.hud.options_button, game.hud.main_menu_button]:
 		assert_true(game.hud.menu_panel.is_ancestor_of(button), button.name)
 
 func test_restart_from_the_menu_closes_it_and_starts_over() -> void:
@@ -169,23 +178,33 @@ func test_restart_from_the_menu_closes_it_and_starts_over() -> void:
 	assert_false(game.paused)
 	assert_eq(game.sim.units.size(), 0)
 
-func test_language_from_the_menu_keeps_it_open() -> void:
+func test_language_from_the_options_keeps_the_menu_open() -> void:
 	var before := TranslationServer.get_locale()
 	game.hud.menu_button.pressed.emit()
-	game.hud.language_button.pressed.emit()
+	game.hud.options_button.pressed.emit()
+	assert_true(game.options.visible)
+	game.options.language_button.pressed.emit()
 	assert_ne(TranslationServer.get_locale(), before)
 	assert_true(game.hud.menu_panel.visible)
 	TranslationServer.set_locale(before)
 
-func test_quit_saves_the_match_and_leaves() -> void:
-	var left := []
-	game.quit_action = func(): left.append(true)
+func test_main_menu_saves_the_match_and_shows_the_title() -> void:
 	game.select_class("archer")
 	game.cell_clicked(FREE_CELL)
 	game.hud.menu_button.pressed.emit()
-	game.hud.quit_button.pressed.emit()
+	game.hud.main_menu_button.pressed.emit()
+	assert_true(game.title.visible)
+	assert_false(game.hud.visible)
+	assert_false(game.hud.menu_panel.visible)
+	assert_eq(game.sim.units.size(), 0)
+	assert_string_contains(FileAccess.get_file_as_string(game.last_log_path), "Voltou ao menu")
+
+func test_quit_from_the_title_saves_nothing_new_and_leaves() -> void:
+	var left := []
+	game.quit_action = func(): left.append(true)
+	game.show_title()
+	game.title.quit_button.pressed.emit()
 	assert_eq(left, [true])
-	assert_string_contains(FileAccess.get_file_as_string(game.last_log_path), "Jogo fechado")
 
 func _escape_goblin() -> void:
 	var monster = game.sim.spawn_monster("goblin")
@@ -193,24 +212,24 @@ func _escape_goblin() -> void:
 	game.advance(game.STEP)
 	game.hud.refresh(game)
 
-func test_village_marker_shows_the_lives_left_of_the_total() -> void:
+func test_top_panel_shows_the_lives_left_of_the_total() -> void:
 	game.hud.refresh(game)
-	assert_string_contains(game.hud.village_label.text, "20/20")
-	assert_eq(game.hud.village_fill.size.x, game.hud.village_bar.size.x)
+	assert_eq(game.hud.lives_label.text, "20/20")
 	_escape_goblin()
-	assert_string_contains(game.hud.village_label.text, "19/20")
-	assert_almost_eq(game.hud.village_fill.size.x, game.hud.village_bar.size.x * 19.0 / 20.0, 0.01)
+	assert_eq(game.hud.lives_label.text, "19/20")
 
-func test_top_bar_shows_the_lives_left_of_the_total() -> void:
+func test_escaped_monsters_bring_the_village_down_and_restart_rebuilds_it() -> void:
+	game.sim.lives = 16
 	_escape_goblin()
-	assert_string_contains(game.hud.lives_label.text, "19/20")
+	assert_eq(game.village.fallen, ["well"])
+	game.restart()
+	assert_eq(game.village.fallen, [])
 
-func test_village_marker_sits_above_the_village() -> void:
-	var village: Sprite2D = game._level_node.get_node("Village")
-	var bar: Control = game.hud.village_bar
-	assert_almost_eq(bar.get_rect().get_center().x, village.position.x, 1.0)
-	assert_lte(bar.get_rect().end.y, village.position.y - village.texture.get_height() / 2.0 + 8.0)
-	assert_gte(bar.position.y, float(game.hud.TOP_HEIGHT))
+func test_a_falling_building_rumbles() -> void:
+	game.sim.lives = 16
+	_escape_goblin()
+	await wait_seconds(0.1)
+	assert_has(game.sounds.played, "collapse")
 
 func test_every_level_class_has_a_button() -> void:
 	for kind: String in game.sim.available_classes():
@@ -306,6 +325,8 @@ func test_opens_on_the_furthest_unlocked_level() -> void:
 	file.close()
 	var other = load("res://src/game/main.tscn").instantiate()
 	other.progress_path = SAVE_PATH
+	other.settings_path = SETTINGS_PATH
+	other.start_on_title = false
 	other.log_dir = LOG_DIR
 	add_child_autofree(other)
 	assert_eq(other.level.id, "level_02")
@@ -380,7 +401,8 @@ func test_all_seven_classes_fit_in_the_bar_of_the_cemetery() -> void:
 		assert_lte(needed.y, button.size.y, button.tooltip_text)
 		assert_lte(button.position.x + button.size.x, float(game.hud.CLASS_BAR_WIDTH))
 		assert_lte(button.position.y + button.size.y, float(game.hud.SCREEN.y - game.hud.BOTTOM_TOP))
-		assert_true(button.text.is_valid_int(), "o botão mostra o preço")
+	for kind: String in game.hud.class_prices:
+		assert_true(game.hud.class_prices[kind].text.is_valid_int(), "a carta mostra o preço")
 
 func test_class_icon_dims_when_the_class_is_too_expensive() -> void:
 	_open_cemetery()
@@ -399,7 +421,8 @@ func test_class_tooltip_names_the_class_and_its_damage_type() -> void:
 
 func test_next_wave_shows_what_its_monsters_are_weak_to() -> void:
 	_open_cemetery()
-	assert_string_contains(game.hud.weak_label.text, tr("WEAK_IMPACT"))
+	var shown: Array = game.hud.weak_icons.filter(func(icon): return icon.visible).map(func(icon): return icon.tooltip_text)
+	assert_has(shown, tr("WEAK_IMPACT"))
 
 func test_selected_unit_shows_its_damage_type() -> void:
 	_open_cemetery()
@@ -408,7 +431,7 @@ func test_selected_unit_shows_its_damage_type() -> void:
 	game.cell_clicked(Vector2i(11, 5))
 	game.cell_clicked(Vector2i(11, 5))
 	game.hud.refresh(game)
-	assert_string_contains(game.hud.unit_label.text, tr("WEAK_PIERCE"))
+	assert_eq(game.hud.unit_type_label.text, tr("WEAK_PIERCE"))
 
 func test_stars_are_saved_for_the_level_being_played() -> void:
 	_win()

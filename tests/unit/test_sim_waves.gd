@@ -8,12 +8,28 @@ func _run(sim, seconds: float, step: float = 0.1) -> void:
 		sim.tick(step)
 		elapsed += step
 
-func test_first_wave_waits_for_the_interval() -> void:
+func test_waves_only_start_when_the_player_calls_them() -> void:
 	var sim = Fixtures.simulation([Fixtures.wave([Fixtures.group("goblin")])])
-	_run(sim, 9.0)
+	_run(sim, 60.0)
+	assert_eq(sim.waves_started(), 0)
 	assert_eq(sim.monsters.size(), 0)
-	_run(sim, 1.5)
+	assert_true(sim.call_next_wave())
+	sim.tick(0.01)
 	assert_eq(sim.monsters.size(), 1)
+
+func test_the_next_wave_also_waits_for_the_player() -> void:
+	var sim = Fixtures.simulation([Fixtures.wave([Fixtures.group("goblin")]), Fixtures.wave([Fixtures.group("goblin")])])
+	sim.call_next_wave()
+	_run(sim, 60.0)
+	assert_eq(sim.waves_started(), 1)
+
+func test_bonus_runs_out_and_stays_at_zero() -> void:
+	var sim = Fixtures.simulation([Fixtures.wave([Fixtures.group("goblin")])])
+	_run(sim, 30.0)
+	assert_eq(sim.next_wave_countdown, 0.0)
+	assert_eq(sim.early_call_bonus(), 0)
+	sim.call_next_wave()
+	assert_eq(sim.gold, 100)
 
 func test_group_spawns_at_its_interval() -> void:
 	var sim = Fixtures.simulation([Fixtures.wave([Fixtures.group("goblin", 3, 1.0)])])

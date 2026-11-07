@@ -1,0 +1,12 @@
+{
+	"base": {"x": 0, "y": 0, "w": 160, "h": 160, "at": [0, 0], "frames": 1},
+	"brown_house": {"x": 251, "y": 0, "w": 72, "h": 58, "at": [62, 5], "frames": 1},
+	"brown_house_rubble": {"x": 163, "y": 114, "w": 66, "h": 18, "at": [65, 46], "frames": 1},
+	"dust": {"x": 164, "y": 133, "w": 28, "h": 20, "at": [0, 0], "frames": 5},
+	"red_house": {"x": 194, "y": 0, "w": 55, "h": 51, "at": [1, 12], "frames": 1},
+	"red_house_rubble": {"x": 257, "y": 59, "w": 49, "h": 18, "at": [4, 46], "frames": 1},
+	"well": {"x": 164, "y": 0, "w": 28, "h": 32, "at": [25, 100], "frames": 1},
+	"well_rubble": {"x": 231, "y": 59, "w": 26, "h": 12, "at": [26, 121], "frames": 1},
+	"yellow_house": {"x": 164, "y": 60, "w": 66, "h": 53, "at": [87, 100], "frames": 1},
+	"yellow_house_rubble": {"x": 229, "y": 114, "w": 60, "h": 18, "at": [90, 136], "frames": 1}
+}

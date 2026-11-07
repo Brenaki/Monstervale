@@ -106,6 +106,11 @@ static func level(waves: Array = []) -> Dictionary:
 		"waves": waves,
 	}
 
+## Chama a onda quando a espera acaba, no mesmo passo em que ela antes começava sozinha.
+static func call_when_due(sim: Simulation, step: float) -> void:
+	if sim.next_wave_countdown - step <= 0.0 and sim.can_call_next_wave():
+		sim.call_next_wave()
+
 static func simulation(waves: Array = []) -> Simulation:
 	return Simulation.new(catalog(), level(waves))
 

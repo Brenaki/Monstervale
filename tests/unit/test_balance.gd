@@ -4,6 +4,7 @@ extends GutTest
 const GameData = preload("res://src/core/game_data.gd")
 const LevelReader = preload("res://src/game/level_reader.gd")
 const Simulation = preload("res://src/core/simulation.gd")
+const Fixtures = preload("res://tests/unit/fixtures.gd")
 
 const STEP := 1.0 / 20.0
 const MAX_SECONDS := 1800.0
@@ -61,6 +62,7 @@ func _play(sim: Simulation, plan: Array) -> float:
 	while sim.state == "playing" and elapsed < MAX_SECONDS:
 		if step < plan.size() and _try(sim, plan[step]):
 			step += 1
+		Fixtures.call_when_due(sim, STEP)
 		sim.tick(STEP)
 		sim.drain_events()
 		elapsed += STEP
@@ -109,6 +111,7 @@ func _replay(sim: Simulation, report: Dictionary) -> void:
 			actions.pop_front()
 		if not calls.is_empty() and calls[0] <= elapsed and sim.call_next_wave():
 			calls.pop_front()
+		Fixtures.call_when_due(sim, STEP)
 		sim.tick(STEP)
 		sim.drain_events()
 		elapsed += STEP

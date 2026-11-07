@@ -12,6 +12,8 @@ const CRITICAL_DAMAGE := "critical"
 
 var gold: int
 var lives: int
+## Modo de desenvolvimento: monstros que chegam à vila não tiram vidas.
+var invincible := false
 var state: String = "playing"
 var units: Array = []
 var monsters: Array = []
@@ -190,16 +192,6 @@ func stars() -> int:
 	return 1
 
 
-## Estágio visual de dano do vilarejo: 0 inteiro, 1 danificado, 2 em ruínas.
-func village_stage() -> int:
-	var ratio := float(lives) / _start_lives
-	if ratio > 2.0 / 3.0:
-		return 0
-	if ratio > 1.0 / 3.0:
-		return 1
-	return 2
-
-
 func drain_events() -> Array:
 	var drained := _events
 	_events = []
@@ -251,12 +243,11 @@ func _start_next_wave(early_bonus: int = 0, called_early: bool = false) -> void:
 	_emit({"type": "wave_started", "number": _next_wave, "early_bonus": early_bonus, "called_early": called_early})
 
 
+## As ondas só começam quando o jogador chama. O tempo de espera só mede o bônus de chamar cedo.
 func _update_wave_timer(delta: float) -> void:
 	if _next_wave >= waves_total() or _is_spawning():
 		return
-	next_wave_countdown -= delta
-	if next_wave_countdown <= 0.0:
-		_start_next_wave()
+	next_wave_countdown = maxf(next_wave_countdown - delta, 0.0)
 
 
 func _update_spawners(delta: float) -> void:
@@ -353,7 +344,8 @@ func _walk(monster, delta: float) -> void:
 
 
 func _escape(monster) -> void:
-	lives = maxi(0, lives - monster.lives)
+	if not invincible:
+		lives = maxi(0, lives - monster.lives)
 	_remove(monster)
 	_emit({"type": "monster_escaped", "monster": monster})
 

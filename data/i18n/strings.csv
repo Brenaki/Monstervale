@@ -20,22 +20,31 @@ MONSTER_SLIME,Slime,Slime
 MONSTER_SLIME_MEDIUM,Slime médio,Medium slime
 MONSTER_SLIME_SMALL,Slime pequeno,Small slime
 MONSTER_SLIME_KING,Rei Slime,Slime King
-HUD_GOLD,Ouro: %d,Gold: %d
-HUD_LIVES,Vidas: %d/%d,Lives: %d/%d
-VILLAGE_LIFE,Vila %d/%d,Village %d/%d
-HUD_WAVE,Onda %d/%d,Wave %d/%d
+HUD_LIVES,%d/%d,%d/%d
+HUD_WAVE,%d/%d,%d/%d
 HUD_NEXT,Próxima:,Next:
-HUD_WEAK,Fracos a: %s,Weak to: %s
+HUD_WEAK_SHORT,Fracos a:,Weak to:
 WEAK_PIERCE,perfurante,pierce
 WEAK_IMPACT,impacto,impact
 WEAK_MAGIC,magia,magic
-HUD_LEVEL,Nível %d,Level %d
 BTN_NEXT_WAVE,Chamar onda (+%d),Call wave (+%d)
 BTN_NO_WAVE,Sem ondas,No waves
+BTN_START_WAVE,Iniciar onda,Start wave
 BTN_PAUSE,Pausar,Pause
 BTN_RESUME,Continuar,Resume
 BTN_RESTART,Reiniciar,Restart
 BTN_SPEED,Velocidade %dx,Speed %dx
+HUD_BONUS,+%d,+%d
+HUD_MAX,máx.,max
+HUD_SECONDS,%s s,%s s
+TIP_LIVES,Vidas da vila,Village lives
+TIP_GOLD,Ouro,Gold
+TIP_WAVE,Onda,Wave
+STAT_PRIORITY,Alvo preferido,Preferred target
+STAT_DAMAGE,Dano por golpe,Damage per hit
+STAT_RANGE,Alcance,Range
+STAT_COOLDOWN,Tempo entre golpes,Time between hits
+STAT_HP,Vida,Health
 BTN_UPGRADE,Melhorar (%d),Upgrade (%d)
 BTN_MAX_LEVEL,Nível máximo,Max level
 BTN_DISMISS,Dispensar (+%d),Dismiss (+%d)
@@ -53,6 +62,7 @@ RESULT_STARS,Estrelas: %d de 3,Stars: %d of 3
 UNIT_DOWN,Caído,Down
 BTN_OPEN_LOG,Ver relatório,View report
 BTN_LEVELS,Fase %d,Level %d
+BTN_CHOOSE_LEVEL,Escolher fase,Choose level
 BTN_MENU,Menu,Menu
 BTN_QUIT,Sair,Quit
 MENU_TITLE,Jogo pausado,Game paused
@@ -60,3 +70,68 @@ BTN_NEXT_LEVEL,Próxima fase,Next level
 LEVELS_TITLE,Escolha a fase,Choose a level
 LEVEL_ENTRY,Fase %d: %d de 3 estrelas,Level %d: %d of 3 stars
 LEVEL_LOCKED,Fase %d: bloqueada,Level %d: locked
+BTN_OPTIONS,Opções,Options
+BTN_MAIN_MENU,Menu principal,Main menu
+BTN_BACK,Voltar,Back
+OPTIONS_TITLE,Opções,Options
+OPT_MUSIC,Música,Music
+OPT_SFX,Efeitos,Effects
+OPT_FULLSCREEN_ON,Tela cheia: sim,Fullscreen: on
+OPT_FULLSCREEN_OFF,Tela cheia: não,Fullscreen: off
+TITLE_NAME,Monstervale,Monstervale
+TITLE_SUBTITLE,Defenda o vilarejo dos monstros,Defend the village from the monsters
+TITLE_LEVEL,Fase %d,Level %d
+OPT_DEV_ON,Modo dev: ligado,Dev mode: on
+OPT_DEV_OFF,Modo dev: desligado,Dev mode: off
+OPT_INVINCIBLE_ON,Vila imortal: sim,Immortal village: on
+OPT_INVINCIBLE_OFF,Vila imortal: não,Immortal village: off
+OPT_GOLD_ON,Ouro infinito: sim,Infinite gold: on
+OPT_GOLD_OFF,Ouro infinito: não,Infinite gold: off
+OPT_RECORD_ON,Registrar partida: sim,Record match: on
+OPT_RECORD_OFF,Registrar partida: não,Record match: off
+BTN_TUTORIAL,Tutorial,Tutorial
+BTN_OK,Entendi,Got it
+BTN_SKIP_TUTORIAL,Pular tutorial,Skip tutorial
+TUT_WELCOME,"Os monstros seguem a estrada até a vila. Cada um que chega tira vidas, e as casas vão desabando.","Monsters follow the road to the village. Each one that gets there costs lives, and the houses start to fall."
+TUT_TOP_PANEL,"Aqui ficam as vidas da vila, o seu ouro e as ondas. Com o ouro você contrata e melhora os humanos.","Here are the village lives, your gold and the waves. Gold hires and upgrades the humans."
+TUT_PICK_ARCHER,"Escolha o Arqueiro: ele atira flechas de longe, com dano perfurante.","Pick the Archer: he shoots arrows from afar, dealing pierce damage."
+TUT_PLACE_ARCHER,"Clique na grama perto da estrada para posicioná-lo. Daqui ele alcança bem os monstros.","Click the grass near the road to place him. From here he reaches the monsters well."
+TUT_PREVIEW,"Aqui aparece quem vem na próxima onda e a que tipo de dano eles são fracos.","Here you see who comes in the next wave and which damage they are weak to."
+TUT_CALL_WAVE,"As ondas só começam quando você manda. Clique aqui! Chamar cedo dá ouro extra.","Waves only start when you say so. Click here! Calling early gives extra gold."
+TUT_KILLS,"Cada monstro derrotado dá ouro, e limpar a onda dá um bônus.","Every monster defeated gives gold, and clearing the wave gives a bonus."
+TUT_PICK_WARRIOR,"Agora o Guerreiro: ele luta corpo a corpo e segura até 2 monstros na estrada.","Now the Warrior: he fights up close and holds up to 2 monsters on the road."
+TUT_PLACE_WARRIOR,"Coloque-o colado na estrada. Se ele cair, levanta sozinho depois de um tempo.","Place him right by the road. If he falls, he gets back up after a while."
+TUT_UPGRADE,"Chame a próxima onda. Quando tiver ouro, clique no arqueiro e use Melhorar: mais dano e alcance.","Call the next wave. Once you have the gold, click the archer and upgrade him: more damage and range."
+TUT_SPEED,"Este botão acelera o jogo, e o do lado pausa. Agora é com você: defenda a vila!","This button speeds the game up, and the next one pauses it. Now it's up to you: defend the village!"
+TUT_MAGE,"Novo humano: o Mago. A magia dele explode e acerta até 5 monstros juntos. Coloque um mago.","New human: the Mage. His magic bursts and hits up to 5 monsters at once. Place a mage."
+TUT_WEAK,"Fracos a: mostra o dano que mais machuca a próxima onda. Slimes sofrem com magia, e goblins blindados com impacto.","Weak to: shows the damage that hurts the next wave the most. Slimes suffer from magic, armored goblins from impact."
+TUT_SPEARMAN,"Novo: o Lanceiro. Segura 1 monstro na estrada e fura de mais longe que o guerreiro.","New: the Spearman. He holds 1 monster on the road and stabs from farther than the warrior."
+TUT_DRUID,"Novo: o Druida. A magia dele deixa os monstros lentos numa área. Ótimo contra lobos, que correm muito.","New: the Druid. His magic slows the monsters in an area. Great against wolves, which run fast."
+TUT_PRIORITY,"Clique num humano e use o alvo para escolher quem ele ataca: o primeiro, o último, o mais forte ou o mais perto.","Click a human and use the target to choose who he attacks: the first, the last, the strongest or the closest."
+TUT_MONK,"Novo: o Monge. Socos rápidos de impacto, que os esqueletos sentem muito. Segura 1 monstro.","New: the Monk. Quick impact punches that skeletons really feel. He holds 1 monster."
+TUT_ROGUE,"Novo: o Ladino. A cada 3 golpes ele acerta um crítico que atravessa qualquer armadura.","New: the Rogue. Every 3 hits he lands a critical that pierces any armor."
+TUT_BOSS,"O Rei Slime vem na última onda. Ninguém consegue segurá-lo, e ele solta slimes ao apanhar. Ele é fraco a magia.","The Slime King comes in the last wave. Nobody can hold him, and he sheds slimes as he gets hurt. He is weak to magic."
+BTN_NEW_GAME,Novo jogo,New game
+BTN_ACHIEVEMENTS,Conquistas,Achievements
+BTN_START_OVER,Começar,Start
+NEW_GAME_CONFIRM,"Começar um jogo novo? As estrelas das fases são apagadas, mas as conquistas ficam.","Start a new game? Level stars are erased, but achievements stay."
+ACHIEVEMENTS_TITLE,Conquistas,Achievements
+ACH_UNLOCKED,Conquista: %s,Achievement: %s
+ACH_CAMPAIGN_TIME,Tempo desde o Novo jogo (derrotas contam): %s,Time since New game (defeats count): %s
+ACH_CAMPAIGN_UNTIMED,Comece um Novo jogo para contar o tempo.,Start a New game to run the clock.
+ACH_LEVEL_1,Fase 1 concluída,Level 1 cleared
+ACH_LEVEL_1_DESC,Vença a Fase 1.,Win level 1.
+ACH_LEVEL_2,Fase 2 concluída,Level 2 cleared
+ACH_LEVEL_2_DESC,Vença a Fase 2.,Win level 2.
+ACH_LEVEL_3,Fase 3 concluída,Level 3 cleared
+ACH_LEVEL_3_DESC,Vença a Fase 3.,Win level 3.
+ACH_LEVEL_4,Fase 4 concluída,Level 4 cleared
+ACH_LEVEL_4_DESC,Vença a Fase 4.,Win level 4.
+ACH_LEVEL_5,Fase 5 concluída,Level 5 cleared
+ACH_LEVEL_5_DESC,Vença a Fase 5.,Win level 5.
+ACH_HERO,Herói,Hero
+ACH_HERO_DESC,Derrote o Rei Slime.,Defeat the Slime King.
+ACH_HERO_OF_HEROES,Herói dos Heróis,Hero of Heroes
+ACH_HERO_OF_HEROES_DESC,Conclua todas as fases com 3 estrelas.,Clear every level with 3 stars.
+ACH_SPEEDRUNNER,Speedrunner,Speedrunner
+ACH_SPEEDRUNNER_DESC,3 estrelas nas 5 fases em até %s desde o Novo jogo.,3 stars on all 5 levels within %s since New game.

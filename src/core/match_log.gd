@@ -7,6 +7,7 @@ const RESULT_LABELS := {
 	"lost": "Derrota",
 	"restarted": "Reiniciada",
 	"closed": "Jogo fechado",
+	"left": "Voltou ao menu",
 	"playing": "Em andamento",
 }
 const REPORT_LOCALE := "pt_BR"

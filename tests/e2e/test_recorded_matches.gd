@@ -6,6 +6,7 @@ const RecordedPlayer = preload("res://tests/e2e/recorded_player.gd")
 
 const MATCHES_DIR := "res://tests/fixtures/partidas/"
 const SAVE_PATH := "user://e2e_progress.json"
+const SETTINGS_PATH := "user://test_settings.json"
 const LOG_DIR := "user://e2e_partidas"
 const FRAMES_BETWEEN_YIELDS := 120
 const MAX_SECONDS := 1800.0
@@ -46,16 +47,23 @@ func before_all() -> void:
 	get_window().size = Vector2i(640, 360)
 
 func before_each() -> void:
+	DirAccess.remove_absolute(SETTINGS_PATH)
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	file.store_string(JSON.stringify({"stars": {"0": 3, "1": 3, "2": 3, "3": 3}}))
 	file.close()
 	game = load("res://src/game/main.tscn").instantiate()
 	game.progress_path = SAVE_PATH
+	game.settings_path = SETTINGS_PATH
+	game.start_on_title = false
+	game.tutorials_enabled = false
 	game.log_dir = LOG_DIR
 	add_child_autofree(game)
+	# Só o modo dev registra partidas, e estes testes leem os relatórios.
+	game.set_dev("dev_mode", true)
 	game.set_process(false)
 
 func after_all() -> void:
+	DirAccess.remove_absolute(SETTINGS_PATH)
 	gut_layer.visible = true
 	DirAccess.remove_absolute(SAVE_PATH)
 	for file_name in DirAccess.get_files_at(LOG_DIR):
@@ -145,19 +153,41 @@ func test_menu_works_with_real_mouse_clicks() -> void:
 	player.click(game.hud.menu_button)
 	assert_true(game.hud.menu_panel.visible)
 	assert_true(game.paused)
-	player.click(game.hud.language_button)
+	player.click(game.hud.options_button)
+	assert_true(game.options.visible)
+	player.click(game.options.language_button)
 	assert_ne(TranslationServer.get_locale(), locale)
 	TranslationServer.set_locale(locale)
+	player.click(game.options.back_button)
+	assert_false(game.options.visible)
 	player.click(game.hud.menu_resume)
 	assert_false(game.hud.menu_panel.visible)
 	assert_false(game.paused)
 
-func test_levels_panel_closes_with_a_real_mouse_click() -> void:
+func test_levels_panel_opens_from_the_menu_and_closes_with_real_mouse_clicks() -> void:
 	var player := RecordedPlayer.new(game, _report(EASY_LEVEL_2))
+	player.click(game.hud.menu_button)
 	player.click(game.hud.levels_button)
 	assert_true(game.hud.levels_panel.visible)
 	player.click(game.hud.levels_close)
 	assert_false(game.hud.levels_panel.visible)
+	assert_true(game.hud.menu_panel.visible, "volta ao menu de onde saiu")
+	player.click(game.hud.menu_resume)
+	assert_false(game.paused)
+
+func test_title_and_main_menu_work_with_real_mouse_clicks() -> void:
+	var player := RecordedPlayer.new(game, _report(EASY_LEVEL_2))
+	player.click(game.hud.menu_button)
+	player.click(game.hud.main_menu_button)
+	assert_true(game.title.visible)
+	player.click(game.title.options_button)
+	var volume: float = game.settings.music_volume
+	player.click(game.options.music_up)
+	assert_almost_eq(game.settings.music_volume, minf(volume + 0.1, 1.0), 0.001)
+	player.click(game.options.back_button)
+	player.click(game.title.play_button)
+	assert_false(game.title.visible)
+	assert_true(game.hud.visible)
 	assert_false(game.paused)
 
 ## Repete a partida gastando o ouro que sobra, como quem reage à dificuldade.

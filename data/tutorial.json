@@ -1,0 +1,31 @@
+{
+  "level_01": [
+    {"text": "TUT_WELCOME", "target": "village"},
+    {"text": "TUT_TOP_PANEL", "target": "top_panel"},
+    {"text": "TUT_PICK_ARCHER", "target": "class:archer", "wait": "class_selected:archer"},
+    {"text": "TUT_PLACE_ARCHER", "target": "cell:7,5", "wait": "unit_placed:archer"},
+    {"text": "TUT_PREVIEW", "target": "preview"},
+    {"text": "TUT_CALL_WAVE", "target": "next_wave", "wait": "wave_started"},
+    {"text": "TUT_KILLS", "target": "gold", "wait": "wave_cleared"},
+    {"text": "TUT_PICK_WARRIOR", "target": "class:warrior", "wait": "class_selected:warrior"},
+    {"text": "TUT_PLACE_WARRIOR", "target": "cell:9,4", "wait": "unit_placed:warrior"},
+    {"text": "TUT_UPGRADE", "target": "upgrade:archer", "wait": "unit_upgraded:archer"},
+    {"text": "TUT_SPEED", "target": "speed"}
+  ],
+  "level_02": [
+    {"text": "TUT_MAGE", "target": "class:mage", "wait": "unit_placed:mage"},
+    {"text": "TUT_WEAK", "target": "weak"}
+  ],
+  "level_03": [
+    {"text": "TUT_SPEARMAN", "target": "class:spearman", "wait": "unit_placed:spearman"},
+    {"text": "TUT_DRUID", "target": "class:druid", "wait": "unit_placed:druid"},
+    {"text": "TUT_PRIORITY", "target": "priority", "wait": "priority_changed"}
+  ],
+  "level_04": [
+    {"text": "TUT_MONK", "target": "class:monk", "wait": "unit_placed:monk"},
+    {"text": "TUT_ROGUE", "target": "class:rogue", "wait": "unit_placed:rogue"}
+  ],
+  "level_05": [
+    {"text": "TUT_BOSS", "target": "wave_count"}
+  ]
+}

@@ -76,9 +76,10 @@ func test_early_call_records_bonus() -> void:
 	assert_true(wave.called_early)
 	assert_eq(wave.early_bonus, 6)
 
-func test_wave_started_by_timer_is_not_early() -> void:
+func test_wave_called_after_the_wait_records_no_bonus() -> void:
 	_step(10.5)
-	assert_false(log.to_dict().waves[0].called_early)
+	sim.call_next_wave()
+	_act()
 	assert_eq(log.to_dict().waves[0].early_bonus, 0)
 
 func test_wave_counts_spawned_killed_and_kill_gold() -> void:
